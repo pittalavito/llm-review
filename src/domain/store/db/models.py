@@ -10,10 +10,9 @@ from sqlalchemy import JSON, CheckConstraint, Column, ForeignKey, Index, Integer
 from sqlmodel import Field, SQLModel
 
 from domain.models import ranges
-from domain.models.agent import AgentName, AgentRole
+from domain.models.agent import AgentRole
 from domain.models.paper import PaperType
 
-_AGENT_NAMES_SQL = ranges.sql_in(AgentName)
 _AGENT_ROLES_SQL = ranges.sql_in(AgentRole)
 _PAPER_TYPES_SQL = ranges.sql_in(PaperType)
 
@@ -62,17 +61,19 @@ class ReviewAgentRunTable(SQLModel, table=True):
 
     __tablename__ = "review_agent_run"
     __table_args__ = (
-        CheckConstraint(f"agent IN {_AGENT_NAMES_SQL}", name="ck_review_agent_run_agent"),
+        CheckConstraint(f"agent_role IN {_AGENT_ROLES_SQL}", name="ck_review_agent_run_role"),
+        CheckConstraint("agent_index IS NULL OR agent_index >= 1", name="ck_review_agent_run_index"),
         CheckConstraint('"round" >= 0', name="ck_review_agent_run_round"),
         CheckConstraint(ranges.sql_check_between("rating", ranges.RATING), name="ck_review_agent_run_rating"),
         CheckConstraint(ranges.sql_check_between("confidence", ranges.CONFIDENCE), name="ck_review_agent_run_confidence"),
         CheckConstraint(ranges.sql_check_between("overall_score", ranges.SCORE), name="ck_review_agent_run_overall_score"),
-        Index("ix_review_agent_run_run_agent_round", "run_id", "agent", "round"),
+        Index("ix_review_agent_run_run_agent_round", "run_id", "agent_role", "agent_index", "round"),
     )
 
     id: int | None = Field(default=None, primary_key=True)
     run_id: str = Field(sa_column=Column(ForeignKey("review_run.run_id", ondelete="CASCADE"), nullable=False))
-    agent: str
+    agent_role: str
+    agent_index: int | None = None
     round: int
     input_message: str
     context_used: str | None = None
@@ -146,15 +147,17 @@ class ReviewAgentConfigTable(SQLModel, table=True):
 
     __tablename__ = "review_agent_config"
     __table_args__ = (
-        CheckConstraint(f"agent_name IN {_AGENT_NAMES_SQL}", name="ck_review_agent_config_agent_name"),
+        CheckConstraint(f"agent_role IN {_AGENT_ROLES_SQL}", name="ck_review_agent_config_role"),
+        CheckConstraint("agent_index IS NULL OR agent_index >= 1", name="ck_review_agent_config_index"),
         CheckConstraint("temperature BETWEEN 0 AND 2", name="ck_review_agent_config_temperature"),
-        UniqueConstraint("run_id", "agent_name", name="uq_review_agent_config_run_agent"),
+        UniqueConstraint("run_id", "agent_role", "agent_index", name="uq_review_agent_config_run_agent"),
     )
 
     model_config = {"protected_namespaces": ()}
     id: int | None = Field(default=None, primary_key=True)
     run_id: str = Field(sa_column=Column(ForeignKey("review_run.run_id", ondelete="CASCADE"), nullable=False))
-    agent_name: str
+    agent_role: str
+    agent_index: int | None = None
     model: str = Field(index=True)
     temperature: float
     prompt_version: str | None = None

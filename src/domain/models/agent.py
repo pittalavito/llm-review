@@ -16,28 +16,6 @@ class AgentRole(StrEnum):
     AUTHOR_AGENT = "author_agent"
 
 
-class AgentName(StrEnum):
-    """The concrete agents in the review graph."""
-    REVIEWER_1 = "reviewer_1"
-    REVIEWER_2 = "reviewer_2"
-    REVIEWER_3 = "reviewer_3"
-    META_REVIEWER = "meta_reviewer"
-    AREA_CHAIR = "area_chair"
-    AUTHOR_AGENT = "author_agent"
-
-    @classmethod
-    def reviewers(cls) -> frozenset["AgentName"]:
-        """The reviewer agents that share the single 'reviewer' base template."""
-        return frozenset({cls.REVIEWER_1, cls.REVIEWER_2, cls.REVIEWER_3})
-
-    def is_reviewer(self) -> bool:
-        return self in self.reviewers()
-
-    def role(self) -> str:
-        """Prompt-versioning role: the three reviewers share one base template."""
-        return AgentRole.REVIEWER if self.is_reviewer() else str(self)
-
-
 class ReviewerFocus(StrEnum):
     """Primary evaluation angle assigned to a reviewer.
     Each reviewer covers a different dimension of the paper so that
@@ -87,7 +65,8 @@ class AreaChairStyle(StrEnum):
 class AgentResponse(BaseModel):
     """An agent's structured payload plus the token usage and traces of how it
     was produced."""
-    agent: AgentName
+    agent_role: AgentRole
+    agent_index: int | None = None
     response_schema: ChatModelResponseSchema
     input_message: str | None = None
     context_used: str | None = None

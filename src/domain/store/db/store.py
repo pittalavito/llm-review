@@ -8,7 +8,7 @@ from domain.store.db.paper_repository import DbPaperRepository
 from domain.store.db.prompt_repository import DbPromptRepository
 from domain.store.db.result_repository import DbResultRepository
 
-from domain.models.agent import AgentName
+from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
 from domain.models.run_record import AgentRun, RunRecord, RunSummary
@@ -89,7 +89,8 @@ class Adapter:
     def to_agent_run(row: ReviewAgentRunTable, payload: ReviewAgentRunPayloadTable | None) -> AgentRun:
         """``review_agent_run`` row (+ payload) -> ``AgentRun``."""
         return AgentRun(
-            agent=AgentName(row.agent),
+            agent_role=AgentRole(row.agent_role),
+            agent_index=row.agent_index,
             round=row.round,
             input_message=row.input_message,
             context_used=row.context_used,
@@ -168,7 +169,8 @@ class Factory:
         runtime = agent_run.runtime_trace or {}
         return ReviewAgentRunTable(
             run_id=run_id,
-            agent=str(agent_run.agent),
+            agent_role=str(agent_run.agent_role),
+            agent_index=agent_run.agent_index,
             round=agent_run.round,
             input_message=agent_run.input_message,
             context_used=agent_run.context_used,

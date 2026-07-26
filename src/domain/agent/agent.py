@@ -3,7 +3,7 @@ from enum import Enum
 
 from core.error import ValidationError, UpstreamError
 from domain.chat.chat import Chat, ChatResponse
-from domain.models.agent import AgentName, AgentResponse
+from domain.models.agent import AgentResponse, AgentRole
 from domain.models.chat import (
     AreaChairResponseSchema,
     AuthorResponseSchema,
@@ -25,9 +25,10 @@ class Adapter:
     ``AgentResponse`` (attaching the agent name, message/context and token usage)."""
 
     @staticmethod
-    def to_agent_response(agent: AgentName, message: str, context: str | None, chat_response: ChatResponse) -> AgentResponse:
+    def to_agent_response(agent_role: AgentRole, agent_index: int | None, message: str, context: str | None, chat_response: ChatResponse) -> AgentResponse:
         return AgentResponse(
-            agent=agent,
+            agent_role=agent_role,
+            agent_index=agent_index,
             response_schema=chat_response.response_schema,
             input_message=message,
             context_used=context,
@@ -44,18 +45,25 @@ class Agent(ABC):
     def __init__(
         self,
         chat: Chat,
-        agent_name: AgentName,
+        agent_role: AgentRole,
+        agent_index: int | None = None,
         context_mode: ContextMode = ContextMode.FULL,
         tools: list | None = None,
         system_prompt: str = "",
         response_schema: type[ChatModelResponseSchema] | None = None,
     ):
-        self.name = agent_name
+        self.agent_role = agent_role
+        self.agent_index = agent_index
         self.chat = chat
         self.context_mode = context_mode
         self.system_prompt = system_prompt
         self.response_schema = response_schema
         self.tool_registry = tools
+
+    @property
+    def name(self) -> str:
+        """String identity of this agent (e.g. ``reviewer_1``, ``meta_reviewer``)."""
+        return f"{self.agent_role}_{self.agent_index}" if self.agent_index is not None else str(self.agent_role)
 
     def run(self, input_message: str, paper_id: str | None = None) -> AgentResponse:
         message = self._normalize_message(input_message)
@@ -64,10 +72,10 @@ class Agent(ABC):
             chat_response = self._invoke_chat(message, context)
         except Exception as exc:
             raise UpstreamError(f"LLM call failed for agent '{self.name}': {exc}") from exc
-        return Adapter.to_agent_response(self.name, message, context, chat_response)
+        return Adapter.to_agent_response(self.agent_role, self.agent_index, message, context, chat_response)
 
     def _invoke_chat(self, message: str, context: str | None) -> ChatResponse:
-        return self.chat.invoke(self.system_prompt, message, context, self.response_schema, label=str(self.name))
+        return self.chat.invoke(self.system_prompt, message, context, self.response_schema, label=self.name)
 
     @staticmethod
     def _normalize_message(message: str) -> str:
@@ -82,15 +90,17 @@ class Agent(ABC):
 
 
 class ReviewerAgent(Agent):
-    """A reviewer (default reviewer_1). Produces a ReviewerResponseSchema."""
+    """A reviewer, identified by its 1-based index (reviewer_1, reviewer_2, ...).
+    The committee size is decided per run — the index is unbounded. Produces a
+    ReviewerResponseSchema."""
 
     def __init__(
         self,
         chat: Chat,
-        agent_name: AgentName = AgentName.REVIEWER_1,
+        index: int = 1,
         system_prompt: str = "",
     ):
-        super().__init__(chat, agent_name, system_prompt=system_prompt, response_schema=ReviewerResponseSchema)
+        super().__init__(chat, AgentRole.REVIEWER, index, system_prompt=system_prompt, response_schema=ReviewerResponseSchema)
 
 
 class MetaReviewerAgent(Agent):
@@ -101,7 +111,7 @@ class MetaReviewerAgent(Agent):
         chat: Chat,
         system_prompt: str = "",
     ):
-        super().__init__(chat, AgentName.META_REVIEWER, system_prompt=system_prompt, response_schema=MetaReviewResponseSchema)
+        super().__init__(chat, AgentRole.META_REVIEWER, system_prompt=system_prompt, response_schema=MetaReviewResponseSchema)
 
 
 class AreaChairAgent(Agent):
@@ -112,7 +122,7 @@ class AreaChairAgent(Agent):
         chat: Chat,
         system_prompt: str = "",
     ):
-        super().__init__(chat, AgentName.AREA_CHAIR, system_prompt=system_prompt, response_schema=AreaChairResponseSchema)
+        super().__init__(chat, AgentRole.AREA_CHAIR, system_prompt=system_prompt, response_schema=AreaChairResponseSchema)
 
 
 class AuthorAgent(Agent):
@@ -123,4 +133,4 @@ class AuthorAgent(Agent):
         chat: Chat,
         system_prompt: str = "",
     ):
-        super().__init__(chat, AgentName.AUTHOR_AGENT, system_prompt=system_prompt, response_schema=AuthorResponseSchema)
+        super().__init__(chat, AgentRole.AUTHOR_AGENT, system_prompt=system_prompt, response_schema=AuthorResponseSchema)

@@ -90,15 +90,17 @@ class DbResultRepository(SqlRepository[ReviewRunTable]):
             agent_payloads = {r.id: session.get(ReviewAgentRunPayloadTable, r.id) for r in agent_rows}
         return run_row, payload, agent_rows, agent_payloads
 
-    def get_agent_run_rows(self, run_id: str, agent: str | None = None, round_index: int | None = None) -> list[AgentPair] | None:
+    def get_agent_run_rows(self, run_id: str, agent_role: str | None = None, agent_index: int | None = None, round_index: int | None = None) -> list[AgentPair] | None:
         """Agent rows + payloads for a run, filtered in SQL. None if the run is
         absent."""
         with self._session() as session:
             if session.get(ReviewRunTable, run_id) is None:
                 return None
             statement = select(ReviewAgentRunTable).where(ReviewAgentRunTable.run_id == run_id)
-            if agent is not None:
-                statement = statement.where(ReviewAgentRunTable.agent == agent)
+            if agent_role is not None:
+                statement = statement.where(ReviewAgentRunTable.agent_role == agent_role)
+            if agent_index is not None:
+                statement = statement.where(ReviewAgentRunTable.agent_index == agent_index)
             if round_index is not None:
                 statement = statement.where(ReviewAgentRunTable.round == round_index)
             rows = list(session.exec(statement.order_by(ReviewAgentRunTable.id)).all())

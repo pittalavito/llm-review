@@ -7,7 +7,7 @@ without any infrastructure."""
 import pytest
 
 import service.store_service as store_service_mod
-from domain.models.agent import AgentName
+from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.retrieval import IndexInfo, RagIndex
 from domain.models.run_record import AgentRun, RunRecord, RunSummary
@@ -57,7 +57,7 @@ class FakeResults:
             return None
         run_row = ReviewRunTable(run_id=run_id, timestamp="t", paper_path="/p", decision="accept", total_rounds=2)
         payload = ReviewRunPayloadTable(run_id=run_id, reviews=["rev"], meta_review={"overall_score": 7}, graph_config={"max_rounds": 3})
-        agent_row = ReviewAgentRunTable(id=1, run_id=run_id, agent="reviewer_1", round=0, input_message="m")
+        agent_row = ReviewAgentRunTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, input_message="m")
         agent_payload = ReviewAgentRunPayloadTable(agent_run_id=1, response_payload={"rating": 6})
         return (run_row, payload, [agent_row], {1: agent_payload})
 
@@ -137,7 +137,7 @@ def _run_record() -> RunRecord:
         run_id="RID", timestamp="t", paper_path="/p.pdf", decision="accept", total_rounds=2,
         reviews=["r"], meta_review={"overall_score": 7}, author_response=None, retrieval_metadata=None,
         graph_config={"max_rounds": 3},
-        agent_runs=[AgentRun(agent=AgentName.REVIEWER_1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
+        agent_runs=[AgentRun(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
     )
 
 
@@ -162,7 +162,7 @@ class TestRuns:
         assert isinstance(record, RunRecord)
         assert record.reviews == ["rev"]
         assert record.graph_config == {"max_rounds": 3}
-        assert record.agent_runs[0].agent is AgentName.REVIEWER_1
+        assert record.agent_runs[0].agent_role is AgentRole.REVIEWER and record.agent_runs[0].agent_index == 1
         assert record.agent_runs[0].response_payload == {"rating": 6}
 
     def test_build_run_id_delegates_to_repository(self, service):

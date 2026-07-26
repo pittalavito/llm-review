@@ -18,7 +18,7 @@ from core.observability import observed, LogPrefix
 from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbPaperRepository, DbPromptRepository, DbResultRepository
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
 
-from domain.models.agent import AgentName
+from domain.models.agent import AgentRole
 from domain.models.comparator import HumanMetaReview, HumanReview
 from domain.models.openreview import OpenReviewCache
 from domain.models.paper import Paper
@@ -58,9 +58,9 @@ class StoreService:
         rows = self._results_repository.get_rows(run_id)
         return DbAdapter.to_run_record(*rows) if rows is not None else None
 
-    def get_agent_runs(self, run_id: str, agent_name: AgentName | None = None, round_index: int | None = None) -> list[AgentRun] | None:
-        agent = str(agent_name) if agent_name is not None else None
-        pairs = self._results_repository.get_agent_run_rows(run_id, agent, round_index)
+    def get_agent_runs(self, run_id: str, agent_role: AgentRole | None = None, agent_index: int | None = None, round_index: int | None = None) -> list[AgentRun] | None:
+        role = str(agent_role) if agent_role is not None else None
+        pairs = self._results_repository.get_agent_run_rows(run_id, role, agent_index, round_index)
         return DbAdapter.to_agent_runs(pairs) if pairs is not None else None
 
     def get_run_ids_for_paper(self, paper_path: str) -> list[str]:

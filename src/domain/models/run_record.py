@@ -1,12 +1,13 @@
 from pydantic import BaseModel
 
-from domain.models.agent import AgentName
+from domain.models.agent import AgentRole
 
 
 class AgentRun(BaseModel):
     """Complete trace of a single agent invocation."""
 
-    agent: AgentName
+    agent_role: AgentRole
+    agent_index: int | None = None
     round: int
     input_message: str
     context_used: str | None

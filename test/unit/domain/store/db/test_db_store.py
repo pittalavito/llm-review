@@ -1,7 +1,7 @@
 """Unit tests for the DB store seams (domain/store/db/store.py): the pure
 row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 (domain models -> rows, writes). No database involved."""
-from domain.models.agent import AgentName
+from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
 from domain.models.run_record import AgentRun, RunRecord
@@ -48,7 +48,7 @@ class Utils:
     @staticmethod
     def agent_run() -> AgentRun:
         return AgentRun(
-            agent=AgentName.REVIEWER_1, round=0, input_message="m", context_used="c",
+            agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used="c",
             response_payload={"rating": 6, "confidence": 4, "recommendation": "minor_revision"},
             prompt_trace={"p": 1},
             runtime_trace={"latency_ms": 12.5, "input_tokens": 100, "output_tokens": 50, "total_tokens": 150},
@@ -84,13 +84,13 @@ class TestAdapter:
             area_chair_response={"decision": "accept"}, author_response={"rebuttal": "x"},
             retrieval_metadata={"k": 1}, graph_config={"max_rounds": 3},
         )
-        agent_row = ReviewAgentRunTable(id=1, run_id="R1", agent="reviewer_1", round=0, input_message="m", context_used="c")
+        agent_row = ReviewAgentRunTable(id=1, run_id="R1", agent_role="reviewer", agent_index=1, round=0, input_message="m", context_used="c")
         agent_payload = ReviewAgentRunPayloadTable(agent_run_id=1, response_payload={"rating": 6})
         record = Adapter.to_run_record(run_row, payload, [agent_row], {1: agent_payload})
         assert record.reviews == ["rev"]
         assert record.graph_config == {"max_rounds": 3}
         assert len(record.agent_runs) == 1
-        assert record.agent_runs[0].agent is AgentName.REVIEWER_1
+        assert record.agent_runs[0].agent_role is AgentRole.REVIEWER and record.agent_runs[0].agent_index == 1
         assert record.agent_runs[0].response_payload == {"rating": 6}
 
     def test_to_run_record_degrades_when_payload_missing(self):
@@ -102,9 +102,9 @@ class TestAdapter:
         assert record.agent_runs == []
 
     def test_to_agent_run_missing_payload_yields_empty_payload(self):
-        row = ReviewAgentRunTable(id=2, run_id="R1", agent="meta_reviewer", round=1, input_message="m")
+        row = ReviewAgentRunTable(id=2, run_id="R1", agent_role="meta_reviewer", round=1, input_message="m")
         agent_run = Adapter.to_agent_run(row, None)
-        assert agent_run.agent is AgentName.META_REVIEWER
+        assert agent_run.agent_role is AgentRole.META_REVIEWER and agent_run.agent_index is None
         assert agent_run.response_payload == {}
         assert agent_run.prompt_trace is None
 
@@ -136,7 +136,7 @@ class TestFactory:
 
     def test_to_agent_row_extracts_analytics_from_payload_and_trace(self):
         row = Factory.to_agent_row("RID", Utils.agent_run())
-        assert row.agent == "reviewer_1"
+        assert row.agent_role == "reviewer" and row.agent_index == 1
         assert (row.rating, row.confidence) == (6, 4)
         assert row.decision == "minor_revision"  # falls back to recommendation
         assert (row.input_tokens, row.output_tokens, row.total_tokens) == (100, 50, 150)

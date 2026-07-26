@@ -9,7 +9,7 @@ from core.error import UpstreamError, ValidationError
 from domain.agent.agent import Adapter, Agent, AreaChairAgent, AuthorAgent, MetaReviewerAgent, ReviewerAgent
 from domain.chat.chat import Chat, ChatResponse
 from domain.chat.mock_chat import MockChatModel
-from domain.models.agent import AgentName, AgentResponse
+from domain.models.agent import AgentResponse, AgentRole
 from domain.models.chat import (
     AreaChairResponseSchema,
     AuthorResponseSchema,
@@ -64,16 +64,16 @@ class TestNormalizeMessage:
 class TestAdapter:
     def test_to_agent_response_maps_fields_and_tokens(self):
         chat_response = Utils.chat_response()
-        result = Adapter.to_agent_response(AgentName.REVIEWER_1, "msg", "ctx", chat_response)
+        result = Adapter.to_agent_response(AgentRole.REVIEWER, 1, "msg", "ctx", chat_response)
         assert isinstance(result, AgentResponse)
-        assert result.agent == AgentName.REVIEWER_1
+        assert result.agent_role is AgentRole.REVIEWER and result.agent_index == 1
         assert result.response_schema is chat_response.response_schema
         assert result.input_message == "msg"
         assert result.context_used == "ctx"
         assert (result.input_tokens, result.output_tokens, result.total_tokens) == (100, 50, 150)
 
     def test_to_agent_response_leaves_traces_empty(self):
-        result = Adapter.to_agent_response(AgentName.AUTHOR_AGENT, "m", None, Utils.chat_response())
+        result = Adapter.to_agent_response(AgentRole.AUTHOR_AGENT, None, "m", None, Utils.chat_response())
         assert result.prompt_trace is None
         assert result.runtime_trace is None
         assert result.context_used is None
@@ -84,7 +84,7 @@ class TestAgentRun:
         result = ReviewerAgent(Utils.chat()).run("  review this paper  ")
         assert isinstance(result, AgentResponse)
         assert isinstance(result.response_schema, ReviewerResponseSchema)
-        assert result.agent == AgentName.REVIEWER_1
+        assert result.agent_role is AgentRole.REVIEWER and result.agent_index == 1
         assert result.input_message == "review this paper"  # normalized
         assert result.context_used is None  # default _retrieve_context
         assert (result.input_tokens, result.output_tokens, result.total_tokens) == (100, 50, 150)
@@ -100,18 +100,28 @@ class TestAgentRun:
 
 class TestConcreteAgents:
     @pytest.mark.parametrize(
-        "agent_cls, expected_name, expected_schema",
+        "agent_cls, expected_role, expected_index, expected_name, expected_schema",
         [
-            (ReviewerAgent, AgentName.REVIEWER_1, ReviewerResponseSchema),
-            (MetaReviewerAgent, AgentName.META_REVIEWER, MetaReviewResponseSchema),
-            (AreaChairAgent, AgentName.AREA_CHAIR, AreaChairResponseSchema),
-            (AuthorAgent, AgentName.AUTHOR_AGENT, AuthorResponseSchema),
+            (ReviewerAgent, AgentRole.REVIEWER, 1, "reviewer_1", ReviewerResponseSchema),
+            (MetaReviewerAgent, AgentRole.META_REVIEWER, None, "meta_reviewer", MetaReviewResponseSchema),
+            (AreaChairAgent, AgentRole.AREA_CHAIR, None, "area_chair", AreaChairResponseSchema),
+            (AuthorAgent, AgentRole.AUTHOR_AGENT, None, "author_agent", AuthorResponseSchema),
         ],
     )
-    def test_identity_and_run_schema(self, agent_cls, expected_name, expected_schema):
+    def test_identity_and_run_schema(self, agent_cls, expected_role, expected_index, expected_name, expected_schema):
         agent = agent_cls(Utils.chat())
+        assert agent.agent_role is expected_role
+        assert agent.agent_index == expected_index
         assert agent.name == expected_name
         assert agent.response_schema is expected_schema
         result = agent.run("do your job")
-        assert result.agent == expected_name
+        assert result.agent_role is expected_role
+        assert result.agent_index == expected_index
         assert isinstance(result.response_schema, expected_schema)
+
+    def test_reviewer_index_is_unbounded(self):
+        # not tied to 3: any reviewer index is a valid, distinct agent
+        agent = ReviewerAgent(Utils.chat(), index=5)
+        assert agent.name == "reviewer_5"
+        assert agent.agent_index == 5
+        assert agent.run("go").agent_index == 5
