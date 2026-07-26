@@ -22,6 +22,7 @@ class LogPrefix(StrEnum):
     RAG_INDEX_REPOSITORY = "RAG_INDEX_REPOSITORY"
     PROMPT_REPOSITORY = "PROMPT_REPOSITORY"
     STORE_SERVICE = "STORE_SERVICE"
+    GRAPH_SERVICE = "GRAPH_SERVICE"
 
 
 def log_info(prefix: LogPrefix | None = None, message: str = "", *args, **kwargs):
