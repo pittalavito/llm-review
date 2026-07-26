@@ -4,8 +4,9 @@ from fastapi import Request
 
 from config import Config
 from core.observability import observed, LogPrefix
-from service.store_service import StoreService
 
+from service.store_service import StoreService
+from service.agent_service import AgentService
 
 class Container:
     
@@ -13,7 +14,9 @@ class Container:
     def __init__(self, config: Config):
         self.config = config
         self.store_service = StoreService(config)
+        self.agent_service = AgentService(config)
 
 
-def get_container(request: Request) -> Container:
-    return request.app.state.container
+def agent_service(request: Request) -> AgentService:
+    """Dependency provider for AgentService."""
+    return request.app.state.container.agent_service

@@ -40,12 +40,10 @@ class Factory:
     """Builds the chat model (per provider) and the prompt / variables."""
 
     @staticmethod
-    def create_chat_client(config: Config, model: ChatModelName, temperature: float) -> BaseChatModel:
-        """Create a chat model client for the given model name and temperature."""
-        for predicate, build in Factory._client_builders():
-            if predicate(model):
-                return build(model, temperature, config)
-        raise ValueError(f"Unsupported LLM model: {model}")
+    def create_chat(config: Config, model: ChatModelName, temperature: float) -> "Chat":
+        """Create a chat client for the given model name and temperature."""
+        chat_model = Factory._create_chat_model(config, model, temperature)
+        return Chat(chat_model)
 
     @staticmethod
     def create_chat_message(system_prompt: str) -> ChatPromptTemplate:
@@ -58,6 +56,14 @@ class Factory:
     @staticmethod
     def create_chat_variables(message: str, context: str | None) -> dict[str, str]:
         return {"message": message, "context": context or ""}
+
+    @staticmethod
+    def _create_chat_model(config: Config, model: ChatModelName, temperature: float) -> BaseChatModel:
+        """Create a chat model client for the given model name and temperature."""
+        for predicate, build in Factory._client_builders():
+            if predicate(model):
+                return build(model, temperature, config)
+        raise ValueError(f"Unsupported LLM model: {model}")
 
     @staticmethod
     def _client_builders() -> list[tuple[Callable[[ChatModelName], bool], Callable[..., BaseChatModel]]]:

@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 
 from config import Config
 from core.container import Container
+from controller.agent import router as agent_router
 
 
 def create_app() -> FastAPI:
@@ -21,6 +22,7 @@ def create_app() -> FastAPI:
         yield
 
     app = FastAPI(lifespan=lifespan, title="llm-review")
+    app.include_router(agent_router)
     return app
 
 def configure_logging(log_level: str) -> None:

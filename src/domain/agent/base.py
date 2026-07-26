@@ -2,7 +2,7 @@ from abc import ABC
 from enum import Enum
 
 from core.error import ValidationError, UpstreamError
-from domain.chat.chat import Chat, ChatResponse
+from domain.chat.base import Chat, ChatResponse
 from domain.models.agent import AgentResponse, AgentRole
 from domain.models.chat import (
     AreaChairResponseSchema,
@@ -11,7 +11,6 @@ from domain.models.chat import (
     MetaReviewResponseSchema,
     ReviewerResponseSchema,
 )
-
 
 class ContextMode(str, Enum):
     """The mode of context to use for the agent."""
@@ -40,6 +39,27 @@ class Adapter:
         )
 
 
+class Factory:
+    """Factory for creating agents based on their role."""
+
+    @staticmethod
+    def create_agent(agent_role: AgentRole, chat: Chat, agent_index: int | None = None, system_prompt: str = "") -> "Agent":
+        if agent_role == AgentRole.REVIEWER:
+            if agent_index is None:
+                raise ValueError("Reviewer agent requires an index.")
+            return ReviewerAgent(chat=chat, index=agent_index, system_prompt=system_prompt)
+        elif agent_role == AgentRole.META_REVIEWER:
+            return MetaReviewerAgent(chat=chat, system_prompt=system_prompt)
+        elif agent_role == AgentRole.AREA_CHAIR:
+            return AreaChairAgent(chat=chat, system_prompt=system_prompt)
+        elif agent_role == AgentRole.AUTHOR_AGENT:
+            return AuthorAgent(chat=chat, system_prompt=system_prompt)
+        elif agent_role == AgentRole.CHAT_AGENT:
+            return ChatAgent(chat=chat, system_prompt=system_prompt)
+        else:
+            raise ValueError(f"Unknown agent role: {agent_role}")
+
+
 class Agent(ABC):
 
     def __init__(
@@ -60,11 +80,6 @@ class Agent(ABC):
         self.response_schema = response_schema
         self.tool_registry = tools
 
-    @property
-    def name(self) -> str:
-        """String identity of this agent (e.g. ``reviewer_1``, ``meta_reviewer``)."""
-        return f"{self.agent_role}_{self.agent_index}" if self.agent_index is not None else str(self.agent_role)
-
     def run(self, input_message: str, paper_id: str | None = None) -> AgentResponse:
         message = self._normalize_message(input_message)
         context = self._retrieve_context(paper_id)
@@ -73,6 +88,11 @@ class Agent(ABC):
         except Exception as exc:
             raise UpstreamError(f"LLM call failed for agent '{self.name}': {exc}") from exc
         return Adapter.to_agent_response(self.agent_role, self.agent_index, message, context, chat_response)
+    
+    @property
+    def name(self) -> str:
+        """String identity of this agent (e.g. ``reviewer_1``, ``meta_reviewer``)."""
+        return f"{self.agent_role}_{self.agent_index}" if self.agent_index is not None else str(self.agent_role)
 
     def _invoke_chat(self, message: str, context: str | None) -> ChatResponse:
         return self.chat.invoke(self.system_prompt, message, context, self.response_schema, label=self.name)
@@ -100,7 +120,13 @@ class ReviewerAgent(Agent):
         index: int = 1,
         system_prompt: str = "",
     ):
-        super().__init__(chat, AgentRole.REVIEWER, index, system_prompt=system_prompt, response_schema=ReviewerResponseSchema)
+        super().__init__(
+            chat=chat, 
+            agent_role=AgentRole.REVIEWER, 
+            agent_index=index, 
+            system_prompt=system_prompt, 
+            response_schema=ReviewerResponseSchema
+        )
 
 
 class MetaReviewerAgent(Agent):
@@ -111,7 +137,13 @@ class MetaReviewerAgent(Agent):
         chat: Chat,
         system_prompt: str = "",
     ):
-        super().__init__(chat, AgentRole.META_REVIEWER, system_prompt=system_prompt, response_schema=MetaReviewResponseSchema)
+        super().__init__(
+            chat=chat, 
+            agent_role=AgentRole.META_REVIEWER, 
+            agent_index=None, 
+            system_prompt=system_prompt, 
+            response_schema=MetaReviewResponseSchema
+        )
 
 
 class AreaChairAgent(Agent):
@@ -122,7 +154,13 @@ class AreaChairAgent(Agent):
         chat: Chat,
         system_prompt: str = "",
     ):
-        super().__init__(chat, AgentRole.AREA_CHAIR, system_prompt=system_prompt, response_schema=AreaChairResponseSchema)
+        super().__init__(
+            chat=chat, 
+            agent_role=AgentRole.AREA_CHAIR, 
+            agent_index=None, 
+            system_prompt=system_prompt, 
+            response_schema=AreaChairResponseSchema
+            )
 
 
 class AuthorAgent(Agent):
@@ -133,4 +171,28 @@ class AuthorAgent(Agent):
         chat: Chat,
         system_prompt: str = "",
     ):
-        super().__init__(chat, AgentRole.AUTHOR_AGENT, system_prompt=system_prompt, response_schema=AuthorResponseSchema)
+        super().__init__(
+            chat, 
+            AgentRole.AUTHOR_AGENT, 
+            system_prompt=system_prompt, 
+            response_schema=AuthorResponseSchema
+        )
+
+
+class ChatAgent(Agent):
+    """A bare chat agent: no structured schema, returns the raw model reply
+    (wrapped in ChatFallbackRawResponseSchema). Takes only the Chat and an
+    optional system prompt."""
+
+    def __init__(
+        self,
+        chat: Chat,
+        system_prompt: str = ""
+    ):
+        super().__init__(
+            chat=chat,
+            agent_role=AgentRole.CHAT_AGENT,
+            agent_index=None,
+            system_prompt=system_prompt,
+            response_schema=None
+        )

@@ -6,8 +6,8 @@ import pytest
 from langchain_core.messages import AIMessage
 
 from core.error import UpstreamError, ValidationError
-from domain.agent.agent import Adapter, Agent, AreaChairAgent, AuthorAgent, MetaReviewerAgent, ReviewerAgent
-from domain.chat.chat import Chat, ChatResponse
+from domain.agent.base import Adapter, Agent, AreaChairAgent, AuthorAgent, MetaReviewerAgent, ReviewerAgent
+from domain.chat.base import Chat, ChatResponse
 from domain.chat.mock_chat import MockChatModel
 from domain.models.agent import AgentResponse, AgentRole
 from domain.models.chat import (

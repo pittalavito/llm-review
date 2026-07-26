@@ -5,7 +5,7 @@ import pytest
 from langchain_core.messages import AIMessage
 
 from core.error import ValidationError
-from domain.chat.chat import Adapter, Chat, ChatResponse, Factory
+from domain.chat.base import Adapter, Chat, ChatResponse, Factory
 from domain.chat.mock_chat import MockChatModel
 from domain.models.chat import (
     ChatFallbackRawResponseSchema,
@@ -35,9 +35,10 @@ class TestFactory:
         assert Factory.create_chat_variables("m", None) == {"message": "m", "context": ""}
         assert Factory.create_chat_variables("m", "c") == {"message": "m", "context": "c"}
 
-    def test_create_chat_client_mock(self):
-        client = Factory.create_chat_client(None, ChatModelName.MOCK, 0.0)
-        assert isinstance(client, MockChatModel)
+    def test_create_chat_mock(self):
+        chat = Factory.create_chat(None, ChatModelName.MOCK, 0.0)
+        assert isinstance(chat, Chat)
+        assert isinstance(chat._chat_model, MockChatModel)
 
 
 class TestAdapter:

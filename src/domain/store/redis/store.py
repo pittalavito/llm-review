@@ -11,16 +11,14 @@ import re
 
 from domain.store.redis.open_review_repository import RedisOpenReviewCacheRepository
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
+from domain.store.redis.models import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
 
 from domain.models.comparator import HumanMetaReview, HumanReview
 from domain.models.openreview import OpenReviewCache
 from domain.models.retrieval import IndexInfo, RagIndex
-from domain.store.redis.models import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
 
 __all__ = ["RedisRagIndexRepository", "RedisOpenReviewCacheRepository", "Adapter", "Factory"]
 
-
-# --- OpenReview note parser helpers (v1 flat content + v2 {"value": ...}) ---
 
 _REVIEW_KW = {"official_review", "official review"}
 _META_KW = {"meta_review", "meta review", "metareview"}

@@ -21,6 +21,7 @@ from domain.store.db.models import (
     ReviewRunTable,
 )
 
+
 __all__ = ["DbPaperRepository", "DbPromptRepository", "DbResultRepository", "Adapter", "Factory"]
 
 

@@ -3,13 +3,14 @@ reviewer persona axes (focus, commitment, intention, knowledgeability) plus the
 area-chair style. The chat-model vocabulary and response schemas live in
 ``domain/models/chat.py``."""
 from enum import StrEnum
-from pydantic import BaseModel
+from pydantic import BaseModel, SerializeAsAny
 from typing import Any
 
 from domain.models.chat import ChatModelResponseSchema
 
 class AgentRole(StrEnum):
     """Prompt-versioning roles; the three reviewers share the single 'reviewer' role."""
+    CHAT_AGENT = "chat"
     REVIEWER = "reviewer"
     META_REVIEWER = "meta_reviewer"
     AREA_CHAIR = "area_chair"
@@ -67,7 +68,7 @@ class AgentResponse(BaseModel):
     was produced."""
     agent_role: AgentRole
     agent_index: int | None = None
-    response_schema: ChatModelResponseSchema
+    response_schema: SerializeAsAny[ChatModelResponseSchema]
     input_message: str | None = None
     context_used: str | None = None
     input_tokens: int | None = None
