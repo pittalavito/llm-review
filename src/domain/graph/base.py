@@ -33,17 +33,27 @@ _AUTHOR = "author_agent"
 
 
 class Messages:
-    """Build the human message for each agent from the current state. Every
-    builder returns a non-empty string (the agent rejects empty messages). No
-    paper text yet — the context provider (RAG) plugs in here later."""
+    """Build the human message (the *task*) for each agent from the current state.
+    The paper itself is not here: it lives in the agent's ``context`` (set at build
+    time via the retrieval service). Every builder returns a non-empty string
+    (the agent rejects empty messages)."""
 
     @staticmethod
     def reviewer(state: ReviewState) -> str:
         revised = state.get("revised_sections")
-        if revised:
-            sections = "\n\n".join(f"## {name}\n{content}" for name, content in revised.items())
-            return f"Re-review the paper after the author's revisions:\n\n{sections}"
-        return "Review the paper and produce your assessment."
+        if not revised:
+            # Round 1: the paper is in the agent's context — this is just the task.
+            return "Review the paper provided in your context and produce your structured assessment."
+
+        # Round 2: re-review with the author's response (paper still in context).
+        rebuttal = (state.get("author_response") or {}).get("rebuttal") or "(none)"
+        sections = "\n\n".join(f"## {name}\n{content}" for name, content in revised.items())
+        return (
+            "Re-review the paper. The authors submitted a rebuttal and revised sections — "
+            "update your assessment, stating whether your concerns were addressed.\n\n"
+            f"Author rebuttal:\n{rebuttal}\n\n"
+            f"Revised sections:\n{sections}"
+        )
 
     @staticmethod
     def meta(state: ReviewState) -> str:
