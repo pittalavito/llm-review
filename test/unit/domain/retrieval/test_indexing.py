@@ -4,8 +4,8 @@ walking. The PDF/Docling path is not exercised here (no torch dependency needed)
 import pytest
 
 from core.error import NotFoundError, ValidationError
-from domain.models.retrieval import RagFileSignature, RagIndex
-from domain.retrieval.base import IndexBuilder, PaperFileReader
+from domain.models.retrieval import RagFileSignature, RagIndex, RagStrategy
+from domain.retrieval.base import FullContextStrategy, PaperFileReader
 
 
 def _signature() -> RagFileSignature:
@@ -28,27 +28,28 @@ class _FakeDocument:
             yield item, 0
 
 
-class TestIndexBuilder:
+class TestFullContextBuildIndex:
     def test_groups_bodies_by_heading_preserving_order(self):
         raw = [("Intro", "hello"), ("Methods", "a"), ("Methods", "b")]
-        index = IndexBuilder("v1").build_index(raw, "p.txt", "doc1", _signature())
+        index = FullContextStrategy("v1").build_index(raw, "p.txt", "doc1", _signature())
         assert isinstance(index, RagIndex)
         assert [s.name for s in index.sections] == ["Intro", "Methods"]
         assert index.sections[1].text == "a b"  # bodies joined
+        assert index.settings.strategy is RagStrategy.FULL_CONTEXT
         assert index.settings.strategy_version == "v1"
         assert index.doc_id == "doc1" and index.paper_path == "p.txt"
 
     def test_cleans_heading_whitespace(self):
-        index = IndexBuilder("v1").build_index([("  Related   Work \n", "x")], "p.txt", "d", _signature())
+        index = FullContextStrategy("v1").build_index([("  Related   Work \n", "x")], "p.txt", "d", _signature())
         assert index.sections[0].name == "Related Work"
 
     def test_empty_raw_sections_raises(self):
         with pytest.raises(ValidationError):
-            IndexBuilder("v1").build_index([], "p.txt", "d", _signature())
+            FullContextStrategy("v1").build_index([], "p.txt", "d", _signature())
 
     def test_all_empty_bodies_raises(self):
         with pytest.raises(ValidationError):
-            IndexBuilder("v1").build_index([("Intro", "   "), ("Methods", "")], "p.txt", "d", _signature())
+            FullContextStrategy("v1").build_index([("Intro", "   "), ("Methods", "")], "p.txt", "d", _signature())
 
 
 class TestResolvePaperPath:

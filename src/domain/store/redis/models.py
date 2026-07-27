@@ -12,7 +12,10 @@ class RagFileSignature(BaseModel):
 
 
 class RagIndexConfig(BaseModel):
-    """The RAG index configuration used to build the index, stored with the index"""
+    """The RAG index configuration used to build the index, stored with the index.
+    ``strategy`` records which retrieval strategy built it (full_context / bm25 /
+    embedding); kept as a plain string so the store shape stays decoupled."""
+    strategy: str = "full_context"
     strategy_version: str = Field(min_length=1, max_length=100)
 
 
@@ -23,13 +26,23 @@ class RagSectionEntry(BaseModel):
     text: str
 
 
+class RagChunk(BaseModel):
+    """One retrievable chunk (chunk-based strategies), tagged with its source
+    section. ``embedding`` is stored only for the embedding strategy."""
+    text: str
+    section: str | None = None
+    embedding: list[float] | None = None
+
+
 class RagIndex(BaseModel):
-    """The stored RAG index for one paper (suffix = doc id)."""
+    """The stored RAG index for one paper (suffix = doc id). Holds ``sections``
+    (full_context) or ``chunks`` (bm25 / embedding) depending on the strategy."""
     doc_id: str
     paper_path: str
     file_signature: RagFileSignature
     settings: RagIndexConfig
     sections: list[RagSectionEntry] = Field(default_factory=list)
+    chunks: list[RagChunk] = Field(default_factory=list)
 
 
 class OpenReviewCacheNote(BaseModel):

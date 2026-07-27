@@ -88,10 +88,13 @@ class FakePapers:
 
 
 class FakePrompts:
-    """Stand-in for DbPromptRepository (constructor only — not exercised here)."""
+    """Stand-in for DbPromptRepository (constructor + seed only — not exercised here)."""
 
     def __init__(self, config):
         pass
+
+    def seed_defaults(self, seeds) -> int:
+        return 0
 
 
 class FakeRagIndex:
@@ -108,8 +111,8 @@ class FakeRagIndex:
         FakeRagIndex.saved = record
 
     @staticmethod
-    def compute_doc_id(paper_path):
-        return "doc:" + paper_path
+    def compute_doc_id(paper_path, strategy, strategy_version):
+        return f"doc:{paper_path}:{strategy}:{strategy_version}"
 
 
 class FakeCache:
@@ -209,7 +212,7 @@ class TestRagIndex:
         assert service.get_full_paper_text("d1") == "# Intro\nhello\n\n# Methods\nworld"
 
     def test_compute_doc_id_delegates_to_repository(self, service):
-        assert service.compute_doc_id("/p.pdf") == "doc:/p.pdf"
+        assert service.compute_doc_id("/p.pdf", "bm25", "v1") == "doc:/p.pdf:bm25:v1"
 
 
 class TestOpenReview:

@@ -6,7 +6,35 @@ from domain.models.comparator import HumanMetaReview, HumanReview
 from domain.models.openreview import OpenReviewCache
 from domain.models.retrieval import IndexInfo, RagIndex
 from domain.store.redis.models import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
+from domain.store.redis.rag_index_repository import RedisRagIndexRepository
 from domain.store.redis.store import Adapter, Factory
+
+
+class TestComputeDocId:
+    def test_composite_readable_id(self):
+        doc_id = RedisRagIndexRepository.compute_doc_id("papers/attention.pdf", "bm25", "v1")
+        # <slug>-<hash8>+<strategy>-<version>
+        assert doc_id.startswith("papers/attention.pdf-")
+        assert doc_id.endswith("+bm25-v1")
+
+    def test_strategies_and_versions_get_distinct_ids(self):
+        path = "papers/attention.pdf"
+        ids = {
+            RedisRagIndexRepository.compute_doc_id(path, "full_context", "v1"),
+            RedisRagIndexRepository.compute_doc_id(path, "bm25", "v1"),
+            RedisRagIndexRepository.compute_doc_id(path, "bm25", "v2"),
+        }
+        assert len(ids) == 3  # coexist: no id collision -> no overwrite
+
+    def test_slug_collision_is_disambiguated_by_hash(self):
+        # both paths slug to "papers/foo_bar.pdf" but the id must stay distinct
+        a = RedisRagIndexRepository.compute_doc_id("papers/foo bar.pdf", "bm25", "v1")
+        b = RedisRagIndexRepository.compute_doc_id("papers/foo:bar.pdf", "bm25", "v1")
+        assert a != b
+
+    def test_unsafe_chars_are_slugged(self):
+        doc_id = RedisRagIndexRepository.compute_doc_id("a b:c", "bm25", "v 1")
+        assert ":" not in doc_id and " " not in doc_id
 
 
 class Utils:

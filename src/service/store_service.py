@@ -11,10 +11,10 @@ Everything comes from the per-store facades ``domain.store.db.store`` and
 store record, writes). The repositories deal only in rows/records.
 """
 from pathlib import Path
-
 from config import Config
 from core.observability import observed, LogPrefix
 
+from domain.prompt.default import DEFAULT_PROMPT_SEEDS
 from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbPaperRepository, DbPromptRepository, DbResultRepository
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
 
@@ -31,12 +31,15 @@ class StoreService:
 
     @observed(LogPrefix.STORE_SERVICE)
     def __init__(self, config: Config):
+        self.config = config
         self._results_repository = DbResultRepository(config)
         self._papers_repository = DbPaperRepository(config)
         self._prompts_repository = DbPromptRepository(config)
         self._rag_index_repository = RedisRagIndexRepository(config)
         self._cache_repository = RedisOpenReviewCacheRepository(config)
-
+        
+        self.seed_prompts(DEFAULT_PROMPT_SEEDS)
+        
     # ------------------------------------------------------------------
     # Runs
     # ------------------------------------------------------------------
@@ -101,7 +104,7 @@ class StoreService:
         row = self._prompts_repository.get(version_id)
         return DbAdapter.to_prompt(row) if row is not None else None
 
-    def get_by_role_label(self, agent_role: str, version_label: str, only_active: bool = True) -> PromptVersion | None:
+    def get_promt_by_role_label(self, agent_role: str, version_label: str, only_active: bool = True) -> PromptVersion | None:
         row = self._prompts_repository.get_by_role_label(agent_role, version_label, only_active)
         return DbAdapter.to_prompt(row) if row is not None else None
 
@@ -121,8 +124,8 @@ class StoreService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def compute_doc_id(paper_path: str) -> str:
-        return RedisRagIndexRepository.compute_doc_id(paper_path)
+    def compute_doc_id(paper_path: str, strategy: str, strategy_version: str) -> str:
+        return RedisRagIndexRepository.compute_doc_id(paper_path, strategy, strategy_version)
 
     def get_rag_index(self, doc_id: str) -> RagIndex | None:
         record = self._rag_index_repository.load(doc_id)

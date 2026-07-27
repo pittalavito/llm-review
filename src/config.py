@@ -12,6 +12,7 @@ class Config(BaseSettings):
     app_port: int
     app_host: str
     app_log_level: str
+    papers_dir: str = "resource/papers"
 
     # --- Postgres ---
     postgres_user: str

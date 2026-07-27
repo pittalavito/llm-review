@@ -1,60 +1,30 @@
-"""Retrieval domain: turn a paper file into a per-paper RagIndex of full-text
-sections. ``PaperFileReader`` resolves and reads the file (``.txt`` verbatim,
-``.pdf`` via Docling's layout parser) into (heading, body) pairs;
-``IndexBuilder`` groups those into the domain ``RagIndex``. No chunking/BM25 —
-the whole paper is stored so every agent reviews the complete work."""
+"""Retrieval domain: read a paper file into (heading, body) sections and build a
+strategy-specific RagIndex, then produce the context text handed to an agent for
+a query.
+
+``PaperFileReader`` resolves/reads the file (``.txt`` verbatim, ``.pdf`` via
+Docling layout parsing). ``RetrievalStrategy`` is the pluggable seam — pick one
+with ``RetrievalStrategy.create(strategy, ...)``:
+  - ``FullContextStrategy``: whole paper, all sections concatenated (query ignored);
+  - ``Bm25Strategy``: chunk the paper, rank chunks by BM25 lexical score;
+  - ``EmbeddingStrategy``: chunk the paper, rank chunks by embedding cosine similarity.
+Chunk-based strategies share ``Chunker``; the embedding strategy uses an
+``Embedder`` (``MockEmbedder`` for tests; a real provider plugs in behind the seam).
+"""
+from abc import ABC, abstractmethod
 from pathlib import Path
+from zlib import crc32
 
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
+from rank_bm25 import BM25Okapi
+
 from core.error import NotFoundError, ValidationError
-from domain.models.retrieval import RagFileSignature, RagIndex, RagIndexConfig, RagSectionEntry
+from domain.models.retrieval import RagChunk, RagFileSignature, RagIndex, RagIndexConfig, RagSectionEntry, RagStrategy
 
 _ALLOWED_EXTENSIONS = {".txt", ".pdf"}
 _HEADER_LABEL_VALUES = {"section_header", "title"}
-
-
-class IndexBuilder:
-    """Turns the (heading, body) pairs extracted from a paper into a per-paper
-    ``RagIndex`` of full-text sections."""
-
-    def __init__(self, strategy_version: str):
-        self._strategy_version = strategy_version
-
-    def build_index(self, raw_sections: list[tuple[str, str]], relative_path: str, doc_id: str, file_signature: RagFileSignature) -> RagIndex:
-        if not raw_sections:
-            raise ValidationError("The extracted document text is empty.")
-
-        section_bodies: dict[str, list[str]] = {}
-        for heading, body_text in raw_sections:
-            name = IndexBuilder._clean_heading(heading)
-            section_bodies.setdefault(name, [])
-            if body_text.strip():
-                section_bodies[name].append(body_text)
-
-        sections = [
-            RagSectionEntry(name=name, text=" ".join(bodies).strip())
-            for name, bodies in section_bodies.items()
-            if any(body.strip() for body in bodies)
-        ]
-
-        if not sections:
-            raise ValidationError("Unable to build any section from the given file.")
-
-        return RagIndex(
-            doc_id=doc_id,
-            paper_path=relative_path,
-            file_signature=file_signature,
-            settings=RagIndexConfig(strategy_version=self._strategy_version),
-            sections=sections,
-        )
-
-    @staticmethod
-    def _clean_heading(raw: str) -> str:
-        """Whitespace-normalize a raw heading for use as a section name (kept
-        verbatim, any language — no canonical mapping)."""
-        return " ".join(raw.split())
 
 
 class PaperFileReader:
@@ -81,13 +51,8 @@ class PaperFileReader:
         return candidate, relative_path
 
     def extract_structure(self, source_path: Path) -> list[tuple[str, str]]:
-        """Return (heading, body_text) pairs in document order.
-
-        ``.txt`` files have no layout to parse: the whole file becomes one
-        "body" section. ``.pdf`` files are parsed with Docling, which detects
-        real section headings from the document's actual layout — independent of
-        language or heading wording, unlike guessing from flat extracted text.
-        """
+        """Return (heading, body_text) pairs in document order. ``.txt`` becomes a
+        single "body" section; ``.pdf`` is parsed with Docling's layout detector."""
         if source_path.suffix.lower() == ".txt":
             return self._read_txt(source_path)
 
@@ -113,9 +78,7 @@ class PaperFileReader:
         """Lazily build and cache one Docling converter tuned for speed: OCR and
         table-structure detection are disabled (pure waste on digital academic
         PDFs — we only need the heading/paragraph layout), and the converter is
-        built once and reused for the whole corpus. Docling is imported here
-        (not at module top) because it drags in torch/transformers — a
-        multi-second import the non-PDF paths must skip."""
+        built once and reused for the whole corpus."""
         if self._converter is None:
             options = PdfPipelineOptions()
             options.do_ocr = False
@@ -127,11 +90,9 @@ class PaperFileReader:
 
     @staticmethod
     def _walk_document_sections(document) -> list[tuple[str, str]]:
-        """Group Docling's flat item stream into (heading, body) sections. Every
-        non-header item accumulates under the current heading; a header flushes
-        the current section and opens a new one. Headers with no body of their
-        own are kept (empty body). A document with no detected headers collapses
-        to a single "body" section."""
+        """Group Docling's flat item stream into (heading, body) sections. A
+        header flushes the current section and opens a new one; a document with
+        no detected headers collapses to a single "body" section."""
         sections: list[tuple[str, str]] = []
         heading = "preamble"
         buffer: list[str] = []
@@ -157,3 +118,197 @@ class PaperFileReader:
             return [("body", full_text)] if full_text else []
 
         return [(head, body) for head, body in sections if body or head != "preamble"]
+
+
+class Chunker:
+    """Splits sections into overlapping fixed-size (character) chunks, tagging
+    each chunk with its source section."""
+
+    def __init__(self, chunk_size: int = 1000, overlap: int = 150):
+        self._chunk_size = chunk_size
+        self._overlap = overlap
+
+    def chunk(self, sections: list[RagSectionEntry]) -> list[RagChunk]:
+        chunks: list[RagChunk] = []
+        for section in sections:
+            for piece in self._split(section.text):
+                chunks.append(RagChunk(text=piece, section=section.name))
+        return chunks
+
+    def _split(self, text: str) -> list[str]:
+        text = text.strip()
+        if not text:
+            return []
+        step = max(1, self._chunk_size - self._overlap)
+        return [text[start:start + self._chunk_size] for start in range(0, len(text), step)]
+
+
+class Embedder(ABC):
+    """Turns texts into fixed-dimension vectors. The real provider (Ollama/OpenAI
+    via langchain, from config) plugs in behind this seam."""
+
+    @abstractmethod
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        ...
+
+
+class MockEmbedder(Embedder):
+    """Deterministic bag-of-words hashing embedder for tests — no model, no
+    network. Each token is hashed (crc32) into a bucket; the vector is
+    L2-normalized so cosine similarity reflects token overlap."""
+
+    def __init__(self, dim: int = 64):
+        self._dim = dim
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        return [self._vector(text) for text in texts]
+
+    def _vector(self, text: str) -> list[float]:
+        vector = [0.0] * self._dim
+        for token in text.lower().split():
+            vector[crc32(token.encode()) % self._dim] += 1.0
+        norm = sum(value * value for value in vector) ** 0.5
+        return [value / norm for value in vector] if norm else vector
+
+
+class RetrievalStrategy(ABC):
+    """Builds a strategy-specific RagIndex from the (heading, body) pairs and
+    produces the context text for a query."""
+
+    strategy: RagStrategy
+
+    def __init__(self, strategy_version: str):
+        self._strategy_version = strategy_version
+
+    @abstractmethod
+    def build_index(self, raw_sections: list[tuple[str, str]], relative_path: str, doc_id: str, file_signature: RagFileSignature) -> RagIndex:
+        ...
+
+    @abstractmethod
+    def build_context(self, index: RagIndex, query: str) -> str:
+        ...
+
+    def _config(self) -> RagIndexConfig:
+        return RagIndexConfig(strategy=self.strategy, strategy_version=self._strategy_version)
+
+    @staticmethod
+    def _group_sections(raw_sections: list[tuple[str, str]]) -> list[RagSectionEntry]:
+        """Group (heading, body) pairs into RagSectionEntry: clean headings and
+        concatenate bodies under the same heading (first-seen order)."""
+        if not raw_sections:
+            raise ValidationError("The extracted document text is empty.")
+
+        section_bodies: dict[str, list[str]] = {}
+        for heading, body in raw_sections:
+            name = " ".join(heading.split())
+            section_bodies.setdefault(name, [])
+            if body.strip():
+                section_bodies[name].append(body)
+
+        sections = [
+            RagSectionEntry(name=name, text=" ".join(bodies).strip())
+            for name, bodies in section_bodies.items()
+            if any(body.strip() for body in bodies)
+        ]
+        if not sections:
+            raise ValidationError("Unable to build any section from the given file.")
+        return sections
+
+    @staticmethod
+    def _format_chunk(chunk: RagChunk) -> str:
+        return f"# {chunk.section}\n{chunk.text}" if chunk.section else chunk.text
+
+    @staticmethod
+    def create(strategy: RagStrategy, strategy_version: str, *, embedder: "Embedder | None" = None, chunker: "Chunker | None" = None, top_k: int = 5) -> "RetrievalStrategy":
+        if strategy is RagStrategy.FULL_CONTEXT:
+            return FullContextStrategy(strategy_version)
+        if strategy is RagStrategy.BM25:
+            return Bm25Strategy(strategy_version, chunker or Chunker(), top_k)
+        if strategy is RagStrategy.EMBEDDING:
+            if embedder is None:
+                raise ValueError("The embedding strategy requires an Embedder.")
+            return EmbeddingStrategy(strategy_version, chunker or Chunker(), embedder, top_k)
+        raise ValueError(f"Unsupported RAG strategy: {strategy}")
+
+
+class FullContextStrategy(RetrievalStrategy):
+    """Whole paper: store every section, hand back all of them concatenated."""
+
+    strategy = RagStrategy.FULL_CONTEXT
+
+    def build_index(self, raw_sections, relative_path, doc_id, file_signature) -> RagIndex:
+        return RagIndex(
+            doc_id=doc_id, paper_path=relative_path, file_signature=file_signature,
+            settings=self._config(), sections=self._group_sections(raw_sections),
+        )
+
+    def build_context(self, index: RagIndex, query: str) -> str:
+        return "\n\n".join(f"# {section.name}\n{section.text}" for section in index.sections)
+
+
+class Bm25Strategy(RetrievalStrategy):
+    """Chunk the paper; rank chunks by BM25 lexical score against the query."""
+
+    strategy = RagStrategy.BM25
+
+    def __init__(self, strategy_version: str, chunker: Chunker, top_k: int = 5):
+        super().__init__(strategy_version)
+        self._chunker = chunker
+        self._top_k = top_k
+
+    def build_index(self, raw_sections, relative_path, doc_id, file_signature) -> RagIndex:
+        chunks = self._chunker.chunk(self._group_sections(raw_sections))
+        return RagIndex(
+            doc_id=doc_id, paper_path=relative_path, file_signature=file_signature,
+            settings=self._config(), chunks=chunks,
+        )
+
+    def build_context(self, index: RagIndex, query: str) -> str:
+        chunks = index.chunks
+        if not chunks:
+            return ""
+        bm25 = BM25Okapi([self._tokenize(chunk.text) for chunk in chunks])
+        scores = bm25.get_scores(self._tokenize(query))
+        top = sorted(range(len(chunks)), key=lambda i: scores[i], reverse=True)[:self._top_k]
+        return "\n\n".join(self._format_chunk(chunks[i]) for i in top)
+
+    @staticmethod
+    def _tokenize(text: str) -> list[str]:
+        return text.lower().split()
+
+
+class EmbeddingStrategy(RetrievalStrategy):
+    """Chunk the paper (embedding each chunk at index time); rank chunks by cosine
+    similarity of the query embedding to the chunk embeddings."""
+
+    strategy = RagStrategy.EMBEDDING
+
+    def __init__(self, strategy_version: str, chunker: Chunker, embedder: Embedder, top_k: int = 5):
+        super().__init__(strategy_version)
+        self._chunker = chunker
+        self._embedder = embedder
+        self._top_k = top_k
+
+    def build_index(self, raw_sections, relative_path, doc_id, file_signature) -> RagIndex:
+        chunks = self._chunker.chunk(self._group_sections(raw_sections))
+        for chunk, vector in zip(chunks, self._embedder.embed([chunk.text for chunk in chunks])):
+            chunk.embedding = vector
+        return RagIndex(
+            doc_id=doc_id, paper_path=relative_path, file_signature=file_signature,
+            settings=self._config(), chunks=chunks,
+        )
+
+    def build_context(self, index: RagIndex, query: str) -> str:
+        chunks = [chunk for chunk in index.chunks if chunk.embedding]
+        if not chunks:
+            return ""
+        query_vector = self._embedder.embed([query])[0]
+        ranked = sorted(chunks, key=lambda chunk: self._cosine(query_vector, chunk.embedding), reverse=True)
+        return "\n\n".join(self._format_chunk(chunk) for chunk in ranked[:self._top_k])
+
+    @staticmethod
+    def _cosine(a: list[float], b: list[float]) -> float:
+        dot = sum(x * y for x, y in zip(a, b))
+        norm_a = sum(x * x for x in a) ** 0.5
+        norm_b = sum(y * y for y in b) ** 0.5
+        return dot / (norm_a * norm_b) if norm_a and norm_b else 0.0

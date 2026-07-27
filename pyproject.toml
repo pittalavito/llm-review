@@ -17,6 +17,7 @@ dependencies = [
     "langchain-anthropic>=0.3",
     "langchain-ollama>=0.3",
     "docling>=2.115.0",
+    "rank-bm25>=0.2.2",
 ]
 
 [tool.uv]
