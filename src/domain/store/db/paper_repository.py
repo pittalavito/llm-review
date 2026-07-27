@@ -1,9 +1,9 @@
 """Repository for the paper catalog (persistence rows: PaperTable).
 
-The DB is the source of truth for the paper list at runtime. seed_from_folder
-scans the papers folder (the one deliberate file dependency) and registers
-unknown files as OTHER; num_review is refreshed from the run count on (re)seed.
-Row -> domain translation is the StoreService's job.
+The DB is the source of truth for the paper list at runtime. ``seed`` registers
+the paper paths supplied by the files store as OTHER; num_review is refreshed
+from the run count on (re)seed. Row -> domain translation is the StoreService's
+job.
 """
 from __future__ import annotations
 
@@ -16,8 +16,6 @@ from config import Config
 from domain.store.db.repository import SqlRepository
 from domain.store.db.models import PaperTable, ReviewRunTable
 from domain.models.paper import PaperType
-
-_PAPER_EXTENSIONS = {".pdf", ".txt"}
 
 
 class DbPaperRepository(SqlRepository[PaperTable]):
@@ -58,15 +56,15 @@ class DbPaperRepository(SqlRepository[PaperTable]):
             session.refresh(row)
             return row
 
-    def seed_from_folder(self, papers_dir: Path) -> int:
-        """Register every paper file found in the folder as OTHER (idempotent);
-        existing rows only get their num_review snapshot refreshed. Returns the
-        number inserted."""
+    def seed(self, paper_paths: list[str]) -> int:
+        """Register the given paper paths (from the files store) as OTHER
+        (idempotent); existing rows only get their num_review snapshot refreshed.
+        Returns the number inserted."""
         inserted = 0
         with self._session() as session:
             existing = {row.paper_path: row for row in session.exec(select(PaperTable)).all()}
             counts = self._run_counts(session)
-            for paper_path in self._scan_papers(papers_dir):
+            for paper_path in paper_paths:
                 row = existing.get(paper_path)
                 if row is None:
                     session.add(PaperTable(**self._fields_from(paper_path, counts.get(paper_path, 0))))
@@ -85,15 +83,6 @@ class DbPaperRepository(SqlRepository[PaperTable]):
             "paper_type": PaperType.OTHER.value,
             "num_review": run_count,
         }
-
-    @staticmethod
-    def _scan_papers(papers_dir: Path) -> list[str]:
-        papers_dir = papers_dir.resolve()
-        return sorted(
-            f.relative_to(papers_dir).as_posix()
-            for f in papers_dir.rglob("*")
-            if f.is_file() and f.suffix.lower() in _PAPER_EXTENSIONS
-        )
 
     @staticmethod
     def _run_counts(session: Session) -> dict[str, int]:

@@ -125,6 +125,13 @@ class FakeCache:
         return None if key == "missing" else StoreOpenReviewCache.model_validate({"notes": [_review_note()]})
 
 
+class FakeFiles:
+    """Stand-in for FilePaperRepository (constructor only — not exercised here)."""
+
+    def __init__(self, config):
+        pass
+
+
 @pytest.fixture
 def service(monkeypatch) -> StoreService:
     monkeypatch.setattr(store_service_mod, "DbResultRepository", FakeResults)
@@ -132,6 +139,7 @@ def service(monkeypatch) -> StoreService:
     monkeypatch.setattr(store_service_mod, "DbPromptRepository", FakePrompts)
     monkeypatch.setattr(store_service_mod, "RedisRagIndexRepository", FakeRagIndex)
     monkeypatch.setattr(store_service_mod, "RedisOpenReviewCacheRepository", FakeCache)
+    monkeypatch.setattr(store_service_mod, "FilePaperRepository", FakeFiles)
     return StoreService(config=object())
 
 

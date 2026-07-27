@@ -1,9 +1,10 @@
-"""Unit tests for the retrieval domain (domain/retrieval/base.py): IndexBuilder
-section grouping and PaperFileReader path resolution / .txt extraction / section
-walking. The PDF/Docling path is not exercised here (no torch dependency needed)."""
+"""Unit tests for the retrieval domain (domain/retrieval/base.py): FullContext
+section grouping and the PaperFileReader parser (.txt extraction + section
+walking). Path resolution / file signature now live in the files store. The
+PDF/Docling path is not exercised here (no torch dependency needed)."""
 import pytest
 
-from core.error import NotFoundError, ValidationError
+from core.error import ValidationError
 from domain.models.retrieval import RagFileSignature, RagIndex, RagStrategy
 from domain.retrieval.base import FullContextStrategy, PaperFileReader
 
@@ -52,54 +53,17 @@ class TestFullContextBuildIndex:
             FullContextStrategy("v1").build_index([("Intro", "   "), ("Methods", "")], "p.txt", "d", _signature())
 
 
-class TestResolvePaperPath:
-    def _reader(self, tmp_path) -> tuple[PaperFileReader, object]:
-        papers = tmp_path / "papers"
-        papers.mkdir()
-        return PaperFileReader(papers), papers
-
-    def test_resolves_valid_txt(self, tmp_path):
-        reader, papers = self._reader(tmp_path)
-        (papers / "paper.txt").write_text("content", encoding="utf-8")
-        candidate, relative = reader.resolve_paper_path("paper.txt")
-        assert candidate == (papers / "paper.txt").resolve()
-        assert relative == "paper.txt"
-
-    def test_rejects_path_traversal(self, tmp_path):
-        reader, _ = self._reader(tmp_path)
-        with pytest.raises(ValidationError):
-            reader.resolve_paper_path("../secret.txt")
-
-    def test_missing_file_raises_not_found(self, tmp_path):
-        reader, _ = self._reader(tmp_path)
-        with pytest.raises(NotFoundError):
-            reader.resolve_paper_path("missing.txt")
-
-    def test_rejects_unsupported_extension(self, tmp_path):
-        reader, papers = self._reader(tmp_path)
-        (papers / "paper.md").write_text("x", encoding="utf-8")
-        with pytest.raises(ValidationError):
-            reader.resolve_paper_path("paper.md")
-
-
-class TestExtractAndSignature:
+class TestExtractStructure:
     def test_extract_txt_is_single_body(self, tmp_path):
         source = tmp_path / "p.txt"
         source.write_text("  the whole paper  ", encoding="utf-8")
-        assert PaperFileReader(tmp_path).extract_structure(source) == [("body", "the whole paper")]
+        assert PaperFileReader().extract_structure(source) == [("body", "the whole paper")]
 
     def test_extract_empty_txt_raises(self, tmp_path):
         source = tmp_path / "p.txt"
         source.write_text("   ", encoding="utf-8")
         with pytest.raises(ValidationError):
-            PaperFileReader(tmp_path).extract_structure(source)
-
-    def test_build_file_signature(self, tmp_path):
-        source = tmp_path / "p.txt"
-        source.write_text("abcde", encoding="utf-8")
-        sig = PaperFileReader.build_file_signature(source)
-        assert isinstance(sig, RagFileSignature)
-        assert sig.size == 5 and sig.mtime_ns > 0
+            PaperFileReader().extract_structure(source)
 
 
 class TestWalkDocumentSections:

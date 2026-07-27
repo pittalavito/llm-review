@@ -8,6 +8,7 @@ import pytest
 
 from core.error import NotFoundError
 from domain.models.retrieval import IndexInfo, RagStrategy
+from domain.store.files.paper_repository import FilePaperRepository
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
 from service.retrieval_service import RetrievalService
 
@@ -17,6 +18,7 @@ class FakeStoreService:
 
     def __init__(self, papers_dir):
         self.config = types.SimpleNamespace(papers_dir=str(papers_dir))
+        self._papers_files = FilePaperRepository(self.config)
         self.store: dict = {}
         self.save_calls = 0
 

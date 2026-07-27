@@ -10,13 +10,13 @@ Everything comes from the per-store facades ``domain.store.db.store`` and
 ``Adapter`` (store record → domain model, reads) and ``Factory`` (domain model →
 store record, writes). The repositories deal only in rows/records.
 """
-from pathlib import Path
 from config import Config
 from core.observability import observed, LogPrefix
 
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
 from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbPaperRepository, DbPromptRepository, DbResultRepository
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
+from domain.store.files.store import FilePaperRepository
 
 from domain.models.agent import AgentRole
 from domain.models.comparator import HumanMetaReview, HumanReview
@@ -37,7 +37,8 @@ class StoreService:
         self._prompts_repository = DbPromptRepository(config)
         self._rag_index_repository = RedisRagIndexRepository(config)
         self._cache_repository = RedisOpenReviewCacheRepository(config)
-        
+        self._papers_files = FilePaperRepository(config)
+
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
         
     # ------------------------------------------------------------------
@@ -90,8 +91,9 @@ class StoreService:
         row = self._papers_repository.create(DbFactory.to_paper_row(paper))
         return DbAdapter.to_paper(row) if row is not None else None
 
-    def seed_papers_from_folder(self, papers_dir: Path) -> int:
-        return self._papers_repository.seed_from_folder(papers_dir)
+    def seed_papers(self) -> int:
+        """Register the paper files (from the local files store) in the DB catalog."""
+        return self._papers_repository.seed(self._papers_files.list_paths())
 
     # ------------------------------------------------------------------
     # Prompt-version registry

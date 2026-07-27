@@ -20,35 +20,20 @@ from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from rank_bm25 import BM25Okapi
 
-from core.error import NotFoundError, ValidationError
+from core.error import ValidationError
 from domain.models.retrieval import RagChunk, RagFileSignature, RagIndex, RagIndexConfig, RagSectionEntry, RagStrategy
 
-_ALLOWED_EXTENSIONS = {".txt", ".pdf"}
 _HEADER_LABEL_VALUES = {"section_header", "title"}
 
 
 class PaperFileReader:
-    """Resolves a paper path (safely, under ``papers_dir``) and extracts its
-    (heading, body) sections. The Docling converter is built once, on the first
-    PDF, and reused."""
+    """Parses a paper file into (heading, body) sections. Resolving/reading the
+    file is the files store's job — this reader only parses a given path (``.txt``
+    verbatim, ``.pdf`` via Docling). The Docling converter is built once, on the
+    first PDF, and reused."""
 
-    def __init__(self, papers_dir: Path):
-        self.papers_dir = papers_dir.resolve()
+    def __init__(self):
         self._converter = None
-
-    def resolve_paper_path(self, paper_path: str) -> tuple[Path, str]:
-        normalized = paper_path.replace("\\", "/").strip("/")
-        candidate = (self.papers_dir / normalized).resolve()
-
-        if self.papers_dir not in candidate.parents and candidate != self.papers_dir:
-            raise ValidationError("Invalid paper path: path traversal is not allowed.")
-        if not candidate.exists() or not candidate.is_file():
-            raise NotFoundError(f"Paper file not found: {normalized}")
-        if candidate.suffix.lower() not in _ALLOWED_EXTENSIONS:
-            raise ValidationError("Unsupported file type. Use .txt or .pdf files.")
-
-        relative_path = candidate.relative_to(self.papers_dir).as_posix()
-        return candidate, relative_path
 
     def extract_structure(self, source_path: Path) -> list[tuple[str, str]]:
         """Return (heading, body_text) pairs in document order. ``.txt`` becomes a
@@ -61,11 +46,6 @@ class PaperFileReader:
         if not sections:
             raise ValidationError("Could not extract text from the selected paper file.")
         return sections
-
-    @staticmethod
-    def build_file_signature(source_path: Path) -> RagFileSignature:
-        source_stat = source_path.stat()
-        return RagFileSignature(mtime_ns=source_stat.st_mtime_ns, size=source_stat.st_size)
 
     @staticmethod
     def _read_txt(source_path: Path) -> list[tuple[str, str]]:

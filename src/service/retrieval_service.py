@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from domain.retrieval.base import Embedder, MockEmbedder, PaperFileReader, RetrievalStrategy
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory
 from domain.models.agent import CreateAgentRequest, ContextMode
@@ -13,17 +11,18 @@ class RetrievalService:
     def __init__(self, store_service: StoreService):
         self.config = store_service.config
         self.store_service = store_service
-        self._reader = PaperFileReader(Path(self.config.papers_dir))
+        self._files = store_service._papers_files
+        self._reader = PaperFileReader()
         self._embedder = MOCK_EMBEDD
 
     def get_agent_context(self, request: CreateAgentRequest) -> str | None:
-        if request.context_mode is None or request.context_mode == ContextMode.NONE:
+        if request.context is None or request.context == ContextMode.NONE:
             return None
-        if request.context_mode == ContextMode.FULL_CONTEXT:
+        if request.context == ContextMode.FULL_CONTEXT:
             return self.retrieve_context(paper_path=request.paper_id, query="", strategy=RagStrategy.FULL_CONTEXT, strategy_version="v1")
-        if request.retrieval_context_query is None and request.context_mode in (ContextMode.BM25, ContextMode.EMBEDDING):
+        if request.retrieval_context_query is None and request.context in (ContextMode.BM25, ContextMode.EMBEDDING):
             raise ValueError("retrieval_context_query must be provided for BM25 or EMBEDDING context modes.")
-        strategy = RagStrategy(request.context_mode)
+        strategy = RagStrategy(request.context)
         return self.retrieve_context(paper_path=request.paper_id, query=request.retrieval_context_query, strategy=strategy, strategy_version="v1")
 
     def retrieve_context(self, paper_path: str, query: str, strategy: RagStrategy, strategy_version: str) -> str:
@@ -40,8 +39,7 @@ class RetrievalService:
 
     def get_index(self, paper_path: str, strategy: RagStrategy, strategy_version: str) -> RagIndex | None:
         """The stored index for (paper, strategy, version), without building it."""
-        _, relative_path = self._reader.resolve_paper_path(paper_path)
-        
+        _, relative_path = self._files.resolve(paper_path)
         doc_id = self.store_service.compute_doc_id(relative_path, str(strategy), strategy_version)
         return self._load(doc_id)
 
@@ -51,9 +49,9 @@ class RetrievalService:
     # ------------------------------------------------------------------
 
     def _get_or_build(self, paper_path: str, strategy: RagStrategy, strategy_version: str, force: bool = False) -> RagIndex:
-        source_path, relative_path = self._reader.resolve_paper_path(paper_path)
+        source_path, relative_path = self._files.resolve(paper_path)
         doc_id = self.store_service.compute_doc_id(relative_path, str(strategy), strategy_version)
-        signature = PaperFileReader.build_file_signature(source_path)
+        signature = self._files.signature(paper_path)
 
         existing = self._load(doc_id)
         if existing is not None and existing.file_signature == signature and not force:
