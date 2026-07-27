@@ -13,8 +13,8 @@ from typing import TypeVar
 import redis
 from pydantic import BaseModel
 
-from config import Config
-from core.observability import LogPrefix, observed, log_warning, log_info
+from config import get_global_config
+from core.observability import LogPrefix, log_warning, log_info
 
 _NAMESPACE = "llm-review"
 
@@ -64,9 +64,19 @@ OPEN_REVIEW_CACHE_KEYSPACE = RedisKeyspace(
     ),
 )
 
+OBSERVABILITY_TOKEN_KEYSPACE = RedisKeyspace(
+    name="observability-token",
+    value=(
+        "str — the observability token for one paper. Suffix = SHA-256 of the paper's relative path. "
+        "Used to authenticate the paper's OpenReview notes and RAG index."
+    ),
+    persistent=False,
+)
+
 ALL_KEYSPACES: tuple[RedisKeyspace, ...] = (
     RAG_INDEX_KEYSPACE,
     OPEN_REVIEW_CACHE_KEYSPACE,
+    OBSERVABILITY_TOKEN_KEYSPACE,
 )
 
 
@@ -75,21 +85,20 @@ class Client:
     unreachable server is a startup error, never a silent degradation."""
 
     @staticmethod
-    @observed(LogPrefix.REDIS_CLIENT)
-    def create_redis_client(config: Config, purpose: str) -> "redis.Redis":
+    def create_redis_client(purpose: str) -> "redis.Redis":
         """Connect to Redis and verify it responds. ``purpose`` names the store in
         logs and errors. Raises RuntimeError on failure — fail fast at boot."""
+        redis_url = get_global_config().redis_url
         try:
             client = redis.Redis.from_url(
-                config.redis_url,
+                redis_url,
                 decode_responses=True,
                 socket_connect_timeout=1,
                 socket_timeout=2,
             )
             client.ping()
         except redis.RedisError as exc:
-            raise RuntimeError(f"Redis unreachable at {config.redis_url} — required for the {purpose}.") from exc
-        log_info(LogPrefix.REDIS_CLIENT, "%s on Redis: %s", purpose, config.redis_url)
+            raise RuntimeError(f"Redis unreachable at {redis_url} — required for the {purpose}.") from exc
         return client
 
 
@@ -97,8 +106,8 @@ class RedisRepository:
     """Common plumbing: keyspace-prefixed keys and TTL-aware writes
     (ttl_seconds <= 0 = permanent store, the default)."""
 
-    def __init__(self, keyspace: RedisKeyspace, config: Config, ttl_seconds: int = 0):
-        self._client = Client.create_redis_client(config, f"{keyspace.name} store")
+    def __init__(self, keyspace: RedisKeyspace, ttl_seconds: int = 0):
+        self._client = Client.create_redis_client(f"{keyspace.name} store")
         self._keyspace = keyspace
         self._ttl = ttl_seconds
 

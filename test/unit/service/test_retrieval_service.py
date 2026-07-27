@@ -2,10 +2,9 @@
 is an in-memory fake (holding domain RagIndex by doc_id) whose config points
 papers_dir at a tmp folder with a real .txt paper — so no Redis, no torch, no
 other real service is involved."""
-import types
-
 import pytest
 
+from config import get_global_config
 from core.error import NotFoundError
 from domain.models.retrieval import IndexInfo, RagStrategy
 from domain.store.files.paper_repository import FilePaperRepository
@@ -16,9 +15,8 @@ from service.retrieval_service import RetrievalService
 class FakeStoreService:
     """In-memory StoreService stand-in: only what RetrievalService needs."""
 
-    def __init__(self, papers_dir):
-        self.config = types.SimpleNamespace(papers_dir=str(papers_dir))
-        self._papers_files = FilePaperRepository(self.config)
+    def __init__(self):
+        self._papers_files = FilePaperRepository()
         self.store: dict = {}
         self.save_calls = 0
 
@@ -38,11 +36,12 @@ class FakeStoreService:
 
 
 @pytest.fixture
-def setup(tmp_path):
+def setup(tmp_path, monkeypatch):
     papers = tmp_path / "papers"
     papers.mkdir()
     (papers / "p.txt").write_text("gradient descent optimizes the model on imagenet", encoding="utf-8")
-    store = FakeStoreService(papers)
+    monkeypatch.setattr(get_global_config(), "papers_dir", str(papers))
+    store = FakeStoreService()
     return RetrievalService(store), store, papers
 
 

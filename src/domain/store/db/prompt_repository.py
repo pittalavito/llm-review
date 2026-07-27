@@ -10,7 +10,6 @@ from hashlib import sha256
 
 from sqlmodel import select
 
-from config import Config
 from core.observability import observed, LogPrefix, log_warning
 from domain.store.db.repository import SqlRepository
 from domain.store.db.models import PromptVersionTable
@@ -18,8 +17,8 @@ from domain.store.db.models import PromptVersionTable
 
 class DbPromptRepository(SqlRepository[PromptVersionTable]):
 
-    def __init__(self, config: Config):
-        super().__init__(config, PromptVersionTable)
+    def __init__(self):
+        super().__init__(PromptVersionTable)
 
     def list(self, agent_role: str | None = None, include_inactive: bool = False) -> list[PromptVersionTable]:
         statement = select(PromptVersionTable)

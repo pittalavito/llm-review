@@ -9,7 +9,6 @@ MOCK_EMBEDD: Embedder = MockEmbedder()
 class RetrievalService:
 
     def __init__(self, store_service: StoreService):
-        self.config = store_service.config
         self.store_service = store_service
         self._files = store_service._papers_files
         self._reader = PaperFileReader()

@@ -16,7 +16,7 @@ class AgentRun(BaseModel):
     runtime_trace: dict | None = None
 
 
-class RunRecord(BaseModel):
+class GraphReviewRecord(BaseModel):
     """Complete record of a single review-graph execution."""
 
     run_id: str

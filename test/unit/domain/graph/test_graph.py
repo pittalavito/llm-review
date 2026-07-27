@@ -1,17 +1,13 @@
-"""Unit tests for the review graph: an end-to-end run over MockChatModel with an
-arbitrary committee size (no LLM, no DB) and the two conditional-edge functions.
-GraphService no longer builds agents or persists runs — those are the caller's job."""
-import pytest
-
-from core.error import ConflictError
+"""Unit tests for the review graph itself (domain/graph/base.py): an end-to-end
+run over MockChatModel with an arbitrary committee size (no LLM, no DB) driven via
+Builder, plus the two conditional-edge functions. Orchestration/persistence live
+in GraphService and are not exercised here."""
 from domain.agent.base import Factory as AgentFactory
 from domain.chat.base import Chat
 from domain.chat.mock_chat import MockChatModel
-from domain.graph.base import Nodes
+from domain.graph.base import Builder, Nodes
 from domain.models.agent import AgentRole, CreateAgentRequest
 from domain.models.chat import ChatModelName, ChatReviewDecision
-from domain.models.graph import GraphConfig
-from service.graph_service import GraphService
 
 
 def _agents(num_reviewers: int) -> dict:
@@ -31,14 +27,15 @@ def _agents(num_reviewers: int) -> dict:
     return agents
 
 
+def _run(agents: dict, paper_path: str, max_rounds: int) -> dict:
+    graph = Builder.build_graph(agents).compile()
+    return graph.invoke(Builder.build_initial_state(paper_path, max_rounds))
+
+
 class TestGraphRun:
     def test_runs_end_to_end_with_arbitrary_committee_size(self):
         n = 5  # not tied to 3
-        config = GraphConfig.default_config(num_reviewers=n, max_rounds=1)
-        service = GraphService(config=object())
-        service.compile(_agents(n), config)
-
-        result = service.invoke("/papers/p.pdf")
+        result = _run(_agents(n), "/papers/p.pdf", max_rounds=1)
 
         assert len(result["reviews"]) == n  # every reviewer ran (fan-out)
         assert result["meta_review"] is not None
@@ -47,11 +44,6 @@ class TestGraphRun:
         assert result["author_response"] is None  # terminal decision, no revision round
         assert result["current_round"] == 1
         assert len(result["agent_runs"]) == n + 2  # N reviewers + meta + area chair
-
-    def test_invoke_before_compile_raises(self):
-        service = GraphService(config=object())
-        with pytest.raises(ConflictError):
-            service.invoke("/papers/p.pdf")
 
 
 class TestConditionalEdges:

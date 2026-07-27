@@ -16,15 +16,9 @@ from pathlib import Path
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from config import Config
 from domain.store.db.repository import SqlRepository
-from domain.store.db.models import (
-    PaperTable,
-    ReviewAgentRunPayloadTable,
-    ReviewAgentRunTable,
-    ReviewRunPayloadTable,
-    ReviewRunTable,
-)
+from domain.store.db.models import PaperTable, ReviewAgentRunPayloadTable, ReviewAgentRunTable, ReviewRunPayloadTable, ReviewRunTable
+
 
 AgentPair = tuple[ReviewAgentRunTable, ReviewAgentRunPayloadTable]
 RunRows = tuple[ReviewRunTable, ReviewRunPayloadTable | None, list[ReviewAgentRunTable], dict[int, ReviewAgentRunPayloadTable | None]]
@@ -32,8 +26,8 @@ RunRows = tuple[ReviewRunTable, ReviewRunPayloadTable | None, list[ReviewAgentRu
 
 class DbResultRepository(SqlRepository[ReviewRunTable]):
 
-    def __init__(self, config: Config):
-        super().__init__(config, ReviewRunTable)
+    def __init__(self):
+        super().__init__(ReviewRunTable)
 
     @staticmethod
     def build_run_id(paper_path: str) -> str:

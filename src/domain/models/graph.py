@@ -4,6 +4,7 @@
 from pydantic import BaseModel, Field
 
 from domain.models.chat import ChatModelName
+from domain.models.agent import AgentRequestContext, CreateAgentRequest
 
 
 class AgentConfig(BaseModel):
@@ -11,6 +12,7 @@ class AgentConfig(BaseModel):
     model: ChatModelName
     temperature: float = Field(default=0.4, ge=0.0, le=2.0)
     system_prompt: str = ""
+    request_context: AgentRequestContext = AgentRequestContext.default_none_context()
 
 
 class GraphConfig(BaseModel):
@@ -30,6 +32,17 @@ class GraphConfig(BaseModel):
         def cfg() -> AgentConfig:
             return AgentConfig(model=ChatModelName.MOCK, temperature=0.4)
         return GraphConfig(
-            reviewer=cfg(), meta_reviewer=cfg(), area_chair=cfg(), author=cfg(),
-            num_reviewers=num_reviewers, max_rounds=max_rounds,
+            reviewer=cfg(), 
+            meta_reviewer=cfg(), 
+            area_chair=cfg(), 
+            author=cfg(),
+            num_reviewers=num_reviewers, 
+            max_rounds=max_rounds
         )
+
+
+class CreateGraphReviewRequest(BaseModel):
+    """Request to run the review graph on a paper with a given configuration."""
+    paper_path: str
+    graph_config: GraphConfig
+    run_description: str = ""

@@ -16,7 +16,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 
-from config import Config
+from config import Config, get_global_config
 from core.error import ValidationError
 from domain.chat.mock_chat import MockChatModel
 from domain.models.chat import ChatFallbackRawResponseSchema, ChatModelName, ChatModelResponseSchema
@@ -40,9 +40,9 @@ class Factory:
     """Builds the chat model (per provider) and the prompt / variables."""
 
     @staticmethod
-    def create_chat(config: Config, model: ChatModelName, temperature: float) -> "Chat":
+    def create_chat(model: ChatModelName, temperature: float) -> "Chat":
         """Create a chat client for the given model name and temperature."""
-        chat_model = Factory._create_chat_model(config, model, temperature)
+        chat_model = Factory._create_chat_model(model, temperature)
         return Chat(chat_model)
 
     @staticmethod
@@ -58,8 +58,9 @@ class Factory:
         return {"message": message, "context": context or ""}
 
     @staticmethod
-    def _create_chat_model(config: Config, model: ChatModelName, temperature: float) -> BaseChatModel:
+    def _create_chat_model(model: ChatModelName, temperature: float) -> BaseChatModel:
         """Create a chat model client for the given model name and temperature."""
+        config = get_global_config()
         for predicate, build in Factory._client_builders():
             if predicate(model):
                 return build(model, temperature, config)

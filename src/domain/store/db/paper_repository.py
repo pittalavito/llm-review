@@ -12,7 +12,6 @@ from pathlib import Path
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from config import Config
 from domain.store.db.repository import SqlRepository
 from domain.store.db.models import PaperTable, ReviewRunTable
 from domain.models.paper import PaperType
@@ -20,8 +19,8 @@ from domain.models.paper import PaperType
 
 class DbPaperRepository(SqlRepository[PaperTable]):
 
-    def __init__(self, config: Config):
-        super().__init__(config, PaperTable)
+    def __init__(self):
+        super().__init__(PaperTable)
 
     def list(self) -> list[PaperTable]:
         with self._session() as session:

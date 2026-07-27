@@ -7,7 +7,6 @@ domain.store.redis.models.RagIndex (validated JSON).
 import re
 from hashlib import sha256
 
-from config import Config
 from core.observability import LogPrefix, log_warning
 
 from domain.store.redis.repository import RAG_INDEX_KEYSPACE
@@ -21,8 +20,8 @@ _UNSAFE_KEY_CHARS = re.compile(r"[^\w.\-/]")
 class RedisRagIndexRepository(RedisRepository):
     """RAG index store backed by Redis. ttl_seconds <= 0 = permanent store."""
 
-    def __init__(self, config: Config, ttl_seconds: int = 0):
-        super().__init__(RAG_INDEX_KEYSPACE, config, ttl_seconds)
+    def __init__(self, ttl_seconds: int = 0):
+        super().__init__(RAG_INDEX_KEYSPACE, ttl_seconds)
 
     @staticmethod
     def compute_doc_id(relative_path: str, strategy: str, strategy_version: str) -> str:

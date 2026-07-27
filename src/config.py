@@ -1,6 +1,7 @@
 """Application configuration, loaded from environment variables / .env."""
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+_instance: BaseSettings | None = None
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
@@ -36,3 +37,18 @@ class Config(BaseSettings):
     ollama_keep_alive: str = "10m"
     other_llm_provider_url: str | None = None
     other_llm_provider_api_key: str | None = None
+
+
+def initialize_global_config() -> Config:
+    """Initialize the global configuration instance."""
+    global _instance
+    if _instance is None:
+        _instance = Config()
+    return _instance    
+
+
+def get_global_config() -> Config:
+    """Get the global configuration instance."""
+    if _instance is None:
+        raise RuntimeError("Config has not been initialized. Call initialize_config() first.")
+    return _instance

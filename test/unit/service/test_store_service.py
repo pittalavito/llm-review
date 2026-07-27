@@ -10,7 +10,7 @@ import service.store_service as store_service_mod
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.retrieval import IndexInfo, RagIndex
-from domain.models.run_record import AgentRun, RunRecord, RunSummary
+from domain.models.run_record import AgentRun, GraphReviewRecord, RunSummary
 from domain.store.db.models import (
     PaperTable,
     ReviewAgentRunPayloadTable,
@@ -42,7 +42,7 @@ class FakeResults:
     """Stand-in for DbResultRepository."""
     saved: dict = {}
 
-    def __init__(self, config):
+    def __init__(self):
         pass
 
     def save_rows(self, run_row, payload_row, agent_pairs):
@@ -70,7 +70,7 @@ class FakePapers:
     """Stand-in for DbPaperRepository."""
     created = None
 
-    def __init__(self, config):
+    def __init__(self):
         pass
 
     def list(self):
@@ -90,7 +90,7 @@ class FakePapers:
 class FakePrompts:
     """Stand-in for DbPromptRepository (constructor + seed only — not exercised here)."""
 
-    def __init__(self, config):
+    def __init__(self):
         pass
 
     def seed_defaults(self, seeds) -> int:
@@ -101,7 +101,7 @@ class FakeRagIndex:
     """Stand-in for RedisRagIndexRepository."""
     saved = None
 
-    def __init__(self, config):
+    def __init__(self):
         pass
 
     def load(self, doc_id):
@@ -118,7 +118,7 @@ class FakeRagIndex:
 class FakeCache:
     """Stand-in for RedisOpenReviewCacheRepository."""
 
-    def __init__(self, config):
+    def __init__(self):
         pass
 
     def load(self, key):
@@ -128,7 +128,7 @@ class FakeCache:
 class FakeFiles:
     """Stand-in for FilePaperRepository (constructor only — not exercised here)."""
 
-    def __init__(self, config):
+    def __init__(self):
         pass
 
 
@@ -140,11 +140,11 @@ def service(monkeypatch) -> StoreService:
     monkeypatch.setattr(store_service_mod, "RedisRagIndexRepository", FakeRagIndex)
     monkeypatch.setattr(store_service_mod, "RedisOpenReviewCacheRepository", FakeCache)
     monkeypatch.setattr(store_service_mod, "FilePaperRepository", FakeFiles)
-    return StoreService(config=object())
+    return StoreService()
 
 
-def _run_record() -> RunRecord:
-    return RunRecord(
+def _run_record() -> GraphReviewRecord:
+    return GraphReviewRecord(
         run_id="RID", timestamp="t", paper_path="/p.pdf", decision="accept", total_rounds=2,
         reviews=["r"], meta_review={"overall_score": 7}, author_response=None, retrieval_metadata=None,
         graph_config={"max_rounds": 3},
@@ -170,7 +170,7 @@ class TestRuns:
 
     def test_get_run_builds_full_record_via_adapter(self, service):
         record = service.get_run("R1")
-        assert isinstance(record, RunRecord)
+        assert isinstance(record, GraphReviewRecord)
         assert record.reviews == ["rev"]
         assert record.graph_config == {"max_rounds": 3}
         assert record.agent_runs[0].agent_role is AgentRole.REVIEWER and record.agent_runs[0].agent_index == 1

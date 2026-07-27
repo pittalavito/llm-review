@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from uvicorn.logging import DefaultFormatter
 from contextlib import asynccontextmanager
 
-from config import Config
+from config import initialize_global_config
 from core.container import Container
 from controller.agent import router as agent_router
 
@@ -13,12 +13,12 @@ from controller.agent import router as agent_router
 def create_app() -> FastAPI:
     """Create and wire the FastAPI app."""
     
-    config = Config()
+    config = initialize_global_config()
     configure_logging(config.app_log_level)
     
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        app.state.container = Container(config)
+        app.state.container = Container()
         yield
 
     app = FastAPI(lifespan=lifespan, title="llm-review")

@@ -36,7 +36,7 @@ class TestFactory:
         assert Factory.create_chat_variables("m", "c") == {"message": "m", "context": "c"}
 
     def test_create_chat_mock(self):
-        chat = Factory.create_chat(None, ChatModelName.MOCK, 0.0)
+        chat = Factory.create_chat(ChatModelName.MOCK, 0.0)
         assert isinstance(chat, Chat)
         assert isinstance(chat._chat_model, MockChatModel)
 

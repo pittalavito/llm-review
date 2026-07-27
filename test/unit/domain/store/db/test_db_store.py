@@ -4,7 +4,7 @@ row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
-from domain.models.run_record import AgentRun, RunRecord
+from domain.models.run_record import AgentRun, GraphReviewRecord
 from domain.store.db.models import (
     PaperTable,
     PromptVersionTable,
@@ -36,8 +36,8 @@ class Utils:
         )
 
     @staticmethod
-    def run_record() -> RunRecord:
-        return RunRecord(
+    def run_record() -> GraphReviewRecord:
+        return GraphReviewRecord(
             run_id="RID", timestamp="2026-01-01", paper_path="/p.pdf", run_description="d",
             decision="accept", total_rounds=2, reviews=["r1"], meta_review={"overall_score": 7},
             area_chair_response={"decision": "accept"}, author_response={"rebuttal": "ok"},

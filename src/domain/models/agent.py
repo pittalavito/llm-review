@@ -30,18 +30,18 @@ class ContextMode(StrEnum):
     """The agent has no access to the context (e.g. a paper)."""
 
 
-class AgentContext(BaseModel):
+class AgentRequestContext(BaseModel):
     context_mode: ContextMode = ContextMode.NONE
     """The context mode used to retrieve the context for this agent"""
     retrieval_context_query: str | None = None    
     """The query used to retrieve the context for this agent. If it is not None, it contains the relevant query."""
     
-    def default_none_context() -> "AgentContext":
-        return AgentContext(context_mode=ContextMode.NONE, retrieval_context_query=None)
+    def default_none_context() -> "AgentRequestContext":
+        return AgentRequestContext(context_mode=ContextMode.NONE, retrieval_context_query=None)
     
     @staticmethod
-    def default_full_context() -> "AgentContext":
-        return AgentContext(context_mode=ContextMode.FULL_CONTEXT, retrieval_context_query=None)
+    def default_full_context() -> "AgentRequestContext":
+        return AgentRequestContext(context_mode=ContextMode.FULL_CONTEXT, retrieval_context_query=None)
 
 
 class CreateAgentRequest(BaseModel):
@@ -52,7 +52,7 @@ class CreateAgentRequest(BaseModel):
     agent_index: int | None = None
     prompt_version: str | None = None
     paper_id: str | None = None    
-    context_mode: ContextMode = ContextMode.NONE
+    context: AgentRequestContext = AgentRequestContext.default_none_context()
     retrieval_context_query: str | None = None
 
 

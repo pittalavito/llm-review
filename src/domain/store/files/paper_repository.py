@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from config import Config
+from config import get_global_config
 from core.error import NotFoundError, ValidationError
 from domain.models.retrieval import RagFileSignature
 from domain.store.files.models import StoredPaper
@@ -18,8 +18,8 @@ _PAPER_EXTENSIONS = {".pdf", ".txt"}
 class FilePaperRepository(FileStore):
     """Paper files under the papers root. ``relative_path`` (posix) is the id."""
 
-    def __init__(self, config: Config):
-        super().__init__(Path(config.papers_dir))
+    def __init__(self):
+        super().__init__(Path(get_global_config().papers_dir))
 
     # ------------------------------------------------------------------ reads
     def list(self) -> list[StoredPaper]:

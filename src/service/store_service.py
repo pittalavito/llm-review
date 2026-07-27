@@ -10,7 +10,6 @@ Everything comes from the per-store facades ``domain.store.db.store`` and
 ``Adapter`` (store record → domain model, reads) and ``Factory`` (domain model →
 store record, writes). The repositories deal only in rows/records.
 """
-from config import Config
 from core.observability import observed, LogPrefix
 
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
@@ -24,20 +23,19 @@ from domain.models.openreview import OpenReviewCache
 from domain.models.paper import Paper
 from domain.models.prompt import PromptVersion
 from domain.models.retrieval import IndexInfo, RagIndex
-from domain.models.run_record import AgentRun, RunRecord, RunSummary
+from domain.models.run_record import AgentRun, GraphReviewRecord, RunSummary
 
 
 class StoreService:
 
     @observed(LogPrefix.STORE_SERVICE)
-    def __init__(self, config: Config):
-        self.config = config
-        self._results_repository = DbResultRepository(config)
-        self._papers_repository = DbPaperRepository(config)
-        self._prompts_repository = DbPromptRepository(config)
-        self._rag_index_repository = RedisRagIndexRepository(config)
-        self._cache_repository = RedisOpenReviewCacheRepository(config)
-        self._papers_files = FilePaperRepository(config)
+    def __init__(self):
+        self._results_repository = DbResultRepository()
+        self._papers_repository = DbPaperRepository()
+        self._prompts_repository = DbPromptRepository()
+        self._rag_index_repository = RedisRagIndexRepository()
+        self._cache_repository = RedisOpenReviewCacheRepository()
+        self._papers_files = FilePaperRepository()
 
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
         
@@ -49,7 +47,7 @@ class StoreService:
     def build_run_id(paper_path: str) -> str:
         return DbResultRepository.build_run_id(paper_path)
 
-    def save_run(self, record: RunRecord) -> str:
+    def save_run(self, record: GraphReviewRecord) -> str:
         run_row = DbFactory.to_run_row(record)
         payload_row = DbFactory.to_run_payload_row(record)
         agent_pairs = DbFactory.to_agent_pairs(record.run_id, record.agent_runs)
@@ -58,7 +56,7 @@ class StoreService:
     def list_runs(self) -> list[RunSummary]:
         return DbAdapter.to_run_summaries(self._results_repository.list_summaries())
 
-    def get_run(self, run_id: str) -> RunRecord | None:
+    def get_run(self, run_id: str) -> GraphReviewRecord | None:
         rows = self._results_repository.get_rows(run_id)
         return DbAdapter.to_run_record(*rows) if rows is not None else None
 

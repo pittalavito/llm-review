@@ -1,10 +1,9 @@
 """Unit tests for the local files store (domain/store/files): FilePaperRepository
 listing, safe path resolution, read, signature, save and delete over a real tmp
 papers folder. No other store involved."""
-import types
-
 import pytest
 
+from config import get_global_config
 from core.error import NotFoundError, ValidationError
 from domain.models.retrieval import RagFileSignature
 from domain.store.files.models import StoredPaper
@@ -12,15 +11,15 @@ from domain.store.files.paper_repository import FilePaperRepository
 
 
 @pytest.fixture
-def repo(tmp_path):
+def repo(tmp_path, monkeypatch):
     papers = tmp_path / "papers"
     papers.mkdir()
     (papers / "p.txt").write_text("content", encoding="utf-8")
     (papers / "sub").mkdir()
     (papers / "sub" / "q.pdf").write_bytes(b"%PDF-1.4 stub")
     (papers / "notes.md").write_text("ignored", encoding="utf-8")  # unsupported ext
-    config = types.SimpleNamespace(papers_dir=str(papers))
-    return FilePaperRepository(config)
+    monkeypatch.setattr(get_global_config(), "papers_dir", str(papers))
+    return FilePaperRepository()
 
 
 class TestReads:

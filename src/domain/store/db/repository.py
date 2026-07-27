@@ -10,14 +10,13 @@ migration path.
 import json
 from typing import Any, Generic, TypeVar
 
+from config import get_global_config
 from sqlalchemy.engine import Engine as SqlAlchemyEngine
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from config import Config
 from core.observability import observed, LogPrefix
 
 TableT = TypeVar("TableT", bound=SQLModel)
-
 
 class Engine:
     """Builds and caches the SQLAlchemy engine — one per database URL, shared
@@ -26,20 +25,21 @@ class Engine:
     _engines: dict[str, SqlAlchemyEngine] = {}
 
     @staticmethod
-    def get_engine(config: Config) -> SqlAlchemyEngine:
+    def get_engine() -> SqlAlchemyEngine:
         """Return the engine for config.database_url, creating it once."""
-        engine = Engine._engines.get(config.database_url)
+        db_url = get_global_config().database_url
+        engine = Engine._engines.get(db_url)
         if engine is None:
-            engine = Engine.create_db_engine(config)
-            Engine._engines[config.database_url] = engine
+            engine = Engine.create_db_engine(db_url)
+            Engine._engines[db_url] = engine
         return engine
 
     @staticmethod
     @observed(LogPrefix.DB_ENGINE)
-    def create_db_engine(config: Config) -> SqlAlchemyEngine:
-        """Create the engine from config.database_url and ensure the schema."""
+    def create_db_engine(db_url: str) -> SqlAlchemyEngine:
+        """Create the engine from db_url and ensure the schema."""
         engine = create_engine(
-            config.database_url,
+            db_url,
             echo=False,
             pool_pre_ping=True,
             json_serializer=lambda obj: json.dumps(obj, ensure_ascii=False),
@@ -58,8 +58,8 @@ class SqlRepository(Generic[TableT]):
     Concrete repositories add their own queries, reusing ``_session()`` for
     anything the base doesn't cover. Everything is in terms of ``*Table`` rows."""
 
-    def __init__(self, config: Config, table: type[TableT]):
-        self._engine = Engine.get_engine(config)
+    def __init__(self, table: type[TableT]):
+        self._engine = Engine.get_engine()
         self._table = table
 
     def _session(self) -> Session:

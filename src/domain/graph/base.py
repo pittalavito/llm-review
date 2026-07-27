@@ -73,7 +73,6 @@ class Messages:
             f"({state.get('area_chair_response')}) and {len(reviews)} reviews."
         )
 
-
 class Nodes:
     """Wrap an agent into a LangGraph node, plus the two conditional-edge functions."""
 
@@ -102,7 +101,6 @@ class Nodes:
                 "decision": payload.decision,
                 "agent_runs": [run.model_dump()],
             }
-        # runs after meta has already incremented current_round
         return Nodes._make(agent, Messages.area_chair, update, round_offset=-1)
 
     @staticmethod
@@ -177,10 +175,7 @@ class Builder:
 
     @staticmethod
     def build_graph(agents: dict[str, Agent]) -> StateGraph:
-        reviewers = sorted(
-            (a for a in agents.values() if a.agent_role is AgentRole.REVIEWER),
-            key=lambda a: a.agent_index or 0,
-        )
+        reviewers = Builder._get_reviewers(agents)
         if not reviewers:
             raise ValueError("The graph needs at least one reviewer agent.")
 
@@ -189,6 +184,27 @@ class Builder:
         Builder._register_edges(graph, reviewers)
         Builder._register_conditional_edges(graph)
         return graph
+    
+    @staticmethod
+    def _register_nodes(graph: StateGraph, reviewers: list[Agent], agents: dict[str, Agent]) -> None:
+        graph.add_node(_DISPATCH, lambda state: {})
+        for reviewer in reviewers:
+            graph.add_node(reviewer.name, Nodes.reviewer(reviewer))
+        
+        meta_node = Builder._by_role(agents, AgentRole.META_REVIEWER)
+        area_chair_node = Builder._by_role(agents, AgentRole.AREA_CHAIR)
+        author_node = Builder._by_role(agents, AgentRole.AUTHOR_AGENT)
+        
+        graph.add_node(_META, Nodes.meta(meta_node))
+        graph.add_node(_AREA_CHAIR, Nodes.area_chair(area_chair_node))
+        graph.add_node(_AUTHOR, Nodes.author(author_node))
+
+    @staticmethod
+    def _get_reviewers(agents: dict[str, Agent]) -> list[Agent]:
+        return sorted(
+            (a for a in agents.values() if a.agent_role is AgentRole.REVIEWER),
+            key=lambda a: a.agent_index or 0,
+        )
 
     @staticmethod
     def _by_role(agents: dict[str, Agent], role: AgentRole) -> Agent:
@@ -196,15 +212,6 @@ class Builder:
             if agent.agent_role is role:
                 return agent
         raise ValueError(f"Missing agent for role {role}.")
-    
-    @staticmethod
-    def _register_nodes(graph: StateGraph, reviewers: list[Agent], agents: dict[str, Agent]) -> None:
-        graph.add_node(_DISPATCH, lambda state: {})  # passthrough fan-out point
-        for reviewer in reviewers:
-            graph.add_node(reviewer.name, Nodes.reviewer(reviewer))
-        graph.add_node(_META, Nodes.meta(Builder._by_role(agents, AgentRole.META_REVIEWER)))
-        graph.add_node(_AREA_CHAIR, Nodes.area_chair(Builder._by_role(agents, AgentRole.AREA_CHAIR)))
-        graph.add_node(_AUTHOR, Nodes.author(Builder._by_role(agents, AgentRole.AUTHOR_AGENT)))
 
     @staticmethod
     def _register_edges(graph: StateGraph, reviewers: list[Agent]) -> None:
@@ -215,6 +222,9 @@ class Builder:
         graph.add_edge(_META, _AREA_CHAIR)
 
     @staticmethod
-    def _register_conditional_edges(graph: StateGraph) -> None:
-        graph.add_conditional_edges(_AREA_CHAIR, Nodes.area_chair_conditional, {"accept": END, "revise": _AUTHOR})
-        graph.add_conditional_edges(_AUTHOR, Nodes.end_loop_conditional, {"loop": _DISPATCH, "end": END})
+    def _register_conditional_edges(graph: StateGraph) -> None:        
+        area_chair_dict = {"accept": END, "revise": _AUTHOR}
+        author_dict = {"loop": _DISPATCH, "end": END}
+
+        graph.add_conditional_edges(_AREA_CHAIR, Nodes.area_chair_conditional, area_chair_dict)
+        graph.add_conditional_edges(_AUTHOR, Nodes.end_loop_conditional, author_dict)

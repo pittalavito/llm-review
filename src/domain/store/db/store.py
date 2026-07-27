@@ -11,7 +11,7 @@ from domain.store.db.result_repository import DbResultRepository
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
-from domain.models.run_record import AgentRun, RunRecord, RunSummary
+from domain.models.run_record import AgentRun, GraphReviewRecord, RunSummary
 from domain.store.db.models import (
     PaperTable,
     PromptVersionTable,
@@ -67,10 +67,10 @@ class Adapter:
         payload: ReviewRunPayloadTable | None,
         agent_rows: list[ReviewAgentRunTable],
         agent_payloads: dict[int, ReviewAgentRunPayloadTable | None],
-    ) -> RunRecord:
+    ) -> GraphReviewRecord:
         """Reassemble a full ``RunRecord`` from its run row, payload row, agent
         rows and their payloads. A missing payload degrades to empty/None."""
-        return RunRecord(
+        return GraphReviewRecord(
             run_id=run_row.run_id,
             timestamp=run_row.timestamp,
             paper_path=run_row.paper_path,
@@ -135,7 +135,7 @@ class Factory:
         )
 
     @staticmethod
-    def to_run_row(record: RunRecord) -> ReviewRunTable:
+    def to_run_row(record: GraphReviewRecord) -> ReviewRunTable:
         """Build the ``review_run`` facts row (``meta_overall_score`` / ``max_rounds``
         extracted from the meta-review payload / graph config)."""
         return ReviewRunTable(
@@ -150,7 +150,7 @@ class Factory:
         )
 
     @staticmethod
-    def to_run_payload_row(record: RunRecord) -> ReviewRunPayloadTable:
+    def to_run_payload_row(record: GraphReviewRecord) -> ReviewRunPayloadTable:
         """Build the ``review_run_payload`` row (verbatim LLM payloads)."""
         return ReviewRunPayloadTable(
             run_id=record.run_id,
