@@ -38,5 +38,5 @@ def list_agents() -> list[AgentRole]:
 
 @router.post(URI_CHAT)
 def chat(request: ChatRequest, service: AgentService = Depends(agent_service)):
-    chat = service.build_chat(model=request.model, temperature=request.temperature)
+    chat = service._build_chat(model=request.model, temperature=request.temperature)
     return chat.invoke(request.message)

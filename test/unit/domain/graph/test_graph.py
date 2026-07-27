@@ -8,20 +8,25 @@ from domain.agent.base import Factory as AgentFactory
 from domain.chat.base import Chat
 from domain.chat.mock_chat import MockChatModel
 from domain.graph.base import Nodes
-from domain.models.agent import AgentRole
-from domain.models.chat import ChatReviewDecision
+from domain.models.agent import AgentRole, CreateAgentRequest
+from domain.models.chat import ChatModelName, ChatReviewDecision
 from domain.models.graph import GraphConfig
 from service.graph_service import GraphService
 
 
 def _agents(num_reviewers: int) -> dict:
     chat = Chat(MockChatModel())
+
+    def make(role: AgentRole, index: int | None = None):
+        request = CreateAgentRequest(model=ChatModelName.MOCK, temperature=0.0, agent_role=role, agent_index=index)
+        return AgentFactory.create_agent(request, chat, system_prompt=f"You are the {role}.")
+
     agents = {}
     for index in range(1, num_reviewers + 1):
-        agent = AgentFactory.create_agent(AgentRole.REVIEWER, chat, agent_index=index)
+        agent = make(AgentRole.REVIEWER, index)
         agents[agent.name] = agent
     for role in (AgentRole.META_REVIEWER, AgentRole.AREA_CHAIR, AgentRole.AUTHOR_AGENT):
-        agent = AgentFactory.create_agent(role, chat)
+        agent = make(role)
         agents[agent.name] = agent
     return agents
 
