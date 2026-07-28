@@ -9,5 +9,10 @@ class ChatRequest(BaseModel):
     message: str = "Respond with a simple 'ping' message."
 
 class ChatResponse(BaseModel):
-    """Basic chat response: the model's response message."""
+    """Full chat response returned to the FE as JSON: the model's message plus
+    the token usage and any structured-output parsing error."""
     response: str
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None
+    parsing_error: str | None = None

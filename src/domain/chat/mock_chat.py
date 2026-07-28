@@ -15,7 +15,7 @@ from domain.models.chat import (
     ChatRevisedSection,
 )
 
-_MOCK_USAGE = {"input_tokens": 100, "output_tokens": 50, "total_tokens": 150}
+_MOCK_USAGE = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
 
 _MOCK_INSTANCES: dict[type[BaseModel], BaseModel] = {
     ReviewerResponseSchema: ReviewerResponseSchema(

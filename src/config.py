@@ -14,6 +14,9 @@ class Config(BaseSettings):
     app_host: str
     app_log_level: str
     papers_dir: str = "resource/papers"
+    ui_dist_dir: str = "ui/dist"
+    """Path to the built frontend served at "/"; relative paths resolve against
+    the project root. Set empty to disable serving the UI from the backend."""
 
     # --- Postgres ---
     postgres_user: str
