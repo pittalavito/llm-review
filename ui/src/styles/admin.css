@@ -64,3 +64,33 @@
   flex-shrink: 0;
   text-decoration: none;
 }
+
+/* ── Config table (inside the Config modal) ───────────── */
+.config-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.config-table td {
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+}
+
+.config-table tr:last-child td {
+  border-bottom: none;
+}
+
+.config-table__key {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--c-text-secondary);
+  white-space: nowrap;
+}
+
+.config-table__value {
+  font-family: var(--font-mono);
+  color: var(--c-text-primary);
+  word-break: break-all;
+}

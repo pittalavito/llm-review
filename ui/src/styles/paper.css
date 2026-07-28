@@ -16,6 +16,76 @@
   padding: 1px var(--s-2);
 }
 
+/* ── Modal overlay ────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-6);
+  background: rgba(8, 12, 22, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: var(--s-5);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+}
+
+.modal__title {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--c-text-primary);
+  letter-spacing: 0.01em;
+}
+
+.modal__close {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  color: var(--c-text-muted);
+  font-size: var(--text-sm);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.modal__close:hover {
+  color: var(--c-error);
+  background: color-mix(in srgb, var(--c-error) 10%, transparent);
+}
+
+/* Inside the modal the dialog is the card: the form loses its own frame. */
+.modal .paper-form {
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  max-width: none;
+}
+
+.modal .paper-result {
+  max-width: none;
+}
+
 /* ── Form ─────────────────────────────────────────────── */
 .paper-form {
   display: flex;

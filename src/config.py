@@ -1,7 +1,12 @@
 """Application configuration, loaded from environment variables / .env."""
+import re
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _instance: BaseSettings | None = None
+
+_SENSITIVE_KEY_MARKERS = ("password", "api_key", "secret", "token")
+_MASK = "********"
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
@@ -55,3 +60,21 @@ def get_global_config() -> Config:
     if _instance is None:
         raise RuntimeError("Config has not been initialized. Call initialize_config() first.")
     return _instance
+
+
+def get_config_with_secrets_masked() -> dict:
+    """Get the global configuration instance with secrets masked."""
+    config = get_global_config()
+    result = {}
+    for name, value in config.model_dump().items():
+        if value in (None, ""):
+            result[name] = value
+        elif any(marker in name for marker in _SENSITIVE_KEY_MARKERS):
+            result[name] = _MASK
+        elif isinstance(value, str):
+            # Mask the password in ``scheme://user:password@host`` URLs
+            result[name] =  re.sub(r"://([^:/@]+):([^@]+)@", rf"://\1:{_MASK}@", value)
+        else:
+            result[name] = value
+    return result
+  

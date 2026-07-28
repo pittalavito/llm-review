@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from config import get_config_with_secrets_masked
 from core.container import agent_service, store_service
 from controller.models import ChatRequest, ChatResponse, CreatePaperRequest
 
@@ -11,6 +12,21 @@ from service.agent_service import AgentService
 from service.store_service import StoreService
 
 router = APIRouter()
+
+#####################################################################
+#### Admin APIs #####################################################
+#####################################################################
+URI_ADMIN_PREFIX = "/admin"
+URI_ADMIN_CONFIG = f"{URI_ADMIN_PREFIX}/config"
+
+
+@router.get(URI_ADMIN_CONFIG)
+def get_config() -> dict:
+    """The whole app config, with secrets masked: password/api-key fields
+    become asterisks (empty ones stay empty) and credentials embedded in
+    URLs (e.g. DATABASE_URL) are scrubbed."""
+    return get_config_with_secrets_masked()
+
 
 #####################################################################
 #### Chat APIs ######################################################
@@ -70,8 +86,11 @@ def get_paper_types() -> list[PaperType]:
 
 
 @router.post(URI_PAPER_CREATE)
-def create_paper(request: CreatePaperRequest, service: StoreService = Depends(store_service)) -> Paper | None:
-    return service.save_paper(request.paper, request.file_bytes)
+def create_paper(request: CreatePaperRequest, service: StoreService = Depends(store_service)) -> Paper:
+    saved = service.save_paper(request.paper, request.file_bytes)
+    if saved is None:
+        raise HTTPException(status_code=409, detail="A paper with this id already exists.")
+    return saved
 
 #####################################################################
 #### Retrieval APIs #################################################

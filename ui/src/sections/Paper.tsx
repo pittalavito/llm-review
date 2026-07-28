@@ -1,8 +1,10 @@
-/** Paper section — create a new paper: pick a .pdf/.txt file, choose the type,
- * optional description. The file travels base64-encoded inside
- * CreatePaperRequest (POST /paper/create); the backend derives the paper_id
- * (<paper-type>_<name>_<extension>) and stores row + file under it. */
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+/** Paper section — action cards in the Admin style. "Carica un nuovo paper"
+ * opens a modal with the upload form: .pdf/.txt file, type, optional
+ * description. The file travels base64-encoded inside CreatePaperRequest
+ * (POST /paper/create); the backend derives the paper_id
+ * (<paper-type>_<name>_<extension>) and stores row + file under it.
+ * List/detail cards are TODO placeholders for the upcoming endpoints. */
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError, createPaper, listPaperTypes } from '../api/client';
 import type { Paper as PaperModel } from '../api/types';
 import { useOptions } from '../components/useOptions';
@@ -36,7 +38,36 @@ async function fileToBase64(file: File): Promise<string> {
   return btoa(binary);
 }
 
-export default function Paper() {
+interface ActionCardProps {
+  title: string;
+  description: ReactNode;
+  actionLabel: string;
+  onAction?: () => void;
+}
+
+function ActionCard({ title, description, actionLabel, onAction }: ActionCardProps) {
+  return (
+    <section className="admin-card">
+      <div className="admin-card__info">
+        <h3 className="admin-card__title">
+          {title}
+          {!onAction && <span className="badge badge--todo">TODO</span>}
+        </h3>
+        <p className="admin-card__desc">{description}</p>
+      </div>
+      <button
+        className="btn btn--primary admin-card__btn"
+        type="button"
+        disabled={!onAction}
+        onClick={onAction}
+      >
+        {actionLabel}
+      </button>
+    </section>
+  );
+}
+
+function UploadPaperModal({ onClose }: { onClose: () => void }) {
   const { options: types, error: typesError } = useOptions(listPaperTypes);
   const [paperType, setPaperType] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -51,6 +82,13 @@ export default function Paper() {
   useEffect(() => {
     if (!paperType && types.length > 0) setPaperType(types[0]);
   }, [types, paperType]);
+
+  // Close on Esc.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   function onFileChange(selected: File | null) {
     setResult(null);
@@ -88,6 +126,7 @@ export default function Paper() {
         file_bytes: await fileToBase64(file),
       });
       setResult(saved);
+      // Form stays open, reset for the next upload.
       setFile(null);
       setDescription('');
       if (fileRef.current) fileRef.current.value = '';
@@ -99,71 +138,117 @@ export default function Paper() {
   }
 
   return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="upload-paper-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal__header">
+          <h3 className="modal__title" id="upload-paper-title">Carica un nuovo paper</h3>
+          <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
+        </div>
+
+        <form className="paper-form" noValidate onSubmit={onSubmit}>
+          <label className="paper-form__label" htmlFor="paper-file">File (.pdf o .txt)</label>
+          <input
+            ref={fileRef}
+            className="paper-form__file"
+            id="paper-file"
+            type="file"
+            accept=".pdf,.txt"
+            disabled={saving}
+            onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+          />
+          {fileError && <p className="paper-form__error">{fileError}</p>}
+
+          <label className="paper-form__label" htmlFor="paper-type">Tipo</label>
+          <select
+            className="paper-form__select"
+            id="paper-type"
+            value={paperType}
+            disabled={saving}
+            onChange={(e) => setPaperType(e.target.value)}
+          >
+            {typesError && <option value="">Error loading</option>}
+            {!typesError && types.length === 0 && <option value="">Loading…</option>}
+            {types.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+
+          <label className="paper-form__label" htmlFor="paper-description">Descrizione (opzionale)</label>
+          <textarea
+            className="paper-form__textarea"
+            id="paper-description"
+            rows={3}
+            maxLength={1000}
+            placeholder="Breve descrizione del paper…"
+            value={description}
+            disabled={saving}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+
+          {file && (
+            <p className="paper-form__preview">
+              paper_id: <code>{previewPaperId(paperType, file.name)}</code>
+            </p>
+          )}
+
+          <div className="paper-form__actions">
+            <button className="btn btn--primary" type="submit" disabled={saving || !file}>
+              {saving ? 'Salvataggio…' : 'Salva paper'}
+            </button>
+          </div>
+        </form>
+
+        {submitError && <p className="paper-form__error">{submitError}</p>}
+
+        {result && (
+          <div className="card paper-result">
+            <div className="card__header"><span className="card__title">Paper salvato</span></div>
+            <div className="card__body"><pre>{JSON.stringify(result, null, 2)}</pre></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function Paper() {
+  const [uploadOpen, setUploadOpen] = useState(false);
+
+  return (
     <div className="section-wrap paper-section">
       <h2 className="section-title">Paper</h2>
-      <p className="section-description">
-        Carica un nuovo paper (<code>.pdf</code> o <code>.txt</code>) nel catalogo.
-      </p>
+      <p className="section-description">Gestione del catalogo paper.</p>
 
-      <form className="paper-form" noValidate onSubmit={onSubmit}>
-        <label className="paper-form__label" htmlFor="paper-file">File</label>
-        <input
-          ref={fileRef}
-          className="paper-form__file"
-          id="paper-file"
-          type="file"
-          accept=".pdf,.txt"
-          disabled={saving}
-          onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
-        />
-        {fileError && <p className="paper-form__error">{fileError}</p>}
+      <ActionCard
+        title="Carica un nuovo paper"
+        description={<>Aggiungi un file <code>.pdf</code> o <code>.txt</code> al catalogo, con tipo e descrizione.</>}
+        actionLabel="Carica"
+        onAction={() => setUploadOpen(true)}
+      />
 
-        <label className="paper-form__label" htmlFor="paper-type">Tipo</label>
-        <select
-          className="paper-form__select"
-          id="paper-type"
-          value={paperType}
-          disabled={saving}
-          onChange={(e) => setPaperType(e.target.value)}
-        >
-          {typesError && <option value="">Error loading</option>}
-          {!typesError && types.length === 0 && <option value="">Loading…</option>}
-          {types.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
+      <ActionCard
+        title="Index paper"
+        description={<>Indicizza un paper per il retrieval (strategia RAG e versione) — in preparazione.</>}
+        actionLabel="Indicizza"
+      />
 
-        <label className="paper-form__label" htmlFor="paper-description">Descrizione (opzionale)</label>
-        <textarea
-          className="paper-form__textarea"
-          id="paper-description"
-          rows={3}
-          maxLength={1000}
-          placeholder="Breve descrizione del paper…"
-          value={description}
-          disabled={saving}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+      <ActionCard
+        title="Lista paper"
+        description={<>Elenco dei paper nel catalogo — in preparazione.</>}
+        actionLabel="Apri"
+      />
 
-        {file && (
-          <p className="paper-form__preview">
-            paper_id: <code>{previewPaperId(paperType, file.name)}</code>
-          </p>
-        )}
+      <ActionCard
+        title="Dettaglio paper"
+        description={<>Scheda di un paper per id — in preparazione.</>}
+        actionLabel="Apri"
+      />
 
-        <div className="paper-form__actions">
-          <button className="btn btn--primary" type="submit" disabled={saving || !file}>
-            {saving ? 'Salvataggio…' : 'Salva paper'}
-          </button>
-        </div>
-      </form>
-
-      {submitError && <p className="paper-form__error">{submitError}</p>}
-
-      {result && (
-        <div className="card paper-result">
-          <div className="card__header"><span className="card__title">Paper salvato</span></div>
-          <div className="card__body"><pre>{JSON.stringify(result, null, 2)}</pre></div>
-        </div>
-      )}
+      {uploadOpen && <UploadPaperModal onClose={() => setUploadOpen(false)} />}
     </div>
   );
 }

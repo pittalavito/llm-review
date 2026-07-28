@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, ChatModelName, ChatResponse, CreatePaperRequest, Paper, PaperType } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreatePaperRequest, Paper, PaperType } from './types';
 
 export class ApiError extends Error {}
 
@@ -46,6 +46,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 export const listModels = () => get<ChatModelName[]>('/chat/models');
 export const listRoles = () => get<AgentRole[]>('/agent/roles');
+export const getAdminConfig = () => get<AppConfig>('/admin/config');
 
 // ---------------------------------------------------------------------------
 // Ping chat — single-turn LLM tester

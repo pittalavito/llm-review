@@ -48,3 +48,7 @@ export interface CreatePaperRequest {
   paper: Paper;
   file_bytes: string;
 }
+
+// GET /admin/config — the whole backend Config (secrets already masked by the BE).
+// Known keys are typed loosely: the shape follows src/config.py and can grow.
+export type AppConfig = Record<string, string | number | null>;

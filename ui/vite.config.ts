@@ -10,6 +10,8 @@ export default defineConfig({
       '/chat': 'http://localhost:8081',
       '/agent': 'http://localhost:8081',
       '/paper': 'http://localhost:8081',
+      // Precise key: '/admin' alone is the SPA route for the Admin page.
+      '/admin/config': 'http://localhost:8081',
       '/docs': 'http://localhost:8081',
       '/openapi.json': 'http://localhost:8081',
     },
