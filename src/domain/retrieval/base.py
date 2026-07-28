@@ -2,8 +2,9 @@
 strategy-specific RagIndex, then produce the context text handed to an agent for
 a query.
 
-``PaperFileReader`` resolves/reads the file (``.txt`` verbatim, ``.pdf`` via
-Docling layout parsing). ``RetrievalStrategy`` is the pluggable seam — pick one
+``PaperFileReader`` parses the file ("txt" verbatim, "pdf" via Docling layout
+parsing; the format comes from the paper_id, files carry no dot-extension).
+``RetrievalStrategy`` is the pluggable seam — pick one
 with ``RetrievalStrategy.create(strategy, ...)``:
   - ``FullContextStrategy``: whole paper, all sections concatenated (query ignored);
   - ``Bm25Strategy``: chunk the paper, rank chunks by BM25 lexical score;
@@ -12,10 +13,11 @@ Chunk-based strategies share ``Chunker``; the embedding strategy uses an
 ``Embedder`` (``MockEmbedder`` for tests; a real provider plugs in behind the seam).
 """
 from abc import ABC, abstractmethod
+from io import BytesIO
 from pathlib import Path
 from zlib import crc32
 
-from docling.datamodel.base_models import InputFormat
+from docling.datamodel.base_models import DocumentStream, InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from rank_bm25 import BM25Okapi
@@ -28,20 +30,22 @@ _HEADER_LABEL_VALUES = {"section_header", "title"}
 
 class PaperFileReader:
     """Parses a paper file into (heading, body) sections. Resolving/reading the
-    file is the files store's job — this reader only parses a given path (``.txt``
-    verbatim, ``.pdf`` via Docling). The Docling converter is built once, on the
-    first PDF, and reused."""
+    file is the files store's job — this reader only parses a given path, with
+    the format ("txt" verbatim, "pdf" via Docling) passed in by the caller since
+    files are named by paper_id and carry no dot-extension. The Docling
+    converter is built once, on the first PDF, and reused."""
 
     def __init__(self):
         self._converter = None
 
-    def extract_structure(self, source_path: Path) -> list[tuple[str, str]]:
-        """Return (heading, body_text) pairs in document order. ``.txt`` becomes a
-        single "body" section; ``.pdf`` is parsed with Docling's layout detector."""
-        if source_path.suffix.lower() == ".txt":
+    def extract_structure(self, source_path: Path, file_format: str) -> list[tuple[str, str]]:
+        """Return (heading, body_text) pairs in document order. "txt" becomes a
+        single "body" section; "pdf" is parsed with Docling's layout detector."""
+        if file_format == "txt":
             return self._read_txt(source_path)
 
-        document = self._converter_for_pdf().convert(str(source_path)).document
+        stream = DocumentStream(name=f"{source_path.name}.pdf", stream=BytesIO(source_path.read_bytes()))
+        document = self._converter_for_pdf().convert(stream).document
         sections = self._walk_document_sections(document)
         if not sections:
             raise ValidationError("Could not extract text from the selected paper file.")
@@ -161,7 +165,7 @@ class RetrievalStrategy(ABC):
         self._strategy_version = strategy_version
 
     @abstractmethod
-    def build_index(self, raw_sections: list[tuple[str, str]], relative_path: str, doc_id: str, file_signature: RagFileSignature) -> RagIndex:
+    def build_index(self, raw_sections: list[tuple[str, str]], paper_id: str, doc_id: str, file_signature: RagFileSignature) -> RagIndex:
         ...
 
     @abstractmethod
@@ -216,9 +220,9 @@ class FullContextStrategy(RetrievalStrategy):
 
     strategy = RagStrategy.FULL_CONTEXT
 
-    def build_index(self, raw_sections, relative_path, doc_id, file_signature) -> RagIndex:
+    def build_index(self, raw_sections, paper_id, doc_id, file_signature) -> RagIndex:
         return RagIndex(
-            doc_id=doc_id, paper_path=relative_path, file_signature=file_signature,
+            doc_id=doc_id, paper_id=paper_id, file_signature=file_signature,
             settings=self._config(), sections=self._group_sections(raw_sections),
         )
 
@@ -236,10 +240,10 @@ class Bm25Strategy(RetrievalStrategy):
         self._chunker = chunker
         self._top_k = top_k
 
-    def build_index(self, raw_sections, relative_path, doc_id, file_signature) -> RagIndex:
+    def build_index(self, raw_sections, paper_id, doc_id, file_signature) -> RagIndex:
         chunks = self._chunker.chunk(self._group_sections(raw_sections))
         return RagIndex(
-            doc_id=doc_id, paper_path=relative_path, file_signature=file_signature,
+            doc_id=doc_id, paper_id=paper_id, file_signature=file_signature,
             settings=self._config(), chunks=chunks,
         )
 
@@ -269,12 +273,12 @@ class EmbeddingStrategy(RetrievalStrategy):
         self._embedder = embedder
         self._top_k = top_k
 
-    def build_index(self, raw_sections, relative_path, doc_id, file_signature) -> RagIndex:
+    def build_index(self, raw_sections, paper_id, doc_id, file_signature) -> RagIndex:
         chunks = self._chunker.chunk(self._group_sections(raw_sections))
         for chunk, vector in zip(chunks, self._embedder.embed([chunk.text for chunk in chunks])):
             chunk.embedding = vector
         return RagIndex(
-            doc_id=doc_id, paper_path=relative_path, file_signature=file_signature,
+            doc_id=doc_id, paper_id=paper_id, file_signature=file_signature,
             settings=self._config(), chunks=chunks,
         )
 

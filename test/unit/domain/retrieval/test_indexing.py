@@ -38,7 +38,7 @@ class TestFullContextBuildIndex:
         assert index.sections[1].text == "a b"  # bodies joined
         assert index.settings.strategy is RagStrategy.FULL_CONTEXT
         assert index.settings.strategy_version == "v1"
-        assert index.doc_id == "doc1" and index.paper_path == "p.txt"
+        assert index.doc_id == "doc1" and index.paper_id == "p.txt"
 
     def test_cleans_heading_whitespace(self):
         index = FullContextStrategy("v1").build_index([("  Related   Work \n", "x")], "p.txt", "d", _signature())
@@ -57,13 +57,13 @@ class TestExtractStructure:
     def test_extract_txt_is_single_body(self, tmp_path):
         source = tmp_path / "p.txt"
         source.write_text("  the whole paper  ", encoding="utf-8")
-        assert PaperFileReader().extract_structure(source) == [("body", "the whole paper")]
+        assert PaperFileReader().extract_structure(source, "txt") == [("body", "the whole paper")]
 
     def test_extract_empty_txt_raises(self, tmp_path):
         source = tmp_path / "p.txt"
         source.write_text("   ", encoding="utf-8")
         with pytest.raises(ValidationError):
-            PaperFileReader().extract_structure(source)
+            PaperFileReader().extract_structure(source, "txt")
 
 
 class TestWalkDocumentSections:

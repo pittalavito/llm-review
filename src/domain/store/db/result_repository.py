@@ -9,16 +9,13 @@ it needs the graph-config model, which does not exist in this project yet.
 """
 from __future__ import annotations
 
-import re
 from datetime import datetime, timezone
-from pathlib import Path
 
 from sqlalchemy import func
 from sqlmodel import Session, select
 
 from domain.store.db.repository import SqlRepository
 from domain.store.db.models import PaperTable, ReviewAgentRunPayloadTable, ReviewAgentRunTable, ReviewRunPayloadTable, ReviewRunTable
-
 
 AgentPair = tuple[ReviewAgentRunTable, ReviewAgentRunPayloadTable]
 RunRows = tuple[ReviewRunTable, ReviewRunPayloadTable | None, list[ReviewAgentRunTable], dict[int, ReviewAgentRunPayloadTable | None]]
@@ -30,18 +27,17 @@ class DbResultRepository(SqlRepository[ReviewRunTable]):
         super().__init__(ReviewRunTable)
 
     @staticmethod
-    def build_run_id(paper_path: str) -> str:
-        """Build a run_id from the current timestamp and the paper filename."""
+    def build_run_id(paper_id: str) -> str:
+        """Build a run_id from the current timestamp and the paper id (already
+        a safe slug — no stem/sanitize needed)."""
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S")
-        stem = Path(paper_path).stem
-        safe = re.sub(r"[^\w\-]", "_", stem)[:40]
-        return f"{ts}_{safe}"
+        return f"{ts}_{paper_id}"
 
     def save_rows(self, run_row: ReviewRunTable, payload_row: ReviewRunPayloadTable, agent_pairs: list[AgentPair]) -> str:
         """Persist the pre-built rows for one run. Saving an existing run_id
         replaces it (the FK cascade removes the old children). The agent
         payload's FK is assigned here, after the agent row is flushed."""
-        run_id = run_row.run_id  # capture before commit expires the row
+        run_id = run_row.run_id
         with self._session() as session:
             existing = session.get(ReviewRunTable, run_row.run_id)
             if existing is not None:
@@ -58,7 +54,7 @@ class DbResultRepository(SqlRepository[ReviewRunTable]):
                 agent_payload.agent_run_id = agent_row.id
                 session.add(agent_payload)
 
-            self._refresh_paper_num_review(session, run_row.paper_path)
+            self._refresh_paper_num_review(session, run_row.paper_id)
             session.commit()
         return run_id
 
@@ -101,24 +97,24 @@ class DbResultRepository(SqlRepository[ReviewRunTable]):
             payloads = {r.id: session.get(ReviewAgentRunPayloadTable, r.id) for r in rows}
         return [(row, payloads.get(row.id)) for row in rows]
 
-    def list_run_ids_for_paper(self, paper_path: str) -> list[str]:
+    def list_run_ids_for_paper(self, paper_id: str) -> list[str]:
         """Run ids for a paper, most recent first."""
         with self._session() as session:
             return list(session.exec(
                 select(ReviewRunTable.run_id)
-                .where(ReviewRunTable.paper_path == paper_path)
+                .where(ReviewRunTable.paper_id == paper_id)
                 .order_by(ReviewRunTable.run_id.desc())
             ).all())
 
     @staticmethod
-    def _refresh_paper_num_review(session: Session, paper_path: str) -> None:
+    def _refresh_paper_num_review(session: Session, paper_id: str) -> None:
         """Keep paper.num_review in sync with the run count for the paper.
         No-op when the paper is not (yet) in the catalog."""
-        paper = session.exec(select(PaperTable).where(PaperTable.paper_path == paper_path)).first()
+        paper = session.exec(select(PaperTable).where(PaperTable.paper_id == paper_id)).first()
         if paper is None:
             return
         count = session.exec(
-            select(func.count()).select_from(ReviewRunTable).where(ReviewRunTable.paper_path == paper_path)
+            select(func.count()).select_from(ReviewRunTable).where(ReviewRunTable.paper_id == paper_id)
         ).one()
-        paper.num_review = int(count)
+        paper.num_graph_review = int(count)
         session.add(paper)

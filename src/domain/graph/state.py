@@ -4,8 +4,8 @@ from typing import Annotated, TypedDict
 
 class ReviewState(TypedDict):
     
-    paper_path: str | None
-    """ Relative path to the paper — enables per-agent RAG """
+    paper_id: str | None
+    """ Paper identifier — enables per-agent RAG """
 
     retrieval_metadata: dict | None
     """ Metadata used for retrieval of relevant context for the paper """

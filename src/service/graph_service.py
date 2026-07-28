@@ -32,7 +32,7 @@ class GraphService:
         """Build the agents, run the review graph, assemble and persist the run."""
         agents = self._build_agents(request)
         graph = self._compile(agents)
-        result = graph.invoke(Builder.build_initial_state(request.paper_path, request.graph_config.max_rounds))
+        result = graph.invoke(Builder.build_initial_state(request.paper_id, request.graph_config.max_rounds))
         record = self._build_record(result, request)
         self._save(record)
         return record
@@ -49,15 +49,15 @@ class GraphService:
         try:
             self.store_service.save_run(record)
         except Exception:
-            error_msg = f"Failed to save run record for paper: {record.paper_path}"
+            error_msg = f"Failed to save run record for paper: {record.paper_id}"
             log_error(LogPrefix.GRAPH_SERVICE, error_msg)
 
     def _build_record(self, result: dict, request: CreateGraphReviewRequest) -> GraphReviewRecord:
         agent_runs = [AgentRun.model_validate(run) for run in result.get("agent_runs", [])]
         return GraphReviewRecord(
-            run_id=self.store_service.build_run_id(request.paper_path),
+            run_id=self.store_service.build_run_id(request.paper_id),
             timestamp=datetime.now(timezone.utc).isoformat(),
-            paper_path=request.paper_path,
+            paper_id=request.paper_id,
             run_description=request.run_description or None,
             decision=result.get("decision"),
             total_rounds=result.get("current_round", 0),

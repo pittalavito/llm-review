@@ -10,7 +10,7 @@ import service.store_service as store_service_mod
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.retrieval import IndexInfo, RagIndex
-from domain.models.run_record import AgentRun, GraphReviewRecord, RunSummary
+from domain.models.run_record import AgentRun, GraphReviewRecord, GraphReviewSummary
 from domain.store.db.models import (
     PaperTable,
     ReviewAgentRunPayloadTable,
@@ -24,7 +24,7 @@ from service.store_service import StoreService
 
 def _store_rag_index() -> StoreRagIndex:
     return StoreRagIndex.model_validate({
-        "doc_id": "d1", "paper_path": "/p.pdf",
+        "doc_id": "d1", "paper_id": "other_p_pdf",
         "file_signature": {"mtime_ns": 1, "size": 2},
         "settings": {"strategy_version": "v1"},
         "sections": [{"name": "Intro", "text": "hello"}, {"name": "Methods", "text": "world"}],
@@ -50,20 +50,20 @@ class FakeResults:
         return "RID-123"
 
     def list_summaries(self):
-        return [ReviewRunTable(run_id="R1", timestamp="t", paper_path="/p", decision="accept", total_rounds=1)]
+        return [ReviewRunTable(run_id="R1", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=1)]
 
     def get_rows(self, run_id):
         if run_id == "missing":
             return None
-        run_row = ReviewRunTable(run_id=run_id, timestamp="t", paper_path="/p", decision="accept", total_rounds=2)
+        run_row = ReviewRunTable(run_id=run_id, timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2)
         payload = ReviewRunPayloadTable(run_id=run_id, reviews=["rev"], meta_review={"overall_score": 7}, graph_config={"max_rounds": 3})
         agent_row = ReviewAgentRunTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, input_message="m")
         agent_payload = ReviewAgentRunPayloadTable(agent_run_id=1, response_payload={"rating": 6})
         return (run_row, payload, [agent_row], {1: agent_payload})
 
     @staticmethod
-    def build_run_id(paper_path):
-        return "built:" + paper_path
+    def build_run_id(paper_id):
+        return "built:" + paper_id
 
 
 class FakePapers:
@@ -74,12 +74,12 @@ class FakePapers:
         pass
 
     def list(self):
-        return [PaperTable(id=1, paper_path="/p", paper_name="P", paper_type="OTHER")]
+        return [PaperTable(id=1, paper_id="other_p_pdf", paper_name="P", paper_type="OTHER")]
 
-    def get_by_path(self, paper_path):
-        if paper_path == "missing":
+    def get_by_id(self, paper_id):
+        if paper_id == "missing":
             return None
-        return PaperTable(id=2, paper_path=paper_path, paper_name="Q", paper_type="OPEN_REVIEW", decision="accept", num_review=3)
+        return PaperTable(id=2, paper_id=paper_id, paper_name="Q", paper_type="OPEN_REVIEW", human_decision="accept", num_graph_review=3)
 
     def create(self, row):
         FakePapers.created = row
@@ -111,8 +111,8 @@ class FakeRagIndex:
         FakeRagIndex.saved = record
 
     @staticmethod
-    def compute_doc_id(paper_path, strategy, strategy_version):
-        return f"doc:{paper_path}:{strategy}:{strategy_version}"
+    def compute_doc_id(paper_id, strategy, strategy_version):
+        return f"doc:{paper_id}:{strategy}:{strategy_version}"
 
 
 class FakeCache:
@@ -145,7 +145,7 @@ def service(monkeypatch) -> StoreService:
 
 def _run_record() -> GraphReviewRecord:
     return GraphReviewRecord(
-        run_id="RID", timestamp="t", paper_path="/p.pdf", decision="accept", total_rounds=2,
+        run_id="RID", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2,
         reviews=["r"], meta_review={"overall_score": 7}, author_response=None, retrieval_metadata=None,
         graph_config={"max_rounds": 3},
         agent_runs=[AgentRun(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
@@ -162,7 +162,7 @@ class TestRuns:
 
     def test_list_runs_maps_rows_to_summaries(self, service):
         summaries = service.list_runs()
-        assert len(summaries) == 1 and isinstance(summaries[0], RunSummary)
+        assert len(summaries) == 1 and isinstance(summaries[0], GraphReviewSummary)
         assert summaries[0].run_id == "R1"
 
     def test_get_run_returns_none_when_missing(self, service):
@@ -177,7 +177,7 @@ class TestRuns:
         assert record.agent_runs[0].response_payload == {"rating": 6}
 
     def test_build_run_id_delegates_to_repository(self, service):
-        assert service.build_run_id("/p.pdf") == "built:/p.pdf"
+        assert service.build_run_id("other_p_pdf") == "built:other_p_pdf"
 
 
 class TestPapers:
@@ -190,14 +190,14 @@ class TestPapers:
         assert service.get_paper("missing") is None
 
     def test_get_paper_maps_row_fields(self, service):
-        paper = service.get_paper("/x.pdf")
+        paper = service.get_paper("other_x_pdf")
         assert paper.human_decision == "accept"
-        assert paper.num_app_review == 3
+        assert paper.num_graph_review == 3
 
     def test_create_paper_roundtrips_through_factory_and_adapter(self, service):
-        result = service.create_paper(Paper(paper_path="/n.pdf", paper_name="N", paper_type=PaperType.OTHER))
+        result = service.create_paper(Paper(paper_id="ignored", paper_name="n.pdf", paper_type=PaperType.OTHER))
         assert isinstance(result, Paper)
-        assert result.id == 99 and result.paper_path == "/n.pdf"
+        assert result.id == 99 and result.paper_id == "other_n_pdf"  # Factory derives the id from name+type
         assert FakePapers.created.paper_type == "OTHER"  # Factory unwrapped the enum
 
 

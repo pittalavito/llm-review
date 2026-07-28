@@ -30,7 +30,7 @@ class ReviewRunTable(SQLModel, table=True):
 
     run_id: str = Field(primary_key=True)
     timestamp: str = Field(index=True)
-    paper_path: str = Field(index=True)
+    paper_id: str = Field(index=True)
     run_description: str | None = None
     decision: str | None = Field(default=None, index=True)
     total_rounds: int
@@ -121,25 +121,29 @@ class PromptVersionTable(SQLModel, table=True):
 
 
 class PaperTable(SQLModel, table=True):
-    """Catalog of papers available to the pipeline. OpenReview metadata columns
-    are NULL for OTHER papers; num_review is a snapshot of the paper's run count."""
+    """Catalog of papers available to the pipeline. ``paper_id`` is the
+    business key in the form ``<paper-type>_<name>_<extension>`` (see
+    ``domain.store.db.store.Factory.build_paper_id``); the paper file lives in
+    the files store under the same id. OpenReview metadata columns are NULL for
+    OTHER papers; num_graph_review is a snapshot of the paper's run count."""
 
     __tablename__ = "paper"
     __table_args__ = (
         CheckConstraint(f"paper_type IN {_PAPER_TYPES_SQL}", name="ck_paper_type"),
-        CheckConstraint("num_review >= 0", name="ck_paper_num_review"),
-        UniqueConstraint("paper_path", name="uq_paper_path"),
+        CheckConstraint("num_graph_review >= 0", name="ck_paper_num_graph_review"),
+        UniqueConstraint("paper_id", name="uq_paper_id"),
     )
 
     id: int | None = Field(default=None, primary_key=True)
-    paper_path: str = Field(index=True)
+    paper_id: str = Field(index=True)
     paper_name: str
     paper_type: str
-    open_review_id: str | None = None
+    description: str | None = None
     conference: str | None = None
+    open_review_id: str | None = None
     openreview_api_version: str | None = None
-    decision: str | None = None
-    num_review: int = 0
+    human_decision: str | None = None
+    num_graph_review: int = 0
 
 
 class ReviewAgentConfigTable(SQLModel, table=True):

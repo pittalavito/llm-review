@@ -49,7 +49,7 @@ class RagChunk(BaseModel):
 class RagIndex(BaseModel):
     """The RAG index for one paper (domain replica of the stored record)."""
     doc_id: str
-    paper_path: str
+    paper_id: str
     file_signature: RagFileSignature
     settings: RagIndexConfig
     sections: list[RagSectionEntry] = Field(default_factory=list)
@@ -59,5 +59,5 @@ class RagIndex(BaseModel):
 class IndexInfo(BaseModel):
     """Lightweight metadata about a paper's RAG index (no section/chunk text)."""
     doc_id: str
-    paper_path: str
+    paper_id: str
     section_count: int

@@ -27,9 +27,9 @@ def _agents(num_reviewers: int) -> dict:
     return agents
 
 
-def _run(agents: dict, paper_path: str, max_rounds: int) -> dict:
+def _run(agents: dict, paper_id: str, max_rounds: int) -> dict:
     graph = Builder.build_graph(agents).compile()
-    return graph.invoke(Builder.build_initial_state(paper_path, max_rounds))
+    return graph.invoke(Builder.build_initial_state(paper_id, max_rounds))
 
 
 class TestGraphRun:

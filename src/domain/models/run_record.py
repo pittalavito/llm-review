@@ -21,7 +21,7 @@ class GraphReviewRecord(BaseModel):
 
     run_id: str
     timestamp: str
-    paper_path: str
+    paper_id: str
     run_description: str | None = None
     decision: str | None
     total_rounds: int
@@ -34,12 +34,12 @@ class GraphReviewRecord(BaseModel):
     agent_runs: list[AgentRun]
 
 
-class RunSummary(BaseModel):
+class GraphReviewSummary(BaseModel):
     """Lightweight version of RunRecord for the run-history list."""
 
     run_id: str
     timestamp: str
-    paper_path: str
+    paper_id: str
     run_description: str | None = None
     decision: str | None
     total_rounds: int

@@ -5,7 +5,6 @@ missing or unreachable Redis is a startup error. The value is a typed
 domain.store.redis.models.RagIndex (validated JSON).
 """
 import re
-from hashlib import sha256
 
 from core.observability import LogPrefix, log_warning
 
@@ -24,18 +23,15 @@ class RedisRagIndexRepository(RedisRepository):
         super().__init__(RAG_INDEX_KEYSPACE, ttl_seconds)
 
     @staticmethod
-    def compute_doc_id(relative_path: str, strategy: str, strategy_version: str) -> str:
+    def compute_doc_id(paper_id: str, strategy: str, strategy_version: str) -> str:
         """Human-readable index id, one per (paper, strategy, version):
-        ``<slug>-<hash8>+<strategy>-<version>`` (e.g.
-        ``papers/attention.pdf-3f9a1c2b+bm25-v1``).
+        ``<paper_id>+<strategy>-<version>`` (e.g.
+        ``other_attention_pdf+bm25-v1``).
 
         Because strategy and version are part of the id — hence of the Redis key —
         multiple strategies/versions of the same paper coexist instead of
-        overwriting each other. The 8-char SHA-256 of the *original* path keeps the
-        id collision-free even when two different paths slug to the same string."""
-        slug = RedisRagIndexRepository._slug(relative_path)
-        digest = sha256(relative_path.encode("utf-8")).hexdigest()[:8]
-        paper_id = f"{slug}-{digest}"
+        overwriting each other. ``paper_id`` is already unique and Redis-safe, so
+        no slug/hash of the old file path is needed."""
         return f"{paper_id}+{RedisRagIndexRepository._slug(strategy)}-{RedisRagIndexRepository._slug(strategy_version)}"
 
     @staticmethod
@@ -49,12 +45,12 @@ class RedisRagIndexRepository(RedisRepository):
         self._set(index.doc_id, index.model_dump_json())
 
     def list_indexed(self) -> list[str]:
-        """Unique paper_path for every index stored in Redis (SCAN + parse). A
+        """Unique paper_id for every index stored in Redis (SCAN + parse). A
         paper appears once even if indexed under several strategies/versions."""
-        paper_paths: set[str] = set()
+        paper_ids: set[str] = set()
         for raw in self._scan_values():
             try:
-                paper_paths.add(RagIndex.model_validate_json(raw).paper_path)
+                paper_ids.add(RagIndex.model_validate_json(raw).paper_id)
             except Exception:
                 log_warning(LogPrefix.RAG_INDEX_REPOSITORY, "Skipping malformed index in Redis")
-        return sorted(paper_paths)
+        return sorted(paper_ids)

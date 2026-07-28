@@ -4,6 +4,8 @@ Re-exports the DB repositories and holds the two DB translation seams as
 static-method classes: ``Adapter`` (rows -> domain models, reads) and ``Factory``
 (domain models -> rows, writes).
 """
+from pathlib import PurePosixPath
+
 from domain.store.db.paper_repository import DbPaperRepository
 from domain.store.db.prompt_repository import DbPromptRepository
 from domain.store.db.result_repository import DbResultRepository
@@ -11,7 +13,7 @@ from domain.store.db.result_repository import DbResultRepository
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
-from domain.models.run_record import AgentRun, GraphReviewRecord, RunSummary
+from domain.models.run_record import AgentRun, GraphReviewRecord, GraphReviewSummary
 from domain.store.db.models import (
     PaperTable,
     PromptVersionTable,
@@ -30,18 +32,18 @@ class Adapter:
 
     @staticmethod
     def to_paper(row: PaperTable) -> Paper:
-        """``PaperTable`` row -> ``Paper`` (``decision`` -> ``human_decision``,
-        ``num_review`` -> ``num_app_review``, ``paper_type`` str -> ``PaperType``)."""
+        """``PaperTable`` row -> ``Paper`` (field-for-field; ``paper_type`` str -> ``PaperType``)."""
         return Paper(
             id=row.id,
-            paper_path=row.paper_path,
+            paper_id=row.paper_id,
             paper_name=row.paper_name,
             paper_type=PaperType(row.paper_type),
+            description=row.description,
             open_review_id=row.open_review_id,
             conference=row.conference,
             openreview_api_version=row.openreview_api_version,
-            human_decision=row.decision,
-            num_app_review=row.num_review,
+            human_decision=row.human_decision,
+            num_graph_review=row.num_graph_review,
         )
 
     @staticmethod
@@ -50,12 +52,12 @@ class Adapter:
         return PromptVersion.model_validate(row.model_dump())
 
     @staticmethod
-    def to_run_summary(row: ReviewRunTable) -> RunSummary:
-        """``review_run`` row -> lightweight ``RunSummary`` (facts only)."""
-        return RunSummary(
+    def to_run_summary(row: ReviewRunTable) -> GraphReviewSummary:
+        """``review_run`` row -> lightweight ``GraphReviewSummary`` (facts only)."""
+        return GraphReviewSummary(
             run_id=row.run_id,
             timestamp=row.timestamp,
-            paper_path=row.paper_path,
+            paper_id=row.paper_id,
             run_description=row.run_description,
             decision=row.decision,
             total_rounds=row.total_rounds,
@@ -73,7 +75,7 @@ class Adapter:
         return GraphReviewRecord(
             run_id=run_row.run_id,
             timestamp=run_row.timestamp,
-            paper_path=run_row.paper_path,
+            paper_id=run_row.paper_id,
             run_description=run_row.run_description,
             decision=run_row.decision,
             total_rounds=run_row.total_rounds,
@@ -109,7 +111,7 @@ class Adapter:
         return [Adapter.to_prompt(row) for row in rows]
 
     @staticmethod
-    def to_run_summaries(rows: list[ReviewRunTable]) -> list[RunSummary]:
+    def to_run_summaries(rows: list[ReviewRunTable]) -> list[GraphReviewSummary]:
         return [Adapter.to_run_summary(row) for row in rows]
 
     @staticmethod
@@ -121,17 +123,31 @@ class Factory:
     """Write seam: domain models -> DB rows."""
 
     @staticmethod
+    def build_paper_id(paper_type: PaperType, file_name: str) -> str:
+        """Catalog id in the form ``<paper-type>_<name>_<extension>``
+        (e.g. ``other_attention_pdf``). ``file_name`` may be a bare name or a
+        relative path; directories and the extension dot are dropped."""
+        path = PurePosixPath(str(file_name).replace("\\", "/"))
+        extension = path.suffix.lstrip(".").lower()
+        parts = [paper_type.value.lower(), path.stem]
+        if extension:
+            parts.append(extension)
+        return "_".join(parts)
+    
+    @staticmethod
     def to_paper_row(paper: Paper) -> PaperTable:
         """Build a new ``PaperTable`` row from a ``Paper`` (``id`` DB-generated)."""
+        paper_id = Factory.build_paper_id(paper.paper_type, paper.paper_name)
         return PaperTable(
-            paper_path=paper.paper_path,
+            paper_id=paper_id,
             paper_name=paper.paper_name,
             paper_type=paper.paper_type.value,
+            description=paper.description,
             open_review_id=paper.open_review_id,
             conference=paper.conference,
             openreview_api_version=paper.openreview_api_version,
-            decision=paper.human_decision,
-            num_review=paper.num_app_review,
+            human_decision=paper.human_decision,
+            num_graph_review=paper.num_graph_review,
         )
 
     @staticmethod
@@ -141,7 +157,7 @@ class Factory:
         return ReviewRunTable(
             run_id=record.run_id,
             timestamp=record.timestamp,
-            paper_path=record.paper_path,
+            paper_id=record.paper_id,
             run_description=record.run_description,
             decision=record.decision,
             total_rounds=record.total_rounds,

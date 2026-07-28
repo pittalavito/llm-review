@@ -158,9 +158,9 @@ class Builder:
     reviewers are detected by role."""
  
     @staticmethod
-    def build_initial_state(paper_path: str, max_rounds: int) -> ReviewState:
+    def build_initial_state(paper_id: str, max_rounds: int) -> ReviewState:
         return {
-            "paper_path": paper_path,
+            "paper_id": paper_id,
             "retrieval_metadata": None,
             "reviews": [],
             "meta_review": None,

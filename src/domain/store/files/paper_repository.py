@@ -1,9 +1,15 @@
 """Local filesystem store for the paper files under ``config.papers_dir`` — the
 single source of physical access to the papers (list, read, signature, save,
-delete). The DB catalog is seeded from this list; retrieval reads/parses from it.
+delete) and the only layer that knows about file paths.
+
+Every file is stored flat under the root with the ``paper_id``
+(``<paper-type>_<name>_<extension>``) as its file name: callers pass ids, never
+paths. The trailing ``_pdf`` / ``_txt`` segment of the id encodes the format,
+replacing the old dot-extension checks.
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from config import get_global_config
@@ -12,11 +18,11 @@ from domain.models.retrieval import RagFileSignature
 from domain.store.files.models import StoredPaper
 from domain.store.files.repository import FileStore
 
-_PAPER_EXTENSIONS = {".pdf", ".txt"}
+_PAPER_FORMAT_RE = re.compile(r"[-_](pdf|txt)$")
 
 
 class FilePaperRepository(FileStore):
-    """Paper files under the papers root. ``relative_path`` (posix) is the id."""
+    """Paper files under the papers root, one flat file per ``paper_id``."""
 
     def __init__(self):
         super().__init__(Path(get_global_config().papers_dir))
@@ -25,53 +31,56 @@ class FilePaperRepository(FileStore):
     def list(self) -> list[StoredPaper]:
         return [
             self._to_stored(path)
-            for path in sorted(self.root.rglob("*"))
-            if path.is_file() and path.suffix.lower() in _PAPER_EXTENSIONS
+            for path in sorted(self.root.iterdir())
+            if path.is_file() and _PAPER_FORMAT_RE.search(path.name)
         ]
 
-    def list_paths(self) -> list[str]:
-        return [paper.relative_path for paper in self.list()]
-
-    def get(self, relative_path: str) -> StoredPaper | None:
-        path = self._safe_path(relative_path)
+    def get(self, paper_id: str) -> StoredPaper | None:
+        path = self._safe_path(paper_id)
         return self._to_stored(path) if path.is_file() else None
 
-    def exists(self, relative_path: str) -> bool:
-        return self._safe_path(relative_path).is_file()
+    def exists(self, paper_id: str) -> bool:
+        return self._safe_path(paper_id).is_file()
 
-    def resolve(self, relative_path: str) -> tuple[Path, str]:
-        """Absolute path + canonical relative path. Raises if the file is missing
-        or has an unsupported extension."""
-        path = self._safe_path(relative_path)
+    def resolve(self, paper_id: str) -> Path:
+        """Absolute path of the paper file. Raises if the file is missing or the
+        id does not encode a supported format."""
+        self.file_format(paper_id)
+        path = self._safe_path(paper_id)
         if not path.is_file():
-            raise NotFoundError(f"Paper file not found: {relative_path}")
-        if path.suffix.lower() not in _PAPER_EXTENSIONS:
-            raise ValidationError("Unsupported file type. Use .txt or .pdf files.")
-        return path, self._relative(path)
+            raise NotFoundError(f"Paper file not found: {paper_id}")
+        return path
 
-    def read_bytes(self, relative_path: str) -> bytes:
-        return self.resolve(relative_path)[0].read_bytes()
+    def read_bytes(self, paper_id: str) -> bytes:
+        return self.resolve(paper_id).read_bytes()
 
-    def read_text(self, relative_path: str) -> str:
-        return self.resolve(relative_path)[0].read_text(encoding="utf-8")
+    def read_text(self, paper_id: str) -> str:
+        return self.resolve(paper_id).read_text(encoding="utf-8")
 
-    def signature(self, relative_path: str) -> RagFileSignature:
-        stat = self.resolve(relative_path)[0].stat()
+    def signature(self, paper_id: str) -> RagFileSignature:
+        stat = self.resolve(paper_id).stat()
         return RagFileSignature(mtime_ns=stat.st_mtime_ns, size=stat.st_size)
 
-    # ----------------------------------------------------------------- writes
-    def save(self, relative_path: str, data: bytes) -> StoredPaper:
-        path = self._safe_path(relative_path)
-        if path.suffix.lower() not in _PAPER_EXTENSIONS:
+    @staticmethod
+    def file_format(paper_id: str) -> str:
+        """File format ("pdf" | "txt") encoded in the id's trailing segment."""
+        match = _PAPER_FORMAT_RE.search(paper_id)
+        if match is None:
             raise ValidationError("Unsupported file type. Use .txt or .pdf files.")
-        path.parent.mkdir(parents=True, exist_ok=True)
+        return match.group(1)
+
+    # ----------------------------------------------------------------- writes
+    def save(self, paper_id: str, data: bytes) -> StoredPaper:
+        """Store the file under the root with ``paper_id`` as its name."""
+        self.file_format(paper_id)
+        path = self._safe_path(paper_id)
         path.write_bytes(data)
         return self._to_stored(path)
 
-    def delete(self, relative_path: str) -> None:
-        self.resolve(relative_path)[0].unlink()
+    def delete(self, paper_id: str) -> None:
+        self.resolve(paper_id).unlink()
 
     # ----------------------------------------------------------------- helper
     def _to_stored(self, path: Path) -> StoredPaper:
         stat = path.stat()
-        return StoredPaper(relative_path=self._relative(path), name=path.name, size=stat.st_size, mtime_ns=stat.st_mtime_ns)
+        return StoredPaper(paper_id=self._relative(path), size=stat.st_size, mtime_ns=stat.st_mtime_ns)

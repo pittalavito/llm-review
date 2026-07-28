@@ -23,7 +23,7 @@ from domain.models.openreview import OpenReviewCache
 from domain.models.paper import Paper
 from domain.models.prompt import PromptVersion
 from domain.models.retrieval import IndexInfo, RagIndex
-from domain.models.run_record import AgentRun, GraphReviewRecord, RunSummary
+from domain.models.run_record import AgentRun, GraphReviewRecord, GraphReviewSummary
 
 
 class StoreService:
@@ -44,8 +44,8 @@ class StoreService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def build_run_id(paper_path: str) -> str:
-        return DbResultRepository.build_run_id(paper_path)
+    def build_run_id(paper_id: str) -> str:
+        return DbResultRepository.build_run_id(paper_id)
 
     def save_run(self, record: GraphReviewRecord) -> str:
         run_row = DbFactory.to_run_row(record)
@@ -53,7 +53,7 @@ class StoreService:
         agent_pairs = DbFactory.to_agent_pairs(record.run_id, record.agent_runs)
         return self._results_repository.save_rows(run_row, payload_row, agent_pairs)
 
-    def list_runs(self) -> list[RunSummary]:
+    def list_runs(self) -> list[GraphReviewSummary]:
         return DbAdapter.to_run_summaries(self._results_repository.list_summaries())
 
     def get_run(self, run_id: str) -> GraphReviewRecord | None:
@@ -65,8 +65,8 @@ class StoreService:
         pairs = self._results_repository.get_agent_run_rows(run_id, role, agent_index, round_index)
         return DbAdapter.to_agent_runs(pairs) if pairs is not None else None
 
-    def get_run_ids_for_paper(self, paper_path: str) -> list[str]:
-        return self._results_repository.list_run_ids_for_paper(paper_path)
+    def get_run_ids_for_paper(self, paper_id: str) -> list[str]:
+        return self._results_repository.list_run_ids_for_paper(paper_id)
 
     # ------------------------------------------------------------------
     # Paper catalog
@@ -75,23 +75,19 @@ class StoreService:
     def list_papers_catalog(self) -> list[Paper]:
         return DbAdapter.to_papers(self._papers_repository.list())
 
-    def list_paper_paths(self) -> list[str]:
-        return self._papers_repository.list_paths()
+    def list_paper_ids(self) -> list[str]:
+        return self._papers_repository.list_ids()
 
     def list_openreview_papers(self) -> list[Paper]:
         return DbAdapter.to_papers(self._papers_repository.list_openreview())
 
-    def get_paper(self, paper_path: str) -> Paper | None:
-        row = self._papers_repository.get_by_path(paper_path)
+    def get_paper(self, paper_id: str) -> Paper | None:
+        row = self._papers_repository.get_by_id(paper_id)
         return DbAdapter.to_paper(row) if row is not None else None
 
     def create_paper(self, paper: Paper) -> Paper | None:
         row = self._papers_repository.create(DbFactory.to_paper_row(paper))
         return DbAdapter.to_paper(row) if row is not None else None
-
-    def seed_papers(self) -> int:
-        """Register the paper files (from the local files store) in the DB catalog."""
-        return self._papers_repository.seed(self._papers_files.list_paths())
 
     # ------------------------------------------------------------------
     # Prompt-version registry
@@ -124,8 +120,8 @@ class StoreService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def compute_doc_id(paper_path: str, strategy: str, strategy_version: str) -> str:
-        return RedisRagIndexRepository.compute_doc_id(paper_path, strategy, strategy_version)
+    def compute_doc_id(paper_id: str, strategy: str, strategy_version: str) -> str:
+        return RedisRagIndexRepository.compute_doc_id(paper_id, strategy, strategy_version)
 
     def get_rag_index(self, doc_id: str) -> RagIndex | None:
         record = self._rag_index_repository.load(doc_id)

@@ -38,7 +38,7 @@ class RagIndex(BaseModel):
     """The stored RAG index for one paper (suffix = doc id). Holds ``sections``
     (full_context) or ``chunks`` (bm25 / embedding) depending on the strategy."""
     doc_id: str
-    paper_path: str
+    paper_id: str
     file_signature: RagFileSignature
     settings: RagIndexConfig
     sections: list[RagSectionEntry] = Field(default_factory=list)

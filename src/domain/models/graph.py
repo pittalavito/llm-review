@@ -43,6 +43,6 @@ class GraphConfig(BaseModel):
 
 class CreateGraphReviewRequest(BaseModel):
     """Request to run the review graph on a paper with a given configuration."""
-    paper_path: str
+    paper_id: str
     graph_config: GraphConfig
     run_description: str = ""

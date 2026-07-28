@@ -43,7 +43,7 @@ class Adapter:
     @staticmethod
     def to_index_info(index: RagIndex) -> IndexInfo:
         """``RagIndex`` record -> lightweight ``IndexInfo`` (metadata only)."""
-        return IndexInfo(doc_id=index.doc_id, paper_path=index.paper_path, section_count=len(index.sections))
+        return IndexInfo(doc_id=index.doc_id, paper_id=index.paper_id, section_count=len(index.sections))
 
     @staticmethod
     def to_full_paper_text(index: RagIndex) -> str:

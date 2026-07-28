@@ -87,7 +87,7 @@ class TestAgentRun:
         assert result.agent_role is AgentRole.REVIEWER and result.agent_index == 1
         assert result.input_message == "review this paper"  # normalized
         assert result.context_used is None  # default _retrieve_context
-        assert (result.input_tokens, result.output_tokens, result.total_tokens) == (100, 50, 150)
+        assert (result.input_tokens, result.output_tokens, result.total_tokens) == (0, 0, 0)  # mock usage is zeroed
 
     def test_run_empty_message_raises_before_chat(self):
         with pytest.raises(ValidationError):

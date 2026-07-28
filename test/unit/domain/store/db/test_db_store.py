@@ -22,23 +22,23 @@ class Utils:
     @staticmethod
     def paper_row() -> PaperTable:
         return PaperTable(
-            id=7, paper_path="/papers/p.pdf", paper_name="A Paper", paper_type="OPEN_REVIEW",
+            id=7, paper_id="open_review_p_pdf", paper_name="p.pdf", paper_type="OPEN_REVIEW",
             open_review_id="OR1", conference="ICLR", openreview_api_version="v2",
-            decision="accept", num_review=3,
+            human_decision="accept", num_graph_review=3,
         )
 
     @staticmethod
     def paper() -> Paper:
         return Paper(
-            paper_path="/papers/p.pdf", paper_name="A Paper", paper_type=PaperType.OPEN_REVIEW,
+            paper_id="open_review_p_pdf", paper_name="p.pdf", paper_type=PaperType.OPEN_REVIEW,
             open_review_id="OR1", conference="ICLR", openreview_api_version="v2",
-            human_decision="accept", num_app_review=3,
+            human_decision="accept", num_graph_review=3,
         )
 
     @staticmethod
     def run_record() -> GraphReviewRecord:
         return GraphReviewRecord(
-            run_id="RID", timestamp="2026-01-01", paper_path="/p.pdf", run_description="d",
+            run_id="RID", timestamp="2026-01-01", paper_id="other_p_pdf", run_description="d",
             decision="accept", total_rounds=2, reviews=["r1"], meta_review={"overall_score": 7},
             area_chair_response={"decision": "accept"}, author_response={"rebuttal": "ok"},
             retrieval_metadata={"k": 1}, graph_config={"max_rounds": 3},
@@ -56,11 +56,12 @@ class Utils:
 
 
 class TestAdapter:
-    def test_to_paper_renames_decision_and_num_review(self):
+    def test_to_paper_maps_fields(self):
         paper = Adapter.to_paper(Utils.paper_row())
         assert paper.paper_type is PaperType.OPEN_REVIEW
-        assert paper.human_decision == "accept"  # row.decision -> human_decision
-        assert paper.num_app_review == 3  # row.num_review -> num_app_review
+        assert paper.paper_id == "open_review_p_pdf"
+        assert paper.human_decision == "accept"
+        assert paper.num_graph_review == 3
         assert paper.open_review_id == "OR1"
 
     def test_to_prompt_is_field_for_field(self):
@@ -73,12 +74,12 @@ class TestAdapter:
         assert (prompt.id, prompt.agent_role, prompt.version_label, prompt.template_hash) == (1, "reviewer", "v1", "h")
 
     def test_to_run_summary_keeps_facts_only(self):
-        row = ReviewRunTable(run_id="R1", timestamp="t", paper_path="/p", decision="accept", total_rounds=2)
+        row = ReviewRunTable(run_id="R1", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2)
         summary = Adapter.to_run_summary(row)
         assert (summary.run_id, summary.decision, summary.total_rounds) == ("R1", "accept", 2)
 
     def test_to_run_record_reassembles_payload_and_agents(self):
-        run_row = ReviewRunTable(run_id="R1", timestamp="t", paper_path="/p", decision="accept", total_rounds=2)
+        run_row = ReviewRunTable(run_id="R1", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2)
         payload = ReviewRunPayloadTable(
             run_id="R1", reviews=["rev"], meta_review={"overall_score": 7},
             area_chair_response={"decision": "accept"}, author_response={"rebuttal": "x"},
@@ -94,7 +95,7 @@ class TestAdapter:
         assert record.agent_runs[0].response_payload == {"rating": 6}
 
     def test_to_run_record_degrades_when_payload_missing(self):
-        run_row = ReviewRunTable(run_id="R1", timestamp="t", paper_path="/p", decision=None, total_rounds=0)
+        run_row = ReviewRunTable(run_id="R1", timestamp="t", paper_id="other_p_pdf", decision=None, total_rounds=0)
         record = Adapter.to_run_record(run_row, None, [], {})
         assert record.reviews is None
         assert record.meta_review is None
@@ -110,11 +111,12 @@ class TestAdapter:
 
 
 class TestFactory:
-    def test_to_paper_row_renames_and_unwraps_enum(self):
+    def test_to_paper_row_derives_id_and_unwraps_enum(self):
         row = Factory.to_paper_row(Utils.paper())
         assert row.paper_type == "OPEN_REVIEW"  # enum -> str value
-        assert row.decision == "accept"  # human_decision -> decision
-        assert row.num_review == 3  # num_app_review -> num_review
+        assert row.paper_id == "open_review_p_pdf"  # derived from type + file name
+        assert row.human_decision == "accept"
+        assert row.num_graph_review == 3
         assert row.id is None  # DB-generated
 
     def test_to_run_row_extracts_max_rounds_and_meta_score(self):

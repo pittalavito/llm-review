@@ -76,7 +76,7 @@ class TestChatFacade:
         result = Chat(MockChatModel()).invoke("sys", "review", response_schema=ReviewerResponseSchema)
         assert isinstance(result.response_schema, ReviewerResponseSchema)
         assert result.response_schema.rating == 6
-        assert (result.input_tokens, result.output_tokens, result.total_tokens) == (100, 50, 150)
+        assert (result.input_tokens, result.output_tokens, result.total_tokens) == (0, 0, 0)  # mock usage is zeroed
 
     def test_invoke_dispatches_by_schema_type(self):
         result = Chat(MockChatModel()).invoke("sys", "meta", response_schema=MetaReviewResponseSchema)

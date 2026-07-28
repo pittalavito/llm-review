@@ -12,28 +12,21 @@ from domain.store.redis.store import Adapter, Factory
 
 class TestComputeDocId:
     def test_composite_readable_id(self):
-        doc_id = RedisRagIndexRepository.compute_doc_id("papers/attention.pdf", "bm25", "v1")
-        # <slug>-<hash8>+<strategy>-<version>
-        assert doc_id.startswith("papers/attention.pdf-")
-        assert doc_id.endswith("+bm25-v1")
+        doc_id = RedisRagIndexRepository.compute_doc_id("other_attention_pdf", "bm25", "v1")
+        # <paper_id>+<strategy>-<version>
+        assert doc_id == "other_attention_pdf+bm25-v1"
 
     def test_strategies_and_versions_get_distinct_ids(self):
-        path = "papers/attention.pdf"
+        paper_id = "other_attention_pdf"
         ids = {
-            RedisRagIndexRepository.compute_doc_id(path, "full_context", "v1"),
-            RedisRagIndexRepository.compute_doc_id(path, "bm25", "v1"),
-            RedisRagIndexRepository.compute_doc_id(path, "bm25", "v2"),
+            RedisRagIndexRepository.compute_doc_id(paper_id, "full_context", "v1"),
+            RedisRagIndexRepository.compute_doc_id(paper_id, "bm25", "v1"),
+            RedisRagIndexRepository.compute_doc_id(paper_id, "bm25", "v2"),
         }
         assert len(ids) == 3  # coexist: no id collision -> no overwrite
 
-    def test_slug_collision_is_disambiguated_by_hash(self):
-        # both paths slug to "papers/foo_bar.pdf" but the id must stay distinct
-        a = RedisRagIndexRepository.compute_doc_id("papers/foo bar.pdf", "bm25", "v1")
-        b = RedisRagIndexRepository.compute_doc_id("papers/foo:bar.pdf", "bm25", "v1")
-        assert a != b
-
-    def test_unsafe_chars_are_slugged(self):
-        doc_id = RedisRagIndexRepository.compute_doc_id("a b:c", "bm25", "v 1")
+    def test_unsafe_chars_in_strategy_are_slugged(self):
+        doc_id = RedisRagIndexRepository.compute_doc_id("other_a_pdf", "bm 25", "v:1")
         assert ":" not in doc_id and " " not in doc_id
 
 
@@ -43,7 +36,7 @@ class Utils:
     @staticmethod
     def store_rag_index() -> StoreRagIndex:
         return StoreRagIndex.model_validate({
-            "doc_id": "d1", "paper_path": "/p.pdf",
+            "doc_id": "d1", "paper_id": "other_p_pdf",
             "file_signature": {"mtime_ns": 1, "size": 2},
             "settings": {"strategy_version": "v1"},
             "sections": [{"name": "Intro", "text": "hello"}, {"name": "Methods", "text": "world"}],
@@ -87,7 +80,7 @@ class TestRagIndexAdapter:
     def test_to_index_info_counts_sections(self):
         info = Adapter.to_index_info(Utils.rag_index())
         assert isinstance(info, IndexInfo)
-        assert (info.doc_id, info.paper_path, info.section_count) == ("d1", "/p.pdf", 2)
+        assert (info.doc_id, info.paper_id, info.section_count) == ("d1", "other_p_pdf", 2)
 
     def test_to_full_paper_text_joins_sections_with_headings(self):
         assert Adapter.to_full_paper_text(Utils.rag_index()) == "# Intro\nhello\n\n# Methods\nworld"
