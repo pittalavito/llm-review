@@ -1,5 +1,5 @@
 from domain.retrieval.base import Embedder, MockEmbedder, PaperFileReader, RetrievalStrategy
-from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory
+from domain.store.redis.store import Adapter as RedisAdapter
 from domain.models.agent import CreateAgentRequest, ContextMode
 from domain.models.retrieval import IndexInfo, RagIndex, RagStrategy
 from service.store_service import StoreService
@@ -10,7 +10,6 @@ class RetrievalService:
 
     def __init__(self, store_service: StoreService):
         self.store_service = store_service
-        self._files = store_service._papers_files
         self._reader = PaperFileReader()
         self._embedder = MOCK_EMBEDD
 
@@ -48,14 +47,15 @@ class RetrievalService:
 
     def _get_or_build(self, paper_id: str, strategy: RagStrategy, strategy_version: str, force: bool = False) -> RagIndex:
         doc_id = self.store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
-        signature = self._files.signature(paper_id)
+        signature = self.store_service.signature(paper_id)
 
         existing = self._load(doc_id)
         if existing is not None and existing.file_signature == signature and not force:
             return existing
 
-        source_path = self._files.resolve(paper_id)
-        raw_sections = self._reader.extract_structure(source_path, self._files.file_format(paper_id))
+        source_path = self.store_service.get_source_path_for_paper(paper_id)
+        format = self.store_service.file_format(paper_id)
+        raw_sections = self._reader.extract_structure(source_path, format)
         index = self._strategy(strategy, strategy_version).build_index(raw_sections, paper_id, doc_id, signature)
         self._save(index)
         return index

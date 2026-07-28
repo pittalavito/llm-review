@@ -23,6 +23,17 @@ def agent_service(request: Request) -> AgentService:
     """Dependency provider for AgentService."""
     return request.app.state.container.agent_service
 
-def to_implement(request: Request):
+
+def store_service(request: Request) -> StoreService:
+    """Dependency provider for StoreService."""
+    return request.app.state.container.store_service
+
+
+def retrieval_service(request: Request) -> RetrievalService:
     """Dependency provider for RetrievalService."""
-    return None  # Placeholder for future implementation of RetrievalService dependency
+    return request.app.state.container.retrieval_service
+
+
+def graph_service(request: Request) -> GraphService:
+    """Dependency provider for GraphService."""
+    return request.app.state.container.graph_service

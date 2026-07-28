@@ -1,0 +1,114 @@
+/* ═══════════════════════════════════════════════════════
+   paper.css — styles specific to the Paper section
+   (new-paper form + saved result card)
+   ═══════════════════════════════════════════════════════ */
+
+.paper-section {
+  overflow-y: auto;
+}
+
+.paper-section .section-description code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  padding: 1px var(--s-2);
+}
+
+/* ── Form ─────────────────────────────────────────────── */
+.paper-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  max-width: 560px;
+  padding: var(--s-5);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.paper-form__label {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--c-text-secondary);
+  letter-spacing: 0.02em;
+  margin-top: var(--s-3);
+}
+
+.paper-form__label:first-child {
+  margin-top: 0;
+}
+
+.paper-form__file,
+.paper-form__select,
+.paper-form__textarea {
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--s-2) var(--s-3);
+  color: var(--c-text-primary);
+  font-size: var(--text-sm);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.paper-form__select {
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.paper-form__textarea {
+  font: inherit;
+  font-size: var(--text-sm);
+  resize: vertical;
+  outline: none;
+}
+
+.paper-form__file::file-selector-button {
+  margin-right: var(--s-3);
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-xs);
+}
+
+.paper-form__select:focus,
+.paper-form__textarea:focus,
+.paper-form__file:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 15%, transparent);
+  outline: none;
+}
+
+.paper-form__preview {
+  font-size: var(--text-sm);
+  color: var(--c-text-secondary);
+  margin-top: var(--s-2);
+}
+
+.paper-form__preview code {
+  font-family: var(--font-mono);
+  color: var(--c-accent-light);
+}
+
+.paper-form__actions {
+  margin-top: var(--s-4);
+}
+
+.paper-form__error {
+  color: var(--c-error);
+  font-size: var(--text-sm);
+  margin-top: var(--s-2);
+}
+
+/* ── Result card ──────────────────────────────────────── */
+.paper-result {
+  max-width: 560px;
+  margin-top: var(--s-5);
+}

@@ -21,8 +21,9 @@ from domain.models.agent import AgentRole
 from domain.models.comparator import HumanMetaReview, HumanReview
 from domain.models.openreview import OpenReviewCache
 from domain.models.paper import Paper
+
 from domain.models.prompt import PromptVersion
-from domain.models.retrieval import IndexInfo, RagIndex
+from domain.models.retrieval import IndexInfo, RagFileSignature, RagIndex
 from domain.models.run_record import AgentRun, GraphReviewRecord, GraphReviewSummary
 
 
@@ -35,10 +36,19 @@ class StoreService:
         self._prompts_repository = DbPromptRepository()
         self._rag_index_repository = RedisRagIndexRepository()
         self._cache_repository = RedisOpenReviewCacheRepository()
-        self._papers_files = FilePaperRepository()
+        self._papers_files_repository = FilePaperRepository()
 
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
-        
+    
+    def save_paper(self, paper: Paper, data: bytes) -> Paper | None:
+        """Create the catalog row and store the file under its paper_id.
+        None when a paper with the same id already exists."""
+        db_row = self.create_paper(paper)
+        if db_row is None:
+            return None
+        self.save_paper_file(db_row.paper_id, data)
+        return db_row
+    
     # ------------------------------------------------------------------
     # Runs
     # ------------------------------------------------------------------
@@ -69,7 +79,7 @@ class StoreService:
         return self._results_repository.list_run_ids_for_paper(paper_id)
 
     # ------------------------------------------------------------------
-    # Paper catalog
+    # Paper db
     # ------------------------------------------------------------------
 
     def list_papers_catalog(self) -> list[Paper]:
@@ -86,11 +96,12 @@ class StoreService:
         return DbAdapter.to_paper(row) if row is not None else None
 
     def create_paper(self, paper: Paper) -> Paper | None:
-        row = self._papers_repository.create(DbFactory.to_paper_row(paper))
+        to_row = DbFactory.to_paper_row(paper)
+        row = self._papers_repository.create(to_row)
         return DbAdapter.to_paper(row) if row is not None else None
-
+    
     # ------------------------------------------------------------------
-    # Prompt-version registry
+    # Prompt version registry
     # ------------------------------------------------------------------
 
     def list_prompts(self, agent_role: str | None = None, include_inactive: bool = False) -> list[PromptVersion]:
@@ -163,3 +174,19 @@ class StoreService:
     def get_open_review_decision(self, key: str) -> str | None:
         cache = self.get_open_review_cache(key)
         return RedisAdapter.to_open_review_decision(cache) if cache is not None else None
+
+    # ------------------------------------------------------------------
+    # Paper files (local filesystem) — the record is already the domain shape
+    # ------------------------------------------------------------------
+    
+    def get_source_path_for_paper(self, paper_id: str) -> str | None:
+        return self._papers_files_repository.resolve(paper_id)
+    
+    def signature(self, paper_id: str) -> RagFileSignature:
+        return self._papers_files_repository.signature(paper_id)
+
+    def file_format(self, paper_id: str) -> str:
+        return self._papers_files_repository.file_format(paper_id)
+    
+    def save_paper_file(self, paper_id: str, data: bytes) -> None:
+        self._papers_files_repository.save(paper_id, data)

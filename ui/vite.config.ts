@@ -9,6 +9,7 @@ export default defineConfig({
     proxy: {
       '/chat': 'http://localhost:8081',
       '/agent': 'http://localhost:8081',
+      '/paper': 'http://localhost:8081',
       '/docs': 'http://localhost:8081',
       '/openapi.json': 'http://localhost:8081',
     },

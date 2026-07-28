@@ -9,9 +9,11 @@ import './styles/layout.css';
 import './styles/components.css';
 import './styles/ping-chat.css';
 import './styles/admin.css';
+import './styles/paper.css';
 
 import AppLayout from './layout/AppLayout';
 import Admin from './sections/Admin';
+import Paper from './sections/Paper';
 import PingChat from './sections/PingChat';
 import { applyTheme, getInitialTheme } from './components/ThemeToggle';
 
@@ -27,6 +29,7 @@ const router = createBrowserRouter(
         { index: true, element: <Navigate to="/ping-chat" replace /> },
         { path: 'admin', element: <Admin /> },
         { path: 'ping-chat', element: <PingChat /> },
+        { path: 'paper', element: <Paper /> },
         { path: '*', element: <Navigate to="/ping-chat" replace /> },
       ],
     },

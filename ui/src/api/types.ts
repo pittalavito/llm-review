@@ -25,3 +25,26 @@ export interface ChatResponse {
   total_tokens: number | null;
   parsing_error: string | null;
 }
+
+// domain/models/paper.py :: PaperType (StrEnum).
+export type PaperType = 'OPEN_REVIEW' | 'OTHER';
+
+// domain/models/paper.py :: Paper.
+export interface Paper {
+  id?: number | null;
+  paper_id: string;
+  paper_name: string;
+  paper_type: PaperType;
+  description?: string | null;
+  open_review_id?: string | null;
+  conference?: string | null;
+  openreview_api_version?: string | null;
+  human_decision?: string | null;
+  num_graph_review?: number;
+}
+
+// controller/models.py :: CreatePaperRequest — file_bytes is base64 in the JSON body.
+export interface CreatePaperRequest {
+  paper: Paper;
+  file_bytes: string;
+}

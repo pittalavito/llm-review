@@ -1,7 +1,7 @@
 /**
  * App shell: header + sidebar navigation + routed content.
  * Mirrors llm_review/ui-react structure and classes so the CSS applies.
- * For now the sidebar exposes a single section: Ping Chat.
+ * One flat list of sections — no group titles.
  */
 import { useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
@@ -14,12 +14,10 @@ interface NavEntry {
   label: string;
 }
 
-const ADMIN_ENTRIES: NavEntry[] = [
+const NAV_ENTRIES: NavEntry[] = [
   { to: '/admin', icon: '⚙', label: 'Admin' },
-];
-
-const CHAT_ENTRIES: NavEntry[] = [
   { to: '/ping-chat', icon: '✎', label: 'Ping Chat' },
+  { to: '/paper', icon: '▤', label: 'Paper' },
 ];
 
 function NavItem({ entry }: { entry: NavEntry }) {
@@ -39,7 +37,7 @@ export default function AppLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    const entry = [...ADMIN_ENTRIES, ...CHAT_ENTRIES].find((e) => e.to === location.pathname);
+    const entry = NAV_ENTRIES.find((e) => e.to === location.pathname);
     document.title = entry
       ? `${entry.label} — LLM Review 2`
       : 'LLM Review 2 — Academic Review Platform';
@@ -59,10 +57,7 @@ export default function AppLayout() {
         <aside className="sidebar">
           <nav>
             <ul className="nav__list">
-              <li className="nav__group-title">Admin</li>
-              {ADMIN_ENTRIES.map((entry) => <NavItem key={entry.to} entry={entry} />)}
-              <li className="nav__group-title">Chat</li>
-              {CHAT_ENTRIES.map((entry) => <NavItem key={entry.to} entry={entry} />)}
+              {NAV_ENTRIES.map((entry) => <NavItem key={entry.to} entry={entry} />)}
             </ul>
           </nav>
         </aside>
