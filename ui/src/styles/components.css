@@ -164,7 +164,20 @@
 .badge--success { background: color-mix(in srgb, var(--c-success) 14%, transparent); color: var(--c-success); }
 .badge--error   { background: color-mix(in srgb, var(--c-error) 14%, transparent);   color: var(--c-error);   }
 
+/* Deliberately loud: marks unfinished parts of the UI. */
+.badge--todo {
+  background: color-mix(in srgb, var(--c-warning) 18%, transparent);
+  color: var(--c-warning);
+  border: 1px solid color-mix(in srgb, var(--c-warning) 45%, transparent);
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
 /* ── Section chrome ───────────────────────────────────── */
+.section-wrap {
+  padding: var(--s-8) var(--s-10);
+}
+
 .section-title {
   font-family: var(--font-serif);
   font-size: var(--text-2xl);

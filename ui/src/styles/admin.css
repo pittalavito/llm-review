@@ -1,0 +1,66 @@
+/* ═══════════════════════════════════════════════════════
+   admin.css — styles specific to the Admin section
+   (link cards to the service dashboards)
+   ═══════════════════════════════════════════════════════ */
+
+.admin-section {
+  overflow-y: auto;
+}
+
+.admin-section .section-description code,
+.admin-card__desc code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  padding: 1px var(--s-2);
+}
+
+/* ── Dashboard link card ──────────────────────────────── */
+.admin-card {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  max-width: 640px;
+  margin-top: var(--s-4);
+  padding: var(--s-4) var(--s-5);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.admin-card:hover {
+  border-color: color-mix(in srgb, var(--c-accent) 45%, var(--c-border));
+  box-shadow: var(--shadow-md);
+}
+
+.admin-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-card__title {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--c-text-primary);
+  letter-spacing: 0.01em;
+  margin-bottom: var(--s-1);
+}
+
+.admin-card__desc {
+  color: var(--c-text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.admin-card__btn {
+  flex-shrink: 0;
+  text-decoration: none;
+}

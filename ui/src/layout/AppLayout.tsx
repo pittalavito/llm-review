@@ -14,6 +14,10 @@ interface NavEntry {
   label: string;
 }
 
+const ADMIN_ENTRIES: NavEntry[] = [
+  { to: '/admin', icon: '⚙', label: 'Admin' },
+];
+
 const CHAT_ENTRIES: NavEntry[] = [
   { to: '/ping-chat', icon: '✎', label: 'Ping Chat' },
 ];
@@ -35,7 +39,7 @@ export default function AppLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    const entry = CHAT_ENTRIES.find((e) => e.to === location.pathname);
+    const entry = [...ADMIN_ENTRIES, ...CHAT_ENTRIES].find((e) => e.to === location.pathname);
     document.title = entry
       ? `${entry.label} — LLM Review 2`
       : 'LLM Review 2 — Academic Review Platform';
@@ -55,6 +59,8 @@ export default function AppLayout() {
         <aside className="sidebar">
           <nav>
             <ul className="nav__list">
+              <li className="nav__group-title">Admin</li>
+              {ADMIN_ENTRIES.map((entry) => <NavItem key={entry.to} entry={entry} />)}
               <li className="nav__group-title">Chat</li>
               {CHAT_ENTRIES.map((entry) => <NavItem key={entry.to} entry={entry} />)}
             </ul>

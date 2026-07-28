@@ -64,6 +64,7 @@
   /* ── Status ───────────────────────────────────────── */
   --c-success: #2f8a5d;
   --c-error:   #bf4a4a;
+  --c-warning: #a8721c;
 
   /* ── Chat bubbles ─────────────────────────────────── */
   --c-bubble-user:      #e7eaef;
@@ -101,6 +102,7 @@
   /* ── Status ───────────────────────────────────────── */
   --c-success: #4ead7a;
   --c-error:   #d45c5c;
+  --c-warning: #d9a441;
 
   /* ── Chat bubbles ─────────────────────────────────── */
   --c-bubble-user:      #1a3a6a;
