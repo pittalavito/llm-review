@@ -7,6 +7,7 @@ model, structured or raw) and ``Adapter`` (normalize the result into
 turning it into an agent-level result is the caller's job.
 """
 from dataclasses import dataclass
+import re
 from typing import Any, Callable
 
 from langchain_anthropic import ChatAnthropic
@@ -29,7 +30,8 @@ class ChatResponse:
     debugging/traces — callers use the extracted token fields, not ``raw`` — so
     the LangChain type never leaks past this layer."""
     response_schema: ChatModelResponseSchema | None
-    raw: AIMessage
+    raw: AIMessage | None
+    """None when no LLM call happened (e.g. token estimation)."""
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None
@@ -43,7 +45,7 @@ class Factory:
     def create_chat(model: ChatModelName, temperature: float) -> "Chat":
         """Create a chat client for the given model name and temperature."""
         chat_model = Factory._create_chat_model(model, temperature)
-        return Chat(chat_model)
+        return Chat(chat_model, model_name=model)
 
     @staticmethod
     def create_chat_message(system_prompt: str) -> ChatPromptTemplate:
@@ -167,8 +169,9 @@ class Invoke:
 class Chat:
     """Chat facade bound to one chat model."""
 
-    def __init__(self, chat_model: BaseChatModel):
+    def __init__(self, chat_model: BaseChatModel, model_name: ChatModelName | None = None):
         self._chat_model = chat_model
+        self._model_name = model_name
 
     def invoke(
         self,
@@ -180,9 +183,57 @@ class Chat:
     ) -> ChatResponse:
         """Run the chat model on ``system_prompt`` + ``message`` (+ ``context``).
         With a ``response_schema`` the output is parsed as structured; otherwise a
-        raw fallback is returned. ``label`` names the caller in parse errors."""
+        raw fallback is returned. ``label`` names the caller in parse errors.
+        The ``token-estimation`` pseudo-model short-circuits to a cost estimate
+        without any LLM call."""
+        if self._model_name == ChatModelName.TOKEN_ESTIMATION:
+            return self.token_estimation(system_prompt, message, context, response_schema)
+        
         chat_message = Factory.create_chat_message(system_prompt)
         chat_variables = Factory.create_chat_variables(message, context)
         if response_schema is None:
             return Invoke.invoke_without_response_schema(self._chat_model, chat_message, chat_variables)
         return Invoke.invoke_with_response_schema(self._chat_model, response_schema, label, chat_message, chat_variables)
+
+    def token_estimation(
+        self,
+        system_prompt: str,
+        message: str,
+        context: str | None = None,
+        response_schema: type[ChatModelResponseSchema] | None = None,
+    ) -> ChatResponse:
+        """Estimate token usage for the given chat invocation."""
+        system_prompt_tokens = self._estimate_tokens(system_prompt)
+        message_tokens = self._estimate_tokens(message)
+        context_tokens = self._estimate_tokens(context) if context else 0
+        response_schema_tokens = 500
+        estimated_output_tokens = 500
+        estimated_input_tokens = system_prompt_tokens + message_tokens + context_tokens + response_schema_tokens
+        total_estimated_tokens = estimated_input_tokens + estimated_output_tokens
+
+        return ChatResponse(
+            response_schema=ChatFallbackRawResponseSchema(
+                response=(
+                    f"[token estimation] input≈{estimated_input_tokens}, "
+                    f"output≈{estimated_output_tokens}, total≈{total_estimated_tokens}"
+                )
+            ),
+            raw=None,
+            input_tokens=estimated_input_tokens,
+            output_tokens=estimated_output_tokens,
+            total_tokens=total_estimated_tokens,
+            parsing_error=None,
+        )
+    
+    def _estimate_tokens(self, message: str) -> int:
+        if not message or not message.strip():
+            return 0
+
+        n_chars = len(message)
+        n_words = len(message.split())
+        n_punct = len(re.findall(r"[^\w\s]", message))
+
+        by_chars = n_chars / 4
+        by_words = n_words / 0.75
+
+        return round((by_chars + by_words) / 2 + n_punct * 0.25)

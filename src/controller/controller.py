@@ -23,8 +23,6 @@ def get_models() -> list[ChatModelName]:
 def ping_chat(request: ChatRequest, service: AgentService = Depends(agent_service)) -> ChatResponse:
     chat_response = service.ping_chat(model=request.model, temperature=request.temperature, message=request.message)
     text = getattr(chat_response.response_schema, "response", None)
-    if text is None:
-        text = str(chat_response.raw.content)
     return ChatResponse(
         response=text,
         input_tokens=chat_response.input_tokens,
@@ -37,10 +35,13 @@ def ping_chat(request: ChatRequest, service: AgentService = Depends(agent_servic
 URI_AGENT_PREFIX = "/agent"
 URI_ROLES = f"{URI_AGENT_PREFIX}/roles"
 
+
 @router.get(URI_ROLES)
 def list_roles() -> list[AgentRole]:
     """List available agents."""
     return list(AgentRole)
 
 
+URI_PAPER_PREFIX = "/paper"
 
+# get paper
