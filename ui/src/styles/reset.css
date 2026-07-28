@@ -1,0 +1,35 @@
+/* ═══════════════════════════════════════════════════════
+   reset.css — minimal, opinionated base reset
+   ═══════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+ul {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font: inherit;
+}
+
+input {
+  font: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}

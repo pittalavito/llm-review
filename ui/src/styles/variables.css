@@ -1,0 +1,118 @@
+/* ═══════════════════════════════════════════════════════
+   variables.css — single source of truth for design tokens
+   Two themes, switched via data-theme on <html>
+   (see components/ThemeToggle.tsx):
+     · light (default) — soft gray, graphite accent
+     · dark            — Academic Journal Review, brass gold
+   ═══════════════════════════════════════════════════════ */
+:root {
+  /* ── Layout ───────────────────────────────────────── */
+  --header-h:  64px;
+  --sidebar-w: 240px;
+
+  /* ── Spacing scale (multiples of 4px) ────────────── */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  20px;
+  --s-6:  24px;
+  --s-8:  32px;
+  --s-10: 40px;
+
+  /* ── Typography ───────────────────────────────────── */
+  --font:       'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-mono:  'Cascadia Code', 'Consolas', monospace;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.82rem;
+  --text-base: 0.94rem;
+  --text-lg:   1.08rem;
+  --text-xl:   1.30rem;
+  --text-2xl:  1.75rem;
+  --text-3xl:  2.20rem;
+
+  /* ── Border radii ─────────────────────────────────── */
+  --r-sm:   4px;
+  --r-md:   6px;
+  --r-lg:   8px;
+  --r-full: 9999px;
+
+  /* ── Transitions ──────────────────────────────────── */
+  --t-fast: 120ms ease;
+  --t-base: 220ms ease;
+
+  /* ═══ Light theme (default) — soft gray, graphite ═══ */
+
+  /* ── Brand ────────────────────────────────────────── */
+  --c-accent:       #4a5058;   /* graphite              */
+  --c-accent-dark:  #33383f;
+  --c-accent-light: #6f7680;
+
+  /* ── Surfaces ─────────────────────────────────────── */
+  --c-bg:             #f4f5f7;
+  --c-surface:        #fbfbfc;
+  --c-surface-raised: #eef0f3;
+  --c-border:         #e0e3e8;
+
+  /* ── Text ─────────────────────────────────────────── */
+  --c-text-primary:   #24282f;
+  --c-text-secondary: #5b6370;
+  --c-text-muted:     #9aa1ab;
+
+  /* ── Status ───────────────────────────────────────── */
+  --c-success: #2f8a5d;
+  --c-error:   #bf4a4a;
+
+  /* ── Chat bubbles ─────────────────────────────────── */
+  --c-bubble-user:      #e7eaef;
+  --c-bubble-user-text: #24282f;
+  --c-bubble-bot:       #ffffff;
+
+  /* ── Text on accent-colored controls ──────────────── */
+  --c-on-accent: #ffffff;
+
+  /* ── Shadows — soft, elegant ──────────────────────── */
+  --shadow-sm:     0 1px 2px rgba(25, 30, 40, 0.06);
+  --shadow-md:     0 4px 14px rgba(25, 30, 40, 0.08);
+  --shadow-inner:  inset 0 1px 2px rgba(25, 30, 40, 0.05);
+  --shadow-header: 0 1px 10px rgba(25, 30, 40, 0.06);
+}
+
+/* ═══ Dark theme — Academic Journal Review, brass gold ═══ */
+:root[data-theme='dark'] {
+  /* ── Brand ────────────────────────────────────────── */
+  --c-accent:       #c5a55a;   /* brass gold            */
+  --c-accent-dark:  #a08642;
+  --c-accent-light: #d4bb7a;
+
+  /* ── Surfaces ─────────────────────────────────────── */
+  --c-bg:             #0c1220;
+  --c-surface:        #111a2e;
+  --c-surface-raised: #182440;
+  --c-border:         #243252;
+
+  /* ── Text ─────────────────────────────────────────── */
+  --c-text-primary:   #e2e6ef;
+  --c-text-secondary: #8a9bb8;
+  --c-text-muted:     #4a5a78;
+
+  /* ── Status ───────────────────────────────────────── */
+  --c-success: #4ead7a;
+  --c-error:   #d45c5c;
+
+  /* ── Chat bubbles ─────────────────────────────────── */
+  --c-bubble-user:      #1a3a6a;
+  --c-bubble-user-text: #dce4f0;
+  --c-bubble-bot:       #182440;
+
+  /* ── Text on accent-colored controls ──────────────── */
+  --c-on-accent: #0c1220;
+
+  /* ── Shadows ──────────────────────────────────────── */
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.28);
+  --shadow-md:     0 4px 16px rgba(0, 0, 0, 0.32);
+  --shadow-inner:  inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-header: 0 2px 12px rgba(0, 0, 0, 0.25);
+}

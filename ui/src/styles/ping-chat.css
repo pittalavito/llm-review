@@ -1,0 +1,294 @@
+/* ═══════════════════════════════════════════════════════
+   ping-chat.css — styles specific to the Ping Chat section
+   Academic Journal Review theme
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Section wrapper ──────────────────────────────────── */
+.ping-chat-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Model selector bar ───────────────────────────────── */
+.ping-chat-model-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-6);
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+
+.ping-chat-model-bar__label {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--c-text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.ping-chat-model-bar__select {
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--s-2) var(--s-4);
+  color: var(--c-text-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.ping-chat-model-bar__temperature {
+  width: 120px;
+  accent-color: var(--c-accent);
+  cursor: pointer;
+}
+
+.ping-chat-model-bar__select:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 18%, transparent);
+  outline: none;
+}
+
+.ping-chat-model-bar__temperature:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 18%, transparent);
+  outline: none;
+}
+
+.ping-chat-model-bar__temperature-value {
+  min-width: 2.4ch;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--c-text-secondary);
+}
+
+.ping-chat-model-bar__select option {
+  background: var(--c-surface);
+  color: var(--c-text-primary);
+}
+
+.ping-chat-model-bar__spacer {
+  flex: 1;
+}
+
+.ping-chat-clear-btn {
+  flex-shrink: 0;
+}
+
+/* ── Messages area ────────────────────────────────────── */
+.ping-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s-8) var(--s-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  scroll-behavior: smooth;
+}
+
+/* ── Welcome placeholder ──────────────────────────────── */
+.ping-chat-welcome {
+  margin: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  color: var(--c-text-muted);
+  max-width: 360px;
+}
+
+.ping-chat-welcome__icon {
+  font-size: 2.8rem;
+  opacity: 0.7;
+}
+
+.ping-chat-welcome__heading {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--c-text-secondary);
+  letter-spacing: 0.01em;
+}
+
+.ping-chat-welcome__text {
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--c-text-muted);
+}
+
+/* ── Example prompt chips ─────────────────────────────── */
+.ping-chat-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  justify-content: center;
+  margin-top: var(--s-2);
+}
+
+.ping-chat-example {
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-full);
+  background: var(--c-surface-raised);
+  color: var(--c-text-secondary);
+  font-size: var(--text-sm);
+  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.ping-chat-example:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent-light);
+  background: color-mix(in srgb, var(--c-accent) 7%, transparent);
+}
+
+/* ── Message bubbles — review comments ────────────────── */
+.ping-chat-bubble {
+  max-width: 70%;
+  padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-lg);
+  font-size: var(--text-base);
+  line-height: 1.65;
+  box-shadow: var(--shadow-sm);
+  animation: bubble-in var(--t-base) ease both;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.ping-chat-bubble--user {
+  align-self: flex-end;
+  background: var(--c-bubble-user);
+  color: var(--c-bubble-user-text);
+  border-bottom-right-radius: var(--r-sm);
+  border-left: 2px solid color-mix(in srgb, var(--c-accent) 35%, transparent);
+}
+
+.ping-chat-bubble--bot {
+  align-self: flex-start;
+  max-width: 82%;
+  background: var(--c-bubble-bot);
+  color: var(--c-text-primary);
+  border: 1px solid var(--c-border);
+  border-bottom-left-radius: var(--r-sm);
+  border-left: 2px solid var(--c-accent);
+}
+
+.ping-chat-bubble--error {
+  border-color: var(--c-error);
+  border-left-color: var(--c-error);
+  color: var(--c-error);
+}
+
+/* Small caption above a bot reply: which model answered. */
+.ping-chat-bubble__caption {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  color: var(--c-text-muted);
+  margin-bottom: var(--s-2);
+}
+
+/* Pretty-printed JSON payloads inside a bot bubble. */
+.ping-chat-json {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--c-text-primary);
+  overflow-x: auto;
+}
+
+/* ── Loading dots ─────────────────────────────────────── */
+.loading-dots {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  height: 1.2em;
+}
+
+.loading-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  animation: dot-pulse 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: 0.0s; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-pulse {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.35; }
+  40%           { transform: scale(1.1); opacity: 1.0;  }
+}
+
+/* ── Input bar ────────────────────────────────────────── */
+.ping-chat-input-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-6);
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+
+.ping-chat-input {
+  flex: 1;
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-full);
+  padding: var(--s-3) var(--s-5);
+  color: var(--c-text-primary);
+  font-size: var(--text-base);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.ping-chat-input:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 14%, transparent);
+}
+
+.ping-chat-input::placeholder {
+  color: var(--c-text-muted);
+  font-style: italic;
+}
+
+.ping-chat-send-btn {
+  border-radius: var(--r-full);
+  padding: var(--s-3) var(--s-5);
+  flex-shrink: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .ping-chat-model-bar {
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  .ping-chat-model-bar__spacer {
+    display: none;
+  }
+
+  .ping-chat-messages {
+    padding: var(--s-5) var(--s-4);
+  }
+
+  .ping-chat-bubble,
+  .ping-chat-bubble--bot {
+    max-width: 92%;
+  }
+}

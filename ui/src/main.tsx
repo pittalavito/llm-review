@@ -1,0 +1,37 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+
+// Global styles, section-specific last.
+import './styles/variables.css';
+import './styles/reset.css';
+import './styles/layout.css';
+import './styles/components.css';
+import './styles/ping-chat.css';
+
+import AppLayout from './layout/AppLayout';
+import PingChat from './sections/PingChat';
+import { applyTheme, getInitialTheme } from './components/ThemeToggle';
+
+// Stamp the saved theme on <html> before the first paint (no theme flash).
+applyTheme(getInitialTheme());
+
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <AppLayout />,
+      children: [
+        { index: true, element: <Navigate to="/ping-chat" replace /> },
+        { path: 'ping-chat', element: <PingChat /> },
+        { path: '*', element: <Navigate to="/ping-chat" replace /> },
+      ],
+    },
+  ],
+);
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>,
+);
