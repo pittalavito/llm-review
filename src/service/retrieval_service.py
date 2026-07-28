@@ -1,3 +1,4 @@
+from core.observability import observed, LogPrefix
 from domain.retrieval.base import Embedder, MockEmbedder, PaperFileReader, RetrievalStrategy
 from domain.store.redis.store import Adapter as RedisAdapter
 from domain.models.agent import CreateAgentRequest, ContextMode
@@ -29,6 +30,7 @@ class RetrievalService:
         index = self._get_or_build(paper_id, strategy, strategy_version)
         return self._strategy(strategy, strategy_version).build_context(index, query)
 
+    @observed(LogPrefix.RETRIEVAL_SERVICE)
     def index_paper(self, paper_id: str, strategy: RagStrategy, strategy_version: str, force: bool = False) -> IndexInfo:
         """Ensure the paper is indexed under (strategy, version); rebuild when the
         file changed or ``force``. Returns the lightweight index metadata."""
@@ -39,6 +41,12 @@ class RetrievalService:
         """The stored index for (paper, strategy, version), without building it."""
         doc_id = self.store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
         return self._load(doc_id)
+
+    def get_index_info(self, paper_id: str, strategy: RagStrategy, strategy_version: str) -> IndexInfo | None:
+        """Lightweight metadata of the stored index (None when not indexed yet).
+        Used by the FE to poll a background indexing for completion."""
+        doc_id = self.store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
+        return self.store_service.get_index_info(doc_id)
 
     def list_indexed(self) -> list[str]:
         return self.store_service.list_indexed_papers()

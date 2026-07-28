@@ -113,6 +113,7 @@
 }
 
 .paper-form__file,
+.paper-form__input,
 .paper-form__select,
 .paper-form__textarea {
   background: var(--c-surface-raised);
@@ -148,6 +149,26 @@
   font-size: var(--text-xs);
 }
 
+.paper-form__input {
+  font-family: var(--font-mono);
+}
+
+.paper-form__check {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  font-size: var(--text-sm);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+}
+
+.paper-form__check input {
+  accent-color: var(--c-accent);
+  cursor: pointer;
+}
+
+.paper-form__input:focus,
 .paper-form__select:focus,
 .paper-form__textarea:focus,
 .paper-form__file:focus {

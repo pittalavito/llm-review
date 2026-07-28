@@ -2,6 +2,7 @@ from pydantic import Base64Bytes, BaseModel, Field
 
 from domain.models.chat import ChatModelName
 from domain.models.paper import Paper
+from domain.models.retrieval import RagStrategy
 
 class ChatRequest(BaseModel):
     """Basic chat request: model, temperature and the message — nothing else."""
@@ -30,3 +31,20 @@ class CreatePaperRequest(BaseModel):
 
 class CreatePaperResponse(Paper):
     """Response model for creating a new paper."""
+
+
+class IndexPaperRequest(BaseModel):
+    """Request model for indexing a paper for retrieval."""
+    paper_id: str
+    strategy: RagStrategy
+    strategy_version: str = "v1"
+    force: bool = False
+
+
+class IndexPaperAccepted(BaseModel):
+    """202 response: the indexing runs in background; poll the status endpoint
+    with the same (paper_id, strategy, strategy_version) to know when done."""
+    status: str = "accepted"
+    paper_id: str
+    strategy: RagStrategy
+    strategy_version: str

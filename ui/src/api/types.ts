@@ -52,3 +52,29 @@ export interface CreatePaperRequest {
 // GET /admin/config — the whole backend Config (secrets already masked by the BE).
 // Known keys are typed loosely: the shape follows src/config.py and can grow.
 export type AppConfig = Record<string, string | number | null>;
+
+// domain/models/retrieval.py :: RagStrategy (StrEnum).
+export type RagStrategy = 'full_context' | 'bm25' | 'embedding';
+
+// controller/models.py :: IndexPaperRequest.
+export interface IndexPaperRequest {
+  paper_id: string;
+  strategy: RagStrategy;
+  strategy_version?: string;
+  force?: boolean;
+}
+
+// domain/models/retrieval.py :: IndexInfo — lightweight RAG index metadata.
+export interface IndexInfo {
+  doc_id: string;
+  paper_id: string;
+  section_count: number;
+}
+
+// controller/models.py :: IndexPaperAccepted — 202: the indexing runs in background.
+export interface IndexPaperAccepted {
+  status: string;
+  paper_id: string;
+  strategy: RagStrategy;
+  strategy_version: string;
+}

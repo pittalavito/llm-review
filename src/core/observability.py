@@ -23,6 +23,7 @@ class LogPrefix(StrEnum):
     PROMPT_REPOSITORY = "PROMPT_REPOSITORY"
     STORE_SERVICE = "STORE_SERVICE"
     GRAPH_SERVICE = "GRAPH_SERVICE"
+    RETRIEVAL_SERVICE = "retrieval-service"
 
 
 def log_info(prefix: LogPrefix | None = None, message: str = "", *args, **kwargs):

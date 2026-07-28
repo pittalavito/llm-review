@@ -13,7 +13,9 @@ from service.retrieval_service import RetrievalService
 
 
 class FakeStoreService:
-    """In-memory StoreService stand-in: only what RetrievalService needs."""
+    """In-memory StoreService stand-in: only what RetrievalService needs.
+    File access delegates to a real FilePaperRepository over the tmp papers
+    folder, mirroring the facade methods of the real StoreService."""
 
     def __init__(self):
         self._papers_files = FilePaperRepository()
@@ -23,6 +25,15 @@ class FakeStoreService:
     @staticmethod
     def compute_doc_id(paper_id, strategy, strategy_version):
         return RedisRagIndexRepository.compute_doc_id(paper_id, strategy, strategy_version)
+
+    def get_source_path_for_paper(self, paper_id):
+        return self._papers_files.resolve(paper_id)
+
+    def signature(self, paper_id):
+        return self._papers_files.signature(paper_id)
+
+    def file_format(self, paper_id):
+        return self._papers_files.file_format(paper_id)
 
     def get_rag_index(self, doc_id):
         return self.store.get(doc_id)

@@ -5,9 +5,14 @@
  * (<paper-type>_<name>_<extension>) and stores row + file under it.
  * List/detail cards are TODO placeholders for the upcoming endpoints. */
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { ApiError, createPaper, listPaperTypes } from '../api/client';
-import type { Paper as PaperModel } from '../api/types';
+import { ApiError, createPaper, getIndexStatus, indexPaper, listPaperTypes, listRetrievalStrategies } from '../api/client';
+import type { IndexInfo, Paper as PaperModel, RagStrategy } from '../api/types';
 import { useOptions } from '../components/useOptions';
+
+const INDEX_POLL_INTERVAL_MS = 2000;
+const INDEX_POLL_MAX_ATTEMPTS = 150; // ~5 minutes
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const ALLOWED_EXTENSIONS = ['pdf', 'txt'];
 
@@ -210,6 +215,145 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
             <div className="card__body"><pre>{JSON.stringify(result, null, 2)}</pre></div>
           </div>
         )}
+        {result && (
+          <p className="paper-form__preview">
+            Indicizzazione <code>full_context</code> avviata in background.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function IndexPaperModal({ onClose }: { onClose: () => void }) {
+  const { options: strategies, error: strategiesError } = useOptions(listRetrievalStrategies);
+  const [paperId, setPaperId] = useState('');
+  const [strategy, setStrategy] = useState('');
+  const [strategyVersion, setStrategyVersion] = useState('v1');
+  const [force, setForce] = useState(false);
+  const [indexing, setIndexing] = useState(false);
+  const [result, setResult] = useState<IndexInfo | null>(null);
+  const [submitError, setSubmitError] = useState('');
+
+  // Stops the status polling when the modal unmounts.
+  const aliveRef = useRef(true);
+  useEffect(() => () => { aliveRef.current = false; }, []);
+
+  useEffect(() => {
+    if (!strategy && strategies.length > 0) setStrategy(strategies[0]);
+  }, [strategies, strategy]);
+
+  // Close on Esc.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    const id = paperId.trim();
+    const version = strategyVersion.trim() || 'v1';
+    if (!id || indexing) return;
+
+    setIndexing(true);
+    setResult(null);
+    setSubmitError('');
+    try {
+      // 202: the job runs in background — poll the status until the index shows up.
+      await indexPaper({ paper_id: id, strategy: strategy as RagStrategy, strategy_version: version, force });
+
+      let info: IndexInfo | null = null;
+      for (let attempt = 0; attempt < INDEX_POLL_MAX_ATTEMPTS && aliveRef.current; attempt++) {
+        await sleep(INDEX_POLL_INTERVAL_MS);
+        info = await getIndexStatus(id, strategy as RagStrategy, version);
+        if (info) break;
+      }
+      if (!aliveRef.current) return;
+      if (info) setResult(info);
+      else setSubmitError("L'indicizzazione è ancora in corso: ricontrolla più tardi (i PDF grossi richiedono minuti).");
+    } catch (err) {
+      if (aliveRef.current) setSubmitError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      if (aliveRef.current) setIndexing(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="index-paper-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal__header">
+          <h3 className="modal__title" id="index-paper-title">Index paper</h3>
+          <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
+        </div>
+
+        <form className="paper-form" noValidate onSubmit={onSubmit}>
+          <label className="paper-form__label" htmlFor="index-paper-id">Paper id</label>
+          <input
+            className="paper-form__input"
+            id="index-paper-id"
+            type="text"
+            placeholder="es. other_attention_pdf"
+            autoComplete="off"
+            value={paperId}
+            disabled={indexing}
+            onChange={(e) => setPaperId(e.target.value)}
+          />
+
+          <label className="paper-form__label" htmlFor="index-strategy">Strategia</label>
+          <select
+            className="paper-form__select"
+            id="index-strategy"
+            value={strategy}
+            disabled={indexing}
+            onChange={(e) => setStrategy(e.target.value)}
+          >
+            {strategiesError && <option value="">Error loading</option>}
+            {!strategiesError && strategies.length === 0 && <option value="">Loading…</option>}
+            {strategies.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+
+          <label className="paper-form__label" htmlFor="index-version">Versione strategia</label>
+          <input
+            className="paper-form__input"
+            id="index-version"
+            type="text"
+            value={strategyVersion}
+            disabled={indexing}
+            onChange={(e) => setStrategyVersion(e.target.value)}
+          />
+
+          <label className="paper-form__check">
+            <input
+              type="checkbox"
+              checked={force}
+              disabled={indexing}
+              onChange={(e) => setForce(e.target.checked)}
+            />
+            Force reindex (ricostruisce anche se l'indice è aggiornato)
+          </label>
+
+          <div className="paper-form__actions">
+            <button className="btn btn--primary" type="submit" disabled={indexing || !paperId.trim()}>
+              {indexing ? 'Indicizzazione…' : 'Indicizza'}
+            </button>
+          </div>
+        </form>
+
+        {submitError && <p className="paper-form__error">{submitError}</p>}
+
+        {result && (
+          <div className="card paper-result">
+            <div className="card__header"><span className="card__title">Indice creato</span></div>
+            <div className="card__body"><pre>{JSON.stringify(result, null, 2)}</pre></div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -217,6 +361,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
 
 export default function Paper() {
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [indexOpen, setIndexOpen] = useState(false);
 
   return (
     <div className="section-wrap paper-section">
@@ -232,8 +377,9 @@ export default function Paper() {
 
       <ActionCard
         title="Index paper"
-        description={<>Indicizza un paper per il retrieval (strategia RAG e versione) — in preparazione.</>}
+        description={<>Indicizza un paper per il retrieval: strategia RAG e versione, con rebuild forzabile.</>}
         actionLabel="Indicizza"
+        onAction={() => setIndexOpen(true)}
       />
 
       <ActionCard
@@ -249,6 +395,7 @@ export default function Paper() {
       />
 
       {uploadOpen && <UploadPaperModal onClose={() => setUploadOpen(false)} />}
+      {indexOpen && <IndexPaperModal onClose={() => setIndexOpen(false)} />}
     </div>
   );
 }
