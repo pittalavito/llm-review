@@ -231,15 +231,15 @@
 }
 
 .theme-toggle__opt--light {
-  background: #f4f5f7;
+  background: #dfe2e8;
   color: #24282f;
-  border: 1px solid #d5d9df;
+  border: 1px solid #bcc2cd;
 }
 
 .theme-toggle__opt--dark {
-  background: #0c1220;
+  background: #101727;
   color: #e2e6ef;
-  border: 1px solid #243252;
+  border: 1px solid #293756;
 }
 
 .theme-toggle__opt:hover {

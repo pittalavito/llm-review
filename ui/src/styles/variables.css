@@ -51,10 +51,10 @@
   --c-accent-light: #6f7680;
 
   /* ── Surfaces ─────────────────────────────────────── */
-  --c-bg:             #f4f5f7;
-  --c-surface:        #fbfbfc;
-  --c-surface-raised: #eef0f3;
-  --c-border:         #e0e3e8;
+  --c-bg:             #dfe2e8;
+  --c-surface:        #eaecf0;
+  --c-surface-raised: #d8dce3;
+  --c-border:         #c7ccd5;
 
   /* ── Text ─────────────────────────────────────────── */
   --c-text-primary:   #24282f;
@@ -67,9 +67,9 @@
   --c-warning: #a8721c;
 
   /* ── Chat bubbles ─────────────────────────────────── */
-  --c-bubble-user:      #e7eaef;
+  --c-bubble-user:      #d1d6df;
   --c-bubble-user-text: #24282f;
-  --c-bubble-bot:       #ffffff;
+  --c-bubble-bot:       #f3f5f7;
 
   /* ── Text on accent-colored controls ──────────────── */
   --c-on-accent: #ffffff;
@@ -89,10 +89,10 @@
   --c-accent-light: #d4bb7a;
 
   /* ── Surfaces ─────────────────────────────────────── */
-  --c-bg:             #0c1220;
-  --c-surface:        #111a2e;
-  --c-surface-raised: #182440;
-  --c-border:         #243252;
+  --c-bg:             #101727;
+  --c-surface:        #151f35;
+  --c-surface-raised: #1c2845;
+  --c-border:         #293756;
 
   /* ── Text ─────────────────────────────────────────── */
   --c-text-primary:   #e2e6ef;
@@ -105,9 +105,9 @@
   --c-warning: #d9a441;
 
   /* ── Chat bubbles ─────────────────────────────────── */
-  --c-bubble-user:      #1a3a6a;
+  --c-bubble-user:      #1f3d6c;
   --c-bubble-user-text: #dce4f0;
-  --c-bubble-bot:       #182440;
+  --c-bubble-bot:       #1c2845;
 
   /* ── Text on accent-colored controls ──────────────── */
   --c-on-accent: #0c1220;
