@@ -1,0 +1,191 @@
+/* ═══════════════════════════════════════════════════════
+   review-graph.css — styles specific to the Review Graph
+   section: fullscreen configure modal, pipeline graph and
+   the per-node editor panel
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Fullscreen modal variant ─────────────────────────── */
+.modal--full {
+  max-width: min(1240px, 96vw);
+  width: 96vw;
+  height: 92vh;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Two-pane layout: graph | editor ──────────────────── */
+.rg-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--s-6);
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Pipeline graph ───────────────────────────────────── */
+.rg-graph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  position: relative;
+  padding: var(--s-6);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-bg);
+  overflow: auto;
+}
+
+.rg-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  align-items: center;
+}
+
+.rg-arrow {
+  color: var(--c-text-muted);
+  font-size: var(--text-xl);
+  user-select: none;
+}
+
+/* ── Nodes ────────────────────────────────────────────── */
+.rg-node {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  min-width: 130px;
+  justify-content: center;
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-border);
+  border-radius: var(--r-md);
+  background: var(--c-surface-raised);
+  color: var(--c-text-primary);
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast);
+}
+
+.rg-node:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--c-accent) 55%, var(--c-border));
+  transform: translateY(-1px);
+}
+
+.rg-node--selected {
+  border-color: var(--c-accent);
+  border-left-color: var(--c-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 25%, transparent);
+}
+
+.rg-node--muted {
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  cursor: default;
+}
+
+.rg-node__icon {
+  font-size: 1em;
+}
+
+.rg-node__label {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* ── Author revision loop ─────────────────────────────── */
+.rg-loop {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px dashed var(--c-border);
+}
+
+.rg-loop__arrow {
+  color: var(--c-accent);
+  font-size: var(--text-xl);
+  user-select: none;
+}
+
+.rg-loop__note {
+  color: var(--c-text-muted);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ── Editor panel ─────────────────────────────────────── */
+.rg-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface-raised);
+  overflow-y: auto;
+}
+
+.rg-editor__title {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--c-text-primary);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.rg-editor__hint {
+  font-family: var(--font);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--c-text-muted);
+}
+
+.rg-editor__slider {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.rg-editor__globals {
+  display: flex;
+  gap: var(--s-4);
+  margin-top: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--c-border);
+}
+
+.rg-editor__number {
+  width: 90px;
+}
+
+.rg-editor__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+}
+
+.rg-editor__saved {
+  color: var(--c-success);
+  font-size: var(--text-sm);
+  margin-top: var(--s-2);
+}
+
+/* ── Responsive: editor below the graph ───────────────── */
+@media (max-width: 900px) {
+  .rg-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+}

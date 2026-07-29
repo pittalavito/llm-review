@@ -82,15 +82,17 @@ URI_PAPER_LIST = f"{URI_PAPER_PREFIX}/list"
 URI_PAPER_TYPES = f"{URI_PAPER_PREFIX}/types"
 URI_PAPER_CREATE = f"{URI_PAPER_PREFIX}/create"
 
-# Da mettere in retrieval
-URI_PAPER_INDEX = f"{URI_PAPER_PREFIX}/index"
-URI_PAPER_INDEX_STATUS = f"{URI_PAPER_INDEX}/status"
-
 
 @router.get(URI_PAPER_TYPES)
 def get_paper_types() -> list[PaperType]:
     """List the supported paper types."""
     return list(PaperType)
+
+
+@router.get(URI_PAPER_LIST)
+def list_papers(service: StoreService = Depends(store_service)) -> list[Paper]:
+    """The paper catalog — DB rows only (no files-store or index data)."""
+    return service.list_papers_catalog()
 
 
 @router.post(URI_PAPER_CREATE)
@@ -105,16 +107,18 @@ def create_paper(
     saved = service.save_paper(request.paper, request.file_bytes)
     if saved is None:
         raise HTTPException(status_code=409, detail="A paper with this id already exists.")
-    background_tasks.add_task(retrieval.index_paper, saved.paper_id, RagStrategy.FULL_CONTEXT, "v1")
+    background_tasks.add_task(retrieval.multi_strategy_indexed, saved.paper_id)
     return saved
 
 
 #####################################################################
 #### Retrieval APIs #################################################
 #####################################################################
+
 URI_RETRIEVAL_PREFIX = "/retrieval"
 URI_RETRIEVAL_STRATEGY_TYPES = f"{URI_RETRIEVAL_PREFIX}/strategy-types"
-
+URI_RETRIEVAL_PAPER_INDEX = f"{URI_RETRIEVAL_PREFIX}/index"
+URI_RETRIEVAL_PAPER_INDEX_STATUS = f"{URI_RETRIEVAL_PAPER_INDEX}/status"
 
 @router.get(URI_RETRIEVAL_STRATEGY_TYPES)
 def get_retrieval_strategy_types() -> list[RagStrategy]:
@@ -122,15 +126,12 @@ def get_retrieval_strategy_types() -> list[RagStrategy]:
     return list(RagStrategy)
 
 
-@router.post(URI_PAPER_INDEX, status_code=202)
+@router.post(URI_RETRIEVAL_PAPER_INDEX, status_code=202)
 def index_paper(
     request: IndexPaperRequest,
     background_tasks: BackgroundTasks,
     service: RetrievalService = Depends(retrieval_service),
 ) -> IndexPaperAccepted:
-    """Accept an indexing job: validates the paper file exists (404 otherwise),
-    then builds the (strategy, version) index in background. Poll
-    ``GET /paper/index/status`` to know when it is done."""
     try:
         service.store_service.signature(request.paper_id)
     except NotFoundError as exc:
@@ -139,7 +140,7 @@ def index_paper(
     return IndexPaperAccepted(paper_id=request.paper_id, strategy=request.strategy, strategy_version=request.strategy_version)
 
 
-@router.get(URI_PAPER_INDEX_STATUS)
+@router.get(URI_RETRIEVAL_PAPER_INDEX_STATUS)
 def get_index_status(
     paper_id: str,
     strategy: RagStrategy,

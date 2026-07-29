@@ -4,15 +4,20 @@
  * (POST /paper/create); the backend derives the paper_id
  * (<paper-type>_<name>_<extension>) and stores row + file under it.
  * List/detail cards are TODO placeholders for the upcoming endpoints. */
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { ApiError, createPaper, getIndexStatus, indexPaper, listPaperTypes, listRetrievalStrategies } from '../api/client';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ApiError, createPaper, getIndexStatus, indexPaper, listPapers, listPaperTypes, listRetrievalStrategies } from '../api/client';
 import type { IndexInfo, Paper as PaperModel, RagStrategy } from '../api/types';
+import ActionCard from '../components/ActionCard';
 import { useOptions } from '../components/useOptions';
 
 const INDEX_POLL_INTERVAL_MS = 2000;
 const INDEX_POLL_MAX_ATTEMPTS = 150; // ~5 minutes
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Catalog paper ids for the index-paper select (module-level: stable identity
+ * for useOptions). */
+const listPaperIds = () => listPapers().then((papers) => papers.map((paper) => paper.paper_id));
 
 const ALLOWED_EXTENSIONS = ['pdf', 'txt'];
 
@@ -41,35 +46,6 @@ async function fileToBase64(file: File): Promise<string> {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
   }
   return btoa(binary);
-}
-
-interface ActionCardProps {
-  title: string;
-  description: ReactNode;
-  actionLabel: string;
-  onAction?: () => void;
-}
-
-function ActionCard({ title, description, actionLabel, onAction }: ActionCardProps) {
-  return (
-    <section className="admin-card">
-      <div className="admin-card__info">
-        <h3 className="admin-card__title">
-          {title}
-          {!onAction && <span className="badge badge--todo">TODO</span>}
-        </h3>
-        <p className="admin-card__desc">{description}</p>
-      </div>
-      <button
-        className="btn btn--primary admin-card__btn"
-        type="button"
-        disabled={!onAction}
-        onClick={onAction}
-      >
-        {actionLabel}
-      </button>
-    </section>
-  );
 }
 
 function UploadPaperModal({ onClose }: { onClose: () => void }) {
@@ -217,7 +193,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
         )}
         {result && (
           <p className="paper-form__preview">
-            Indicizzazione <code>full_context</code> avviata in background.
+            Indicizzazione (<code>full_context</code>, <code>bm25</code>, <code>embedding</code>) avviata in background.
           </p>
         )}
       </div>
@@ -227,6 +203,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
 
 function IndexPaperModal({ onClose }: { onClose: () => void }) {
   const { options: strategies, error: strategiesError } = useOptions(listRetrievalStrategies);
+  const { options: paperIds, error: paperIdsError } = useOptions(listPaperIds);
   const [paperId, setPaperId] = useState('');
   const [strategy, setStrategy] = useState('');
   const [strategyVersion, setStrategyVersion] = useState('v1');
@@ -242,6 +219,11 @@ function IndexPaperModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (!strategy && strategies.length > 0) setStrategy(strategies[0]);
   }, [strategies, strategy]);
+
+  // Default to the first catalog paper once loaded.
+  useEffect(() => {
+    if (!paperId && paperIds.length > 0) setPaperId(paperIds[0]);
+  }, [paperIds, paperId]);
 
   // Close on Esc.
   useEffect(() => {
@@ -294,17 +276,18 @@ function IndexPaperModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <form className="paper-form" noValidate onSubmit={onSubmit}>
-          <label className="paper-form__label" htmlFor="index-paper-id">Paper id</label>
-          <input
-            className="paper-form__input"
+          <label className="paper-form__label" htmlFor="index-paper-id">Paper</label>
+          <select
+            className="paper-form__select"
             id="index-paper-id"
-            type="text"
-            placeholder="es. other_attention_pdf"
-            autoComplete="off"
             value={paperId}
             disabled={indexing}
             onChange={(e) => setPaperId(e.target.value)}
-          />
+          >
+            {paperIdsError && <option value="">Error loading</option>}
+            {!paperIdsError && paperIds.length === 0 && <option value="">Nessun paper nel catalogo</option>}
+            {paperIds.map((id) => <option key={id} value={id}>{id}</option>)}
+          </select>
 
           <label className="paper-form__label" htmlFor="index-strategy">Strategia</label>
           <select
@@ -359,9 +342,81 @@ function IndexPaperModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function PaperListModal({ onClose }: { onClose: () => void }) {
+  const [papers, setPapers] = useState<PaperModel[] | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    listPapers()
+      .then((rows) => { if (alive) setPapers(rows); })
+      .catch((err) => { if (alive) setError(err instanceof ApiError ? err.message : String(err)); });
+    return () => { alive = false; };
+  }, []);
+
+  // Close on Esc.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal modal--wide"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="paper-list-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal__header">
+          <h3 className="modal__title" id="paper-list-title">Lista paper</h3>
+          <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
+        </div>
+
+        {error && <p className="paper-form__error">{error}</p>}
+        {!error && papers === null && <p className="paper-list__empty">Caricamento…</p>}
+        {papers !== null && papers.length === 0 && (
+          <p className="paper-list__empty">Nessun paper nel catalogo.</p>
+        )}
+        {papers !== null && papers.length > 0 && (
+          <div className="paper-list__scroll">
+            <table className="paper-list">
+              <thead>
+                <tr>
+                  <th>paper_id</th>
+                  <th>nome</th>
+                  <th>tipo</th>
+                  <th>descrizione</th>
+                  <th>decision</th>
+                  <th>review</th>
+                </tr>
+              </thead>
+              <tbody>
+                {papers.map((paper) => (
+                  <tr key={paper.paper_id}>
+                    <td className="paper-list__id">{paper.paper_id}</td>
+                    <td>{paper.paper_name}</td>
+                    <td>{paper.paper_type}</td>
+                    <td className="paper-list__desc">{paper.description || '—'}</td>
+                    <td>{paper.human_decision || '—'}</td>
+                    <td>{paper.num_graph_review ?? 0}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Paper() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [indexOpen, setIndexOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
 
   return (
     <div className="section-wrap paper-section">
@@ -384,8 +439,9 @@ export default function Paper() {
 
       <ActionCard
         title="Lista paper"
-        description={<>Elenco dei paper nel catalogo — in preparazione.</>}
+        description={<>Elenco dei paper nel catalogo (dati dal DB).</>}
         actionLabel="Apri"
+        onAction={() => setListOpen(true)}
       />
 
       <ActionCard
@@ -396,6 +452,7 @@ export default function Paper() {
 
       {uploadOpen && <UploadPaperModal onClose={() => setUploadOpen(false)} />}
       {indexOpen && <IndexPaperModal onClose={() => setIndexOpen(false)} />}
+      {listOpen && <PaperListModal onClose={() => setListOpen(false)} />}
     </div>
   );
 }

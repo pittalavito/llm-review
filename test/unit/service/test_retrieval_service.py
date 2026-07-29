@@ -89,6 +89,40 @@ class TestIndexing:
         assert len(store.store) == 2  # no overwrite across strategies
         assert service.list_indexed() == ["other_p_txt"]  # listed once
 
+    def test_chunk_strategies_reuse_full_context_sections(self, setup, monkeypatch):
+        """bm25/embedding recycle the parsed sections of a fresh full-context
+        index instead of re-running the (expensive) file parse."""
+        service, _, _ = setup
+        calls = {"n": 0}
+        original = service._reader.extract_structure
+
+        def counting(source_path, file_format):
+            calls["n"] += 1
+            return original(source_path, file_format)
+
+        monkeypatch.setattr(service._reader, "extract_structure", counting)
+        service.index_paper("other_p_txt", RagStrategy.FULL_CONTEXT, "v1")
+        service.index_paper("other_p_txt", RagStrategy.BM25, "v1")
+        service.index_paper("other_p_txt", RagStrategy.EMBEDDING, "v1")
+        assert calls["n"] == 1  # parsed once, reused twice
+
+    def test_stale_full_context_sections_are_not_reused(self, setup, monkeypatch):
+        """When the file changed after the full-context index, chunk strategies
+        must re-parse instead of recycling stale sections."""
+        service, _, papers = setup
+        calls = {"n": 0}
+        original = service._reader.extract_structure
+
+        def counting(source_path, file_format):
+            calls["n"] += 1
+            return original(source_path, file_format)
+
+        monkeypatch.setattr(service._reader, "extract_structure", counting)
+        service.index_paper("other_p_txt", RagStrategy.FULL_CONTEXT, "v1")
+        (papers / "other_p_txt").write_text("a brand new much longer body about transformers", encoding="utf-8")
+        service.index_paper("other_p_txt", RagStrategy.BM25, "v1")
+        assert calls["n"] == 2  # full-context sections were stale -> re-parsed
+
     def test_uses_cache_then_rebuilds_when_file_changes(self, setup):
         service, store, papers = setup
         service.index_paper("other_p_txt", RagStrategy.FULL_CONTEXT, "v1")

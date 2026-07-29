@@ -41,6 +41,10 @@
   box-shadow: var(--shadow-md);
 }
 
+.modal--wide {
+  max-width: 860px;
+}
+
 .modal__header {
   display: flex;
   align-items: center;
@@ -202,4 +206,57 @@
 .paper-result {
   max-width: 560px;
   margin-top: var(--s-5);
+}
+
+/* ── Paper list table (inside the list modal) ─────────── */
+.paper-list__scroll {
+  overflow-x: auto;
+}
+
+.paper-list {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.paper-list th {
+  text-align: left;
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--c-accent);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--c-text-secondary);
+  white-space: nowrap;
+}
+
+.paper-list td {
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+  color: var(--c-text-primary);
+}
+
+.paper-list tr:last-child td {
+  border-bottom: none;
+}
+
+.paper-list__id {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--c-accent-light);
+  white-space: nowrap;
+}
+
+.paper-list__desc {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paper-list__empty {
+  color: var(--c-text-muted);
+  font-size: var(--text-sm);
 }

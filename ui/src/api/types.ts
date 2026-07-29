@@ -78,3 +78,30 @@ export interface IndexPaperAccepted {
   strategy: RagStrategy;
   strategy_version: string;
 }
+
+// domain/models/agent.py :: ContextMode (StrEnum).
+export type ContextMode = 'none' | 'full_context' | 'bm25' | 'embedding';
+
+// domain/models/agent.py :: AgentRequestContext.
+export interface AgentRequestContext {
+  context_mode: ContextMode;
+  retrieval_context_query?: string | null;
+}
+
+// domain/models/graph.py :: AgentConfig — LLM settings for one agent role.
+export interface AgentConfig {
+  model: string;
+  temperature: number;
+  system_prompt?: string;
+  request_context: AgentRequestContext;
+}
+
+// domain/models/graph.py :: GraphConfig — the N reviewers share the single reviewer config.
+export interface GraphConfig {
+  reviewer: AgentConfig;
+  meta_reviewer: AgentConfig;
+  area_chair: AgentConfig;
+  author: AgentConfig;
+  num_reviewers: number;
+  max_rounds: number;
+}

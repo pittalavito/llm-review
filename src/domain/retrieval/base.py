@@ -214,7 +214,7 @@ class RetrievalStrategy(ABC):
             return EmbeddingStrategy(strategy_version, chunker or Chunker(), embedder, top_k)
         raise ValueError(f"Unsupported RAG strategy: {strategy}")
 
-
+    
 class FullContextStrategy(RetrievalStrategy):
     """Whole paper: store every section, hand back all of them concatenated."""
 

@@ -4,9 +4,10 @@
  * dashboard links take their ports from it and the host from the browser
  * location. Dashboards run as separate containers
  * (resource/scripts/2-start-docker.py) and open in a dedicated tab. */
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { getAdminConfig } from '../api/client';
 import type { AppConfig } from '../api/types';
+import ActionCard from '../components/ActionCard';
 
 const DEFAULT_REDIS_PORT = 8083;
 const DEFAULT_POSTGRES_PORT = 8084;
@@ -18,43 +19,6 @@ function dashboardUrl(port: number): string {
 function portOf(config: AppConfig | null, key: string, fallback: number): number {
   const value = config?.[key];
   return typeof value === 'number' ? value : fallback;
-}
-
-interface DashboardLinkProps {
-  title: string;
-  description: ReactNode;
-  /** Omit while the card's target isn't available yet: the button renders disabled. */
-  url?: string;
-  actionLabel?: string;
-  onAction?: () => void;
-}
-
-function AdminCard({ title, url, description, actionLabel = 'Apri ↗', onAction }: DashboardLinkProps) {
-  return (
-    <section className="admin-card">
-      <div className="admin-card__info">
-        <h3 className="admin-card__title">
-          {title}
-          {!url && !onAction && <span className="badge badge--todo">TODO</span>}
-        </h3>
-        <p className="admin-card__desc">{description}</p>
-      </div>
-      {url ? (
-        <a className="btn btn--primary admin-card__btn" href={url} target="_blank" rel="noreferrer">
-          {actionLabel}
-        </a>
-      ) : (
-        <button
-          className="btn btn--primary admin-card__btn"
-          type="button"
-          disabled={!onAction}
-          onClick={onAction}
-        >
-          {actionLabel}
-        </button>
-      )}
-    </section>
-  );
 }
 
 function ConfigModal({ config, error, onClose }: { config: AppConfig | null; error: boolean; onClose: () => void }) {
@@ -122,14 +86,14 @@ export default function Admin() {
         Avvia i container con <code>python resource/scripts/2-start-docker.py</code>.
       </p>
 
-      <AdminCard
+      <ActionCard
         title="Config"
         description={<>Tutta la configurazione dell'app (dal <code>.env</code>), con i segreti mascherati.</>}
         actionLabel="Apri"
         onAction={() => setConfigOpen(true)}
       />
 
-      <AdminCard
+      <ActionCard
         title="Redis Dashboard"
         url={dashboardUrl(redisPort)}
         description={
@@ -139,7 +103,7 @@ export default function Admin() {
         }
       />
 
-      <AdminCard
+      <ActionCard
         title="SQL Dashboard"
         url={dashboardUrl(postgresPort)}
         description={
@@ -150,7 +114,7 @@ export default function Admin() {
         }
       />
 
-      <AdminCard
+      <ActionCard
         title="Files Store"
         description={
           <>
@@ -159,7 +123,7 @@ export default function Admin() {
         }
       />
 
-      <AdminCard
+      <ActionCard
         title="Back-up"
         description={<>Backup e restore degli store — in preparazione.</>}
       />

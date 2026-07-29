@@ -61,6 +61,9 @@ export const pingChat = (message: string, model: string, temperature = 0.7) =>
 
 export const listPaperTypes = () => get<PaperType[]>('/paper/types');
 
+/** The paper catalog — DB rows only. */
+export const listPapers = () => get<Paper[]>('/paper/list');
+
 export const createPaper = (request: CreatePaperRequest) =>
   post<Paper>('/paper/create', request);
 
@@ -68,10 +71,10 @@ export const listRetrievalStrategies = () => get<RagStrategy[]>('/retrieval/stra
 
 /** 202: the indexing job runs in background — poll getIndexStatus for completion. */
 export const indexPaper = (request: IndexPaperRequest) =>
-  post<IndexPaperAccepted>('/paper/index', request);
+  post<IndexPaperAccepted>('/retrieval/index', request);
 
 /** IndexInfo when the index is built, null otherwise. */
 export const getIndexStatus = (paperId: string, strategy: RagStrategy, strategyVersion = 'v1') => {
   const params = new URLSearchParams({ paper_id: paperId, strategy, strategy_version: strategyVersion });
-  return get<IndexInfo | null>(`/paper/index/status?${params}`);
+  return get<IndexInfo | null>(`/retrieval/index/status?${params}`);
 };
