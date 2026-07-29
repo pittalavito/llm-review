@@ -11,6 +11,8 @@ import './styles/ping-chat.css';
 import './styles/admin.css';
 import './styles/paper.css';
 import './styles/review-graph.css';
+import './styles/agent-config.css';
+import './styles/input-messages.css';
 
 import AppLayout from './layout/AppLayout';
 import Admin from './sections/Admin';

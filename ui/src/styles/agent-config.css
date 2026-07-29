@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════════
+   agent-config.css — AgentConfigPanel, the reusable editor
+   for a single AgentConfig (used by the Review Graph and,
+   in prospettiva, by other sections)
+   ═══════════════════════════════════════════════════════ */
+
+.acp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.acp__title {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--c-text-primary);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.acp__hint {
+  font-family: var(--font);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--c-text-muted);
+}
+
+.acp__slider {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+/* ── System prompt JSON editor ────────────────────────── */
+.acp__prompt {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 120px;
+  white-space: pre;
+}
+
+.acp__input-message {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 70px;
+}
+
+.acp__prompt--invalid {
+  border-color: var(--c-error);
+}
+
+.acp__prompt-error {
+  color: var(--c-error);
+  font-size: var(--text-xs);
+}

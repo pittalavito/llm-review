@@ -63,6 +63,8 @@
 .admin-card__btn {
   flex-shrink: 0;
   text-decoration: none;
+  min-width: 130px;
+  justify-content: center;
 }
 
 /* ── Config table (inside the Config modal) ───────────── */

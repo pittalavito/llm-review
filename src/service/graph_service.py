@@ -32,7 +32,8 @@ class GraphService:
         """Build the agents, run the review graph, assemble and persist the run."""
         agents = self._build_agents(request)
         graph = self._compile(agents)
-        result = graph.invoke(Builder.build_initial_state(request.paper_id, request.graph_config.max_rounds))
+        initial_state = Builder.build_initial_state(request.paper_id, request.graph_config.max_rounds)
+        result = graph.invoke(initial_state)
         record = self._build_record(result, request)
         self._save(record)
         return record

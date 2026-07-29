@@ -44,6 +44,15 @@ class AgentRequestContext(BaseModel):
         return AgentRequestContext(context_mode=ContextMode.FULL_CONTEXT, retrieval_context_query=None)
 
 
+class AgentSystemPromptRequest(BaseModel):
+    base_prompt_version: str
+    focus_id: str 
+    commitment_id: str 
+    intention_id: str
+    knowledgeability_id: str 
+    style_id: str 
+
+
 class CreateAgentRequest(BaseModel):
     """Request to create an agent with a specific role, model, temperature, and optional system prompt."""
     model: ChatModelName
@@ -53,54 +62,9 @@ class CreateAgentRequest(BaseModel):
     prompt_version: str | None = None
     paper_id: str | None = None    
     context: AgentRequestContext = AgentRequestContext.default_none_context()
-    retrieval_context_query: str | None = None
+    prompt_request: AgentSystemPromptRequest | None = None
+    retrieval_context_query: str | None = None    
 
-
-class ReviewerFocus(StrEnum):
-    """Primary evaluation angle assigned to a reviewer.
-    Each reviewer covers a different dimension of the paper so that
-    the three reviews are complementary rather than redundant.
-    """
-
-    SOUNDNESS = "soundness"
-    """Theoretical correctness, proofs, assumptions."""
-    EMPIRICAL = "empirical"
-    """Experiments, baselines, reproducibility."""
-    NOVELTY = "novelty"
-    """Originality, related work, impact."""
-
-
-class ReviewerCommitment(StrEnum):
-    """How diligently the reviewer engages with the paper."""
-    RESPONSIBLE = "responsible"
-    IRRESPONSIBLE = "irresponsible"
-
-
-class ReviewerIntention(StrEnum):
-    """Whether the reviewer acts in good or bad faith."""
-    BENIGN = "benign"
-    MALICIOUS = "malicious"
-
-
-class ReviewerKnowledgeability(StrEnum):
-    """The reviewer's expertise on the paper's topic."""
-    KNOWLEDGEABLE = "knowledgeable"
-    UNKNOWLEDGEABLE = "unknowledgeable"
-
-
-class ReviewerPersona(BaseModel):
-    """The persona axes that shape a reviewer's behavior."""
-    commitment: ReviewerCommitment = ReviewerCommitment.RESPONSIBLE
-    intention: ReviewerIntention = ReviewerIntention.BENIGN
-    knowledgeability: ReviewerKnowledgeability = ReviewerKnowledgeability.KNOWLEDGEABLE
-    focus: ReviewerFocus = ReviewerFocus.SOUNDNESS
-
-
-class AreaChairStyle(StrEnum):
-    """The decision style adopted by the Area Chair."""
-    AUTHORITARIAN = "authoritarian"
-    CONFORMIST = "conformist"
-    INCLUSIVE = "inclusive"
 
 class AgentResponse(BaseModel):
     """An agent's structured payload plus the token usage and traces of how it

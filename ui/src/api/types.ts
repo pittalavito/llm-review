@@ -88,20 +88,43 @@ export interface AgentRequestContext {
   retrieval_context_query?: string | null;
 }
 
+// The system prompt is structured JSON (free-form object), not plain text.
+export type SystemPrompt = Record<string, unknown>;
+
 // domain/models/graph.py :: AgentConfig — LLM settings for one agent role.
+// system_prompt is treated as JSON on the FE (edited/validated as an object).
+// input_message is FE-only for now: the BE model has no such field yet.
 export interface AgentConfig {
   model: string;
   temperature: number;
-  system_prompt?: string;
+  system_prompt?: SystemPrompt | null;
+  input_message?: string | null;
   request_context: AgentRequestContext;
 }
 
-// domain/models/graph.py :: GraphConfig — the N reviewers share the single reviewer config.
+// FE evolution of domain/models/graph.py :: GraphConfig — shared graph-level
+// settings are only paper_id, num_reviewers and max_rounds; every reviewer has
+// its own AgentConfig (the BE still shares one — alignment pending).
+// input_messages holds the message each agent receives at each round —
+// graph-level and FE-only for now: keyed by graph node ('reviewer-0'…,
+// 'meta_reviewer', 'area_chair', 'author'), value = one message per round.
 export interface GraphConfig {
-  reviewer: AgentConfig;
+  paper_id: string | null;
+  num_reviewers: number;
+  max_rounds: number;
+  input_messages: Record<string, string[]>;
+  reviewers: AgentConfig[];
   meta_reviewer: AgentConfig;
   area_chair: AgentConfig;
   author: AgentConfig;
-  num_reviewers: number;
-  max_rounds: number;
+}
+
+// domain/models/run_record.py :: GraphReviewSummary — lightweight run-history row.
+export interface GraphReviewSummary {
+  run_id: string;
+  timestamp: string;
+  paper_id: string;
+  run_description?: string | null;
+  decision: string | null;
+  total_rounds: number;
 }

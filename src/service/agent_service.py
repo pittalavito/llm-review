@@ -15,6 +15,11 @@ class AgentService:
         self.store_service = retrieval_service.store_service
         self.chat_clients_instances = {}
     
+    def ping_chat(self, model: ChatModelName, temperature: float, message: str) -> ChatResponse:
+        """Ping the chat model with the given message and return the response."""
+        chat = self._build_chat(model=model, temperature=temperature)
+        return chat.invoke(system_prompt="", message=message)
+    
     def build_agent(self, request: CreateAgentRequest) -> Agent:
         """Create a new agent for the given role and chat client."""
         chat = self._build_chat(model=request.model, temperature=request.temperature)
@@ -30,11 +35,6 @@ class AgentService:
             agent = self.build_agent(req)
             agents[agent.name] = agent
         return agents
-    
-    def ping_chat(self, model: ChatModelName, temperature: float, message: str) -> ChatResponse:
-        """Ping the chat model with the given message and return the response."""
-        chat = self._build_chat(model=model, temperature=temperature)
-        return chat.invoke(system_prompt="", message=message)
     
     def _build_chat(self, model: ChatModelName, temperature: float) -> Chat:
         """Create a new chat client for the given model and temperature."""

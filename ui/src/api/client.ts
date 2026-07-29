@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreatePaperRequest, IndexInfo, IndexPaperAccepted, IndexPaperRequest, Paper, PaperType, RagStrategy } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreatePaperRequest, GraphReviewSummary, IndexInfo, IndexPaperAccepted, IndexPaperRequest, Paper, PaperType, RagStrategy } from './types';
 
 export class ApiError extends Error {}
 
@@ -78,3 +78,10 @@ export const getIndexStatus = (paperId: string, strategy: RagStrategy, strategyV
   const params = new URLSearchParams({ paper_id: paperId, strategy, strategy_version: strategyVersion });
   return get<IndexInfo | null>(`/retrieval/index/status?${params}`);
 };
+
+// ---------------------------------------------------------------------------
+// Review graph
+// ---------------------------------------------------------------------------
+
+/** Run history — lightweight summaries, most recent first. */
+export const listGraphRuns = () => get<GraphReviewSummary[]>('/graph/runs');

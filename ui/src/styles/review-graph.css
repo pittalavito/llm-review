@@ -14,6 +14,47 @@
   flex-direction: column;
 }
 
+/* ── Graph-level settings bar (paper, N reviewer, round) ─ */
+.rg-globals {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-4);
+  padding: var(--s-4);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface-raised);
+}
+
+.rg-globals__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.rg-globals__field--grow {
+  flex: 1;
+  min-width: 220px;
+}
+
+.rg-globals__number {
+  width: 90px;
+}
+
+.rg-globals__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-left: auto;
+}
+
+.rg-saved {
+  color: var(--c-success);
+  font-size: var(--text-sm);
+  margin-bottom: var(--s-3);
+}
+
 /* ── Two-pane layout: graph | editor ──────────────────── */
 .rg-layout {
   display: grid;
@@ -118,9 +159,9 @@
 .rg-loop__note {
   color: var(--c-text-muted);
   font-size: var(--text-xs);
-  font-family: var(--font-mono);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+  line-height: 1.5;
+  max-width: 340px;
+  text-align: left;
 }
 
 /* ── Editor panel ─────────────────────────────────────── */
@@ -135,51 +176,19 @@
   overflow-y: auto;
 }
 
-.rg-editor__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--c-text-primary);
-  padding-bottom: var(--s-3);
-  border-bottom: 1px solid var(--c-border);
-}
-
-.rg-editor__hint {
-  font-family: var(--font);
-  font-size: var(--text-xs);
-  font-weight: 400;
-  color: var(--c-text-muted);
-}
-
-.rg-editor__slider {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-}
-
-.rg-editor__globals {
-  display: flex;
-  gap: var(--s-4);
-  margin-top: var(--s-4);
-  padding-top: var(--s-4);
-  border-top: 1px solid var(--c-border);
-}
-
-.rg-editor__number {
-  width: 90px;
-}
-
-.rg-editor__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
+/* Input message panel embedded below the agent editor. */
+.rg-editor .imp {
   margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px dashed var(--c-border);
 }
 
-.rg-editor__saved {
-  color: var(--c-success);
+.rg-editor__placeholder {
+  color: var(--c-text-muted);
   font-size: var(--text-sm);
-  margin-top: var(--s-2);
+  margin: auto;
+  text-align: center;
+  padding: var(--s-6);
 }
 
 /* ── Responsive: editor below the graph ───────────────── */

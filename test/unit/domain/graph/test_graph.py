@@ -5,7 +5,7 @@ in GraphService and are not exercised here."""
 from domain.agent.base import Factory as AgentFactory
 from domain.chat.base import Chat
 from domain.chat.mock_chat import MockChatModel
-from domain.graph.base import Builder, Nodes
+from domain.graph.base import Builder, route_after_area_chair, route_after_author
 from domain.models.agent import AgentRole, CreateAgentRequest
 from domain.models.chat import ChatModelName, ChatReviewDecision
 
@@ -48,15 +48,15 @@ class TestGraphRun:
 
 class TestConditionalEdges:
     def test_area_chair_terminates_on_accept_and_minor_revision(self):
-        assert Nodes.area_chair_conditional({"decision": ChatReviewDecision.ACCEPT}) == "accept"
-        assert Nodes.area_chair_conditional({"decision": ChatReviewDecision.MINOR_REVISION}) == "accept"
+        assert route_after_area_chair({"decision": ChatReviewDecision.ACCEPT}) == "accept"
+        assert route_after_area_chair({"decision": ChatReviewDecision.MINOR_REVISION}) == "accept"
 
     def test_area_chair_revises_otherwise(self):
-        assert Nodes.area_chair_conditional({"decision": ChatReviewDecision.MAJOR_REVISION}) == "revise"
-        assert Nodes.area_chair_conditional({"decision": None}) == "revise"
+        assert route_after_area_chair({"decision": ChatReviewDecision.MAJOR_REVISION}) == "revise"
+        assert route_after_area_chair({"decision": None}) == "revise"
 
     def test_end_loop_ends_when_rounds_exhausted(self):
-        assert Nodes.end_loop_conditional({"current_round": 1, "max_rounds": 1}) == "end"
+        assert route_after_author({"current_round": 1, "max_rounds": 1}) == "end"
 
     def test_end_loop_continues_while_rounds_remain(self):
-        assert Nodes.end_loop_conditional({"current_round": 1, "max_rounds": 3}) == "loop"
+        assert route_after_author({"current_round": 1, "max_rounds": 3}) == "loop"

@@ -11,6 +11,7 @@ export default defineConfig({
       '/agent': 'http://localhost:8081',
       '/paper': 'http://localhost:8081',
       '/retrieval': 'http://localhost:8081',
+      '/graph': 'http://localhost:8081',
       // Precise key: '/admin' alone is the SPA route for the Admin page.
       '/admin/config': 'http://localhost:8081',
       '/docs': 'http://localhost:8081',

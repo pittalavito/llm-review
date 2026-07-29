@@ -8,6 +8,7 @@ from domain.models.agent import AgentRole
 from domain.models.chat import ChatModelName
 from domain.models.paper import Paper, PaperType
 from domain.models.retrieval import IndexInfo, RagStrategy
+from domain.models.run_record import GraphReviewSummary
 
 from service.agent_service import AgentService
 from service.store_service import StoreService
@@ -155,11 +156,19 @@ def get_index_status(
 #### Graph Review APIs ##############################################
 #####################################################################
 
+URI_GRAPH_PREFIX = "/graph"
+URI_GRAPH_RUNS = f"{URI_GRAPH_PREFIX}/runs"
+
+
+@router.get(URI_GRAPH_RUNS)
+def list_graph_runs(service: StoreService = Depends(store_service)) -> list[GraphReviewSummary]:
+    """Run history — lightweight summaries of every review-graph execution."""
+    return service.list_runs()
+
+
 # TODO Graph 1 # compile graph
 
-# TODO Graph 2 # invoke graph
-
-# TODO Graph 3 # get graph run summary
+# TODO Graph 2 # invoke graphs
 
 # TODO Graph 4 # get graph run details
 
