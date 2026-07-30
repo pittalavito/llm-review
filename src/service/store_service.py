@@ -10,8 +10,6 @@ Everything comes from the per-store facades ``domain.store.db.store`` and
 ``Adapter`` (store record → domain model, reads) and ``Factory`` (domain model →
 store record, writes). The repositories deal only in rows/records.
 """
-from datetime import datetime, timezone
-
 from core.observability import observed, LogPrefix
 
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
@@ -24,8 +22,6 @@ from domain.models.agent import AgentRole
 from domain.models.comparator import HumanMetaReview, HumanReview
 from domain.models.openreview import OpenReviewCache
 from domain.models.paper import Paper
-from domain.models.graph import CreateGraphReviewRequest
-
 from domain.models.prompt import PromptVersion
 from domain.models.retrieval import IndexInfo, RagFileSignature, RagIndex
 from domain.models.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
@@ -65,17 +61,6 @@ class StoreService:
         payload_row = DbFactory.to_run_payload_row(record)
         agent_pairs = DbFactory.to_agent_pairs(record.run_id, record.agent_runs)
         return self._results_repository.save_rows(run_row, payload_row, agent_pairs)
-
-    def build_run_record(self, result: dict, request: CreateGraphReviewRequest) -> GraphReviewRecord:
-        """Assemble the record from a live graph result — run_id and timestamp
-        are generated here. Persisting it is a separate step (``save_run``)."""
-        return DbAdapter.to_run_record_from_result(
-            result,
-            request,
-            run_id=self.build_run_id(request.paper_id),
-            timestamp=datetime.now(timezone.utc).isoformat(),
-        )
-
 
     def list_runs(self) -> list[GraphReviewSummary]:
         return DbAdapter.to_run_summaries(self._results_repository.list_summaries())

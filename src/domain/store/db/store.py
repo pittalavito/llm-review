@@ -13,7 +13,6 @@ from domain.store.db.result_repository import DbResultRepository
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
-from domain.models.graph import CreateGraphReviewRequest
 from domain.models.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 from domain.store.db.models import (
     PaperTable,

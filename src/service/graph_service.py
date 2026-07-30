@@ -35,7 +35,8 @@ class ReviewGraphService:
             with self._lock:
                 state = self._graph.build_initial_state(request)
                 result = self._graph.invoke(state)
-                record: GraphReviewRecord = GraphReviewRecord.to_run_record_from_result(result=result, request=request)
+                run_id = self._store_service.build_run_id(request.paper_id)
+                record = GraphReviewRecord.from_result(result=result, request=request, run_id=run_id)
                 self._store_service.save_run(record)
                 return record
         except Exception as e:
