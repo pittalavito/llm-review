@@ -11,7 +11,6 @@ from domain.models import ranges
 class ChatModelName(StrEnum):
     """Supported LLM model identifiers, grouped by provider."""
     MOCK = "mock"
-    TOKEN_ESTIMATION = "token-estimation"
     OLLAMA_TINYLLAMA = "tinyllama:1.1b"
     OLLAMA_LLAMA32 = "llama3.2:3b"
     OLLAMA_GROQ_TOOL_USE = "llama3-groq-tool-use"
@@ -26,8 +25,7 @@ class ChatModelName(StrEnum):
 
     def is_mock(self) -> bool:
         return self in {
-            self.MOCK, 
-            self.TOKEN_ESTIMATION
+            self.MOCK
         }
     
     def is_ollama(self) -> bool:

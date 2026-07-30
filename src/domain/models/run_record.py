@@ -57,10 +57,11 @@ class GraphReviewRecord(BaseModel):
     
     @classmethod
     def from_result(cls, result: dict, request: CreateGraphReviewRequest, run_id: str) -> "GraphReviewRecord":
-        """Assemble a full ``RunRecord`` from a live graph result and its request.
-        ``run_id`` comes from the caller (only the store can mint one); the
-        timestamp is stamped here."""
-        agent_runs = [AgentResponseRecord.model_validate(run) for run in result.get("agent_runs", [])]
+        """Assemble a full ``RunRecord`` from a live graph result (the final
+        ReviewState mapping — typed as dict to keep this shared-models layer
+        free of domain.graph imports) and its request. ``run_id`` comes from the
+        caller (only the store can mint one); the timestamp is stamped here."""
+        agent_runs = [AgentResponseRecord.model_validate(run) for run in result.get("agent_response_record", [])]
         return cls(
             run_id=run_id,
             timestamp=datetime.now(timezone.utc).isoformat(),
@@ -68,8 +69,8 @@ class GraphReviewRecord(BaseModel):
             run_description=request.run_description or None,
             decision=result.get("decision"),
             total_rounds=result.get("current_round", 0),
-            reviews=result.get("reviews"),
-            meta_review=result.get("meta_review"),
+            reviews=result.get("reviews_response"),
+            meta_review=result.get("meta_review_response"),
             area_chair_response=result.get("area_chair_response"),
             author_response=result.get("author_response"),
             retrieval_metadata=result.get("retrieval_metadata"),

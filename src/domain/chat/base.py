@@ -19,8 +19,17 @@ from langchain_openai import ChatOpenAI
 
 from config import Config, get_global_config
 from core.error import ValidationError
-from domain.chat.mock_chat import MockChatModel
-from domain.models.chat import ChatFallbackRawResponseSchema, ChatModelName, ChatModelResponseSchema
+from domain.models.chat import (
+    AreaChairResponseSchema,
+    AuthorResponseSchema,
+    ChatFallbackRawResponseSchema,
+    ChatModelName,
+    ChatModelResponseSchema,
+    MetaReviewResponseSchema,
+    ChatReviewerRebuttal,
+    ReviewerResponseSchema,
+    ChatRevisedSection,
+)
 
 
 @dataclass
@@ -43,7 +52,10 @@ class Factory:
 
     @staticmethod
     def create_chat(model: ChatModelName, temperature: float) -> "Chat":
-        """Create a chat client for the given model name and temperature."""
+        """Create a chat client for the given model name and temperature.
+        The mock model has no provider client: it short-circuits to MockChat."""
+        if ChatModelName(model).is_mock():
+            return MockChat()
         chat_model = Factory._create_chat_model(model, temperature)
         return Chat(chat_model, model_name=model)
 
@@ -71,16 +83,11 @@ class Factory:
     @staticmethod
     def _client_builders() -> list[tuple[Callable[[ChatModelName], bool], Callable[..., BaseChatModel]]]:
         return [
-            (ChatModelName.is_mock, Factory._build_mock),
             (ChatModelName.is_ollama, Factory._build_ollama),
             (ChatModelName.is_openai, Factory._build_openai),
             (ChatModelName.is_anthropic, Factory._build_anthropic),
             (ChatModelName.is_other_llm_provider, Factory._build_other_llm_provider),
         ]
-
-    @staticmethod
-    def _build_mock(model: ChatModelName, temperature: float, config: Config) -> BaseChatModel:
-        return MockChatModel()
 
     @staticmethod
     def _build_ollama(model: ChatModelName, temperature: float, config: Config) -> BaseChatModel:
@@ -186,48 +193,63 @@ class Chat:
         raw fallback is returned. ``label`` names the caller in parse errors.
         The ``token-estimation`` pseudo-model short-circuits to a cost estimate
         without any LLM call."""
-        if self._model_name == ChatModelName.TOKEN_ESTIMATION:
-            return self.token_estimation(system_prompt, message, context, response_schema)
+        
+        if self._model_name == ChatModelName.MOCK:
+            return MockChat().invoke(system_prompt, message, context, response_schema)
         
         chat_message = Factory.create_chat_message(system_prompt)
         chat_variables = Factory.create_chat_variables(message, context)
         if response_schema is None:
             return Invoke.invoke_without_response_schema(self._chat_model, chat_message, chat_variables)
         return Invoke.invoke_with_response_schema(self._chat_model, response_schema, label, chat_message, chat_variables)
+ 
+    
+class MockChat(Chat):
+    """A mock chat facade for testing, returning canned responses."""
 
-    def token_estimation(
+    def __init__(self):
+        super().__init__(None, model_name=ChatModelName.MOCK)
+        
+    def invoke(
         self,
         system_prompt: str,
         message: str,
         context: str | None = None,
         response_schema: type[ChatModelResponseSchema] | None = None,
+        label: str = "",
     ) -> ChatResponse:
-        """Estimate token usage for the given chat invocation."""
-        
+        """Return the canned instance for the requested schema (so agents and
+        graph run unchanged) with token usage *estimated* from the inputs; with
+        no schema, the fallback response carries the estimate summary."""
+
         system_prompt_tokens = self._estimate_tokens(system_prompt)
         message_tokens = self._estimate_tokens(message)
         context_tokens = self._estimate_tokens(context) if context else 0
-        response_schema_tokens = self._estimate_tokens(response_schema.model_dump_json(ensure_ascii=False)) if response_schema else 0
+        response_schema_tokens = self._estimate_tokens(response_schema.__name__) + 10 if response_schema is not None else 0
+
+        chat_schemas = _MOCK_INSTANCES.get(response_schema) if response_schema is not None else None
+
         estimated_input_tokens = system_prompt_tokens + message_tokens + context_tokens + response_schema_tokens
-        
-        estimated_output_tokens = 500
-        
+        estimated_output_tokens = self._estimate_tokens(str(chat_schemas)) if chat_schemas is not None else 20
         total_estimated_tokens = estimated_input_tokens + estimated_output_tokens
 
-        return ChatResponse(
-            response_schema=ChatFallbackRawResponseSchema(
+        if chat_schemas is None:
+            chat_schemas = ChatFallbackRawResponseSchema(
                 response=(
-                    f"[token estimation] input≈{estimated_input_tokens}, "
+                    f"[mock] input≈{estimated_input_tokens}, "
                     f"output≈{estimated_output_tokens}, total≈{total_estimated_tokens}"
                 )
-            ),
+            )
+
+        return ChatResponse(
+            response_schema=chat_schemas,
             raw=None,
             input_tokens=estimated_input_tokens,
             output_tokens=estimated_output_tokens,
             total_tokens=total_estimated_tokens,
             parsing_error=None,
         )
-    
+        
     def _estimate_tokens(self, message: str) -> int:
         if not message or not message.strip():
             return 0
@@ -240,3 +262,40 @@ class Chat:
         by_words = n_words / 0.75
 
         return round((by_chars + by_words) / 2 + n_punct * 0.25)
+ 
+    
+_MOCK_INSTANCES: dict[type[ChatModelResponseSchema], ChatModelResponseSchema] = {
+    ReviewerResponseSchema: ReviewerResponseSchema(
+        summary="Solid approach, clear experiments, reasonable scope.",
+        significance_and_novelty="Original contribution with respect to prior art.",
+        reasons_for_acceptance=["Rigorous methodology", "Convincing results", "Clear presentation"],
+        reasons_for_rejection=["Limited sensitivity analysis", "Weak baseline coverage"],
+        suggestions=["Add ablation study", "Expand related work"],
+        rating=6,
+        confidence=4,
+    ),
+    MetaReviewResponseSchema: MetaReviewResponseSchema(
+        summary="Solid foundations but revisions needed before acceptance.",
+        key_points=["Methodology valid", "Presentation improvable", "Contribution interesting"],
+        overall_score=6,
+        recommendation="minor_revision",
+    ),
+    AreaChairResponseSchema: AreaChairResponseSchema(
+        summary="Reviewer concerns are moderate and addressable; minor revision required.",
+        justification="Contribution is valid; concerns can be addressed with limited rework.",
+        decision="minor_revision",
+        confidence=4,
+    ),
+    AuthorResponseSchema: AuthorResponseSchema(
+        rebuttal="We thank the reviewers; revisions address all major concerns.",
+        reviewer_rebuttals=[
+            ChatReviewerRebuttal(reviewer_name=f"reviewer_{i}", response=f"Targeted response to reviewer {i}.")
+            for i in (1, 2, 3)
+        ],
+        revised_sections=[
+            ChatRevisedSection(section_name="methods", content="Expanded methods section with hyperparameters."),
+            ChatRevisedSection(section_name="results", content="Added sensitivity analysis and extra baselines."),
+        ],
+        key_changes=["Sensitivity analysis", "Hyperparameter details", "Additional baselines"],
+    ),
+}

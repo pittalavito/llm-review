@@ -18,9 +18,8 @@ def get_models() -> list[ChatModelName]:
 @router.post("/ping")
 def ping_chat(request: ChatRequest, service: AgentService = Depends(agent_service)) -> ChatResponse:
     chat_response = service.ping_chat(model=request.model, temperature=request.temperature, message=request.message)
-    text = getattr(chat_response.response_schema, "response", None)
     return ChatResponse(
-        response=text,
+        response=getattr(chat_response.response_schema, "response", None),
         input_tokens=chat_response.input_tokens,
         output_tokens=chat_response.output_tokens,
         total_tokens=chat_response.total_tokens,

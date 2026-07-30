@@ -3,8 +3,7 @@ run over MockChatModel with an arbitrary committee size (no LLM, no DB) driven v
 ReviewGraph, plus the two conditional-edge functions. Orchestration/persistence
 live in ReviewGraphService and are not exercised here."""
 from domain.agent.base import Factory as AgentFactory
-from domain.chat.base import Chat
-from domain.chat.mock_chat import MockChatModel
+from domain.chat.base import MockChat
 from domain.graph.review import ReviewGraph, route_after_area_chair, route_after_author
 from domain.models.agent import AgentRole, CreateAgentRequest
 from domain.models.chat import ChatModelName, ChatReviewDecision
@@ -12,7 +11,7 @@ from domain.models.graph import CreateGraphReviewRequest, GraphReviewConfig
 
 
 def _agents(num_reviewers: int) -> dict:
-    chat = Chat(MockChatModel())
+    chat = MockChat()
 
     def make(role: AgentRole, index: int | None = None):
         request = CreateAgentRequest(model=ChatModelName.MOCK, temperature=0.0, agent_role=role, agent_index=index)
@@ -43,13 +42,13 @@ class TestGraphRun:
         n = 5  # not tied to 3
         result = _run(_agents(n), "/papers/p.pdf", max_rounds=1)
 
-        assert len(result["reviews"]) == n  # every reviewer ran (fan-out)
-        assert result["meta_review"] is not None
+        assert len(result["reviews_response"]) == n  # every reviewer ran (fan-out)
+        assert result["meta_review_response"] is not None
         assert result["area_chair_response"] is not None
         assert result["decision"] == ChatReviewDecision.MINOR_REVISION  # mock -> terminal
         assert result["author_response"] is None  # terminal decision, no revision round
         assert result["current_round"] == 1
-        assert len(result["agent_runs"]) == n + 2  # N reviewers + meta + area chair
+        assert len(result["agent_response_record"]) == n + 2  # N reviewers + meta + area chair
 
 
 class TestConditionalEdges:

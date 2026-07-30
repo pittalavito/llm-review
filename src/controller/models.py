@@ -13,9 +13,10 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """Full chat response returned to the FE as JSON: the model's message plus
-    the token usage and any structured-output parsing error."""
-    response: str
+    """Full chat response returned to the FE as JSON: the model's payload
+    (JSON-serialized) plus the token usage and any structured-output parsing
+    error. ``response`` is None only when the invocation produced no payload."""
+    response: str | None
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None

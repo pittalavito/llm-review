@@ -7,8 +7,7 @@ from langchain_core.messages import AIMessage
 
 from core.error import UpstreamError, ValidationError
 from domain.agent.base import Agent, AreaChairAgent, AuthorAgent, MetaReviewerAgent, ReviewerAgent
-from domain.chat.base import Chat, ChatResponse
-from domain.chat.mock_chat import MockChatModel
+from domain.chat.base import Chat, ChatResponse, MockChat
 from domain.models.agent import AgentResponse, AgentRole
 from domain.models.chat import (
     AreaChairResponseSchema,
@@ -23,7 +22,7 @@ class Utils:
 
     @staticmethod
     def chat() -> Chat:
-        return Chat(MockChatModel())
+        return MockChat()
 
     @staticmethod
     def chat_response() -> ChatResponse:
@@ -89,7 +88,8 @@ class TestAgentRun:
         assert result.agent_role is AgentRole.REVIEWER and result.agent_index == 1
         assert result.input_message == "review this paper"  # normalized
         assert result.context_used is None  # default _retrieve_context
-        assert (result.input_tokens, result.output_tokens, result.total_tokens) == (0, 0, 0)  # mock usage is zeroed
+        assert result.input_tokens > 0 and result.output_tokens > 0
+        assert result.total_tokens == result.input_tokens + result.output_tokens
 
     def test_run_empty_message_raises_before_chat(self):
         with pytest.raises(ValidationError):

@@ -1,12 +1,11 @@
-"""Unit tests for the chat layer (domain/chat/chat.py) — Factory, Adapter, the
-Chat facade and structured/raw invocation — exercised through MockChatModel so
-no real LLM call is made."""
+"""Unit tests for the chat layer (domain/chat/base.py) — Factory, Adapter, the
+Chat facade and structured/raw invocation — exercised through MockChat so no
+real LLM call is made."""
 import pytest
 from langchain_core.messages import AIMessage
 
 from core.error import ValidationError
-from domain.chat.base import Adapter, Chat, ChatResponse, Factory
-from domain.chat.mock_chat import MockChatModel
+from domain.chat.base import Adapter, Chat, ChatResponse, Factory, MockChat
 from domain.models.chat import (
     ChatFallbackRawResponseSchema,
     ChatModelName,
@@ -37,8 +36,8 @@ class TestFactory:
 
     def test_create_chat_mock(self):
         chat = Factory.create_chat(ChatModelName.MOCK, 0.0)
-        assert isinstance(chat, Chat)
-        assert isinstance(chat._chat_model, MockChatModel)
+        assert isinstance(chat, MockChat)
+        assert chat._chat_model is None  # the mock has no provider client
 
 
 class TestAdapter:
@@ -68,21 +67,22 @@ class TestAdapter:
 
 class TestChatFacade:
     def test_invoke_without_schema_returns_raw_fallback(self):
-        result = Chat(MockChatModel()).invoke("sys", "hello")
+        result = MockChat().invoke("sys", "hello")
         assert isinstance(result, ChatResponse)
         assert isinstance(result.response_schema, ChatFallbackRawResponseSchema)
 
-    def test_invoke_with_schema_returns_parsed_and_tokens(self):
-        result = Chat(MockChatModel()).invoke("sys", "review", response_schema=ReviewerResponseSchema)
+    def test_invoke_with_schema_returns_parsed_and_estimated_tokens(self):
+        result = MockChat().invoke("sys", "review", response_schema=ReviewerResponseSchema)
         assert isinstance(result.response_schema, ReviewerResponseSchema)
         assert result.response_schema.rating == 6
-        assert (result.input_tokens, result.output_tokens, result.total_tokens) == (0, 0, 0)  # mock usage is zeroed
+        assert result.input_tokens > 0 and result.output_tokens > 0
+        assert result.total_tokens == result.input_tokens + result.output_tokens
 
     def test_invoke_dispatches_by_schema_type(self):
-        result = Chat(MockChatModel()).invoke("sys", "meta", response_schema=MetaReviewResponseSchema)
+        result = MockChat().invoke("sys", "meta", response_schema=MetaReviewResponseSchema)
         assert isinstance(result.response_schema, MetaReviewResponseSchema)
 
     def test_empty_message_still_parses(self):
         # the facade itself does not validate emptiness (that's the agent's job)
-        result = Chat(MockChatModel()).invoke("sys", "", response_schema=ReviewerResponseSchema)
+        result = MockChat().invoke("sys", "", response_schema=ReviewerResponseSchema)
         assert isinstance(result.response_schema, ReviewerResponseSchema)

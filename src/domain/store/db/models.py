@@ -3,18 +3,14 @@
 Analytical facts live in typed, constrained, indexed columns (queryable via
 SQL); the verbatim LLM payloads live as JSON in dedicated payload tables, one
 row per parent (1:1, linked by foreign key). Enum-like columns are plain
-strings guarded by CHECK constraints whose value tuples derive from the project
-StrEnums via ``ranges.sql_in`` (one source of truth).
+strings with NO db-level CHECK on the allowed values: the vocabulary is
+enforced by the Pydantic StrEnums only, so adding an enum member never
+requires touching an existing database. Numeric ranges keep their CHECKs.
 """
 from sqlalchemy import JSON, CheckConstraint, Column, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
 from domain.models import ranges
-from domain.models.agent import AgentRole
-from domain.models.paper import PaperType
-
-_AGENT_ROLES_SQL = ranges.sql_in(AgentRole)
-_PAPER_TYPES_SQL = ranges.sql_in(PaperType)
 
 
 class ReviewRunTable(SQLModel, table=True):
@@ -61,7 +57,6 @@ class ReviewAgentRunTable(SQLModel, table=True):
 
     __tablename__ = "review_agent_run"
     __table_args__ = (
-        CheckConstraint(f"agent_role IN {_AGENT_ROLES_SQL}", name="ck_review_agent_run_role"),
         CheckConstraint("agent_index IS NULL OR agent_index >= 1", name="ck_review_agent_run_index"),
         CheckConstraint('"round" >= 0', name="ck_review_agent_run_round"),
         CheckConstraint(ranges.sql_check_between("rating", ranges.RATING), name="ck_review_agent_run_rating"),
@@ -106,7 +101,6 @@ class PromptVersionTable(SQLModel, table=True):
 
     __tablename__ = "prompt_version"
     __table_args__ = (
-        CheckConstraint(f"agent_role IN {_AGENT_ROLES_SQL}", name="ck_prompt_version_role"),
         UniqueConstraint("agent_role", "version_label", name="uq_prompt_role_label"),
     )
 
@@ -129,7 +123,6 @@ class PaperTable(SQLModel, table=True):
 
     __tablename__ = "paper"
     __table_args__ = (
-        CheckConstraint(f"paper_type IN {_PAPER_TYPES_SQL}", name="ck_paper_type"),
         CheckConstraint("num_graph_review >= 0", name="ck_paper_num_graph_review"),
         UniqueConstraint("paper_id", name="uq_paper_id"),
     )
@@ -151,7 +144,6 @@ class ReviewAgentConfigTable(SQLModel, table=True):
 
     __tablename__ = "review_agent_config"
     __table_args__ = (
-        CheckConstraint(f"agent_role IN {_AGENT_ROLES_SQL}", name="ck_review_agent_config_role"),
         CheckConstraint("agent_index IS NULL OR agent_index >= 1", name="ck_review_agent_config_index"),
         CheckConstraint("temperature BETWEEN 0 AND 2", name="ck_review_agent_config_temperature"),
         UniqueConstraint("run_id", "agent_role", "agent_index", name="uq_review_agent_config_run_agent"),
