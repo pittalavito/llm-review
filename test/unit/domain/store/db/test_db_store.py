@@ -4,7 +4,7 @@ row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
-from domain.models.run_record import AgentRun, GraphReviewRecord
+from domain.models.run_record import AgentResponseRecord, GraphReviewRecord
 from domain.store.db.models import (
     PaperTable,
     PromptVersionTable,
@@ -46,12 +46,12 @@ class Utils:
         )
 
     @staticmethod
-    def agent_run() -> AgentRun:
-        return AgentRun(
+    def agent_run() -> AgentResponseRecord:
+        return AgentResponseRecord(
             agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used="c",
             response_payload={"rating": 6, "confidence": 4, "recommendation": "minor_revision"},
-            prompt_trace={"p": 1},
-            runtime_trace={"latency_ms": 12.5, "input_tokens": 100, "output_tokens": 50, "total_tokens": 150},
+            input_tokens=100, output_tokens=50, total_tokens=150,
+            system_prompt="You are reviewer 1.",
         )
 
 
@@ -107,7 +107,7 @@ class TestAdapter:
         agent_run = Adapter.to_agent_run(row, None)
         assert agent_run.agent_role is AgentRole.META_REVIEWER and agent_run.agent_index is None
         assert agent_run.response_payload == {}
-        assert agent_run.prompt_trace is None
+        assert agent_run.response_schema is None  # only available in-process
 
 
 class TestFactory:
@@ -136,24 +136,24 @@ class TestFactory:
         assert row.meta_review == {"overall_score": 7}
         assert row.graph_config == {"max_rounds": 3}
 
-    def test_to_agent_row_extracts_analytics_from_payload_and_trace(self):
+    def test_to_agent_row_extracts_analytics_from_payload_and_record(self):
         row = Factory.to_agent_row("RID", Utils.agent_run())
         assert row.agent_role == "reviewer" and row.agent_index == 1
         assert (row.rating, row.confidence) == (6, 4)
         assert row.decision == "minor_revision"  # falls back to recommendation
         assert (row.input_tokens, row.output_tokens, row.total_tokens) == (100, 50, 150)
-        assert row.latency_ms == 12.5
+        assert row.latency_ms is None  # no runtime trace anymore
 
     def test_to_agent_row_prefers_decision_over_recommendation(self):
         agent_run = Utils.agent_run()
         agent_run.response_payload = {"decision": "accept", "recommendation": "minor_revision"}
         assert Factory.to_agent_row("RID", agent_run).decision == "accept"
 
-    def test_to_agent_payload_row_carries_traces(self):
+    def test_to_agent_payload_row_carries_payload_and_system_prompt(self):
         row = Factory.to_agent_payload_row(Utils.agent_run())
         assert row.response_payload["rating"] == 6
-        assert row.prompt_trace == {"p": 1}
-        assert row.runtime_trace["latency_ms"] == 12.5
+        assert row.prompt_trace == {"system_prompt": "You are reviewer 1."}
+        assert row.runtime_trace is None
 
     def test_to_agent_pairs_builds_one_pair_per_run(self):
         pairs = Factory.to_agent_pairs("RID", [Utils.agent_run(), Utils.agent_run()])

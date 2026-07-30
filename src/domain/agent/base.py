@@ -7,26 +7,6 @@ from domain.models.agent import AgentResponse, AgentRole, AgentRequestContext, C
 from domain.models.graph import CreateGraphReviewRequest
 
 
-class Adapter:
-    """Agent-layer adapter: turns a chat-level ``ChatResponse`` into an
-    ``AgentResponse`` (attaching the agent name, message/context and token usage)."""
-
-    @staticmethod
-    def to_agent_response(agent_role: AgentRole, agent_index: int | None, message: str, context: str | None, chat_response: ChatResponse) -> AgentResponse:
-        return AgentResponse(
-            agent_role=agent_role,
-            agent_index=agent_index,
-            response_schema=chat_response.response_schema,
-            input_message=message,
-            context_used=context,
-            input_tokens=chat_response.input_tokens,
-            output_tokens=chat_response.output_tokens,
-            total_tokens=chat_response.total_tokens,
-            prompt_trace=None,
-            runtime_trace=None,
-        )
-
-
 class Factory:
     """Factory for creating agents based on their role."""
 
@@ -84,6 +64,7 @@ class Factory:
             ))
         
         return agent_requests
+     
         
 class Agent(ABC):
 
@@ -103,6 +84,11 @@ class Agent(ABC):
         self.system_prompt: str | None = system_prompt
         self.response_schema: type[ChatModelResponseSchema] | None = response_schema
         self.context: str | None = None
+    
+    @property
+    def name(self) -> str:
+        """String identity of this agent (e.g. ``reviewer_1``, ``meta_reviewer``)."""
+        return f"{self.agent_role}_{self.agent_index}" if self.agent_index is not None else str(self.agent_role)
         
     def set_context(self, context: str | None) -> None:
         if self.agent_context is None or self.agent_context.context_mode == ContextMode.NONE:
@@ -115,13 +101,8 @@ class Agent(ABC):
             chat_response = self._invoke_chat(message)
         except Exception as exc:
             raise UpstreamError(f"LLM call failed for agent '{self.name}': {exc}") from exc
-        return Adapter.to_agent_response(self.agent_role, self.agent_index, message, self.context, chat_response)
-
-    @property
-    def name(self) -> str:
-        """String identity of this agent (e.g. ``reviewer_1``, ``meta_reviewer``)."""
-        return f"{self.agent_role}_{self.agent_index}" if self.agent_index is not None else str(self.agent_role)
-
+        return self._to_response(message, chat_response)
+    
     def _invoke_chat(self, message: str) -> ChatResponse:
         return self.chat.invoke(self.system_prompt, message, self.context, self.response_schema, label=self.name)
 
@@ -131,6 +112,19 @@ class Agent(ABC):
         if not normalized:
             raise ValidationError("Message must not be empty.")
         return normalized
+    
+    def _to_response(self, input_message: str, chat_response: ChatResponse) -> AgentResponse:
+        return AgentResponse(
+            agent_role=self.agent_role,
+            agent_index=self.agent_index,
+            response_schema=chat_response.response_schema,
+            system_prompt=self.system_prompt,
+            input_message=input_message,
+            context_used=self.context,
+            input_tokens=chat_response.input_tokens,
+            output_tokens=chat_response.output_tokens,
+            total_tokens=chat_response.total_tokens,
+        )
 
 
 class ReviewerAgent(Agent):

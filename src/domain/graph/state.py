@@ -1,8 +1,8 @@
 import operator
-from typing import Annotated, TypedDict
+from typing import Annotated
+from domain.graph.base import BaseGraphState
 
-
-class ReviewState(TypedDict):
+class ReviewState(BaseGraphState):
     
     paper_id: str | None
     """ Paper identifier — enables per-agent RAG """

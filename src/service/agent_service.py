@@ -24,9 +24,8 @@ class AgentService:
         """Create a new agent for the given role and chat client."""
         chat = self._build_chat(model=request.model, temperature=request.temperature)
         system_prompt = self._build_system_prompt(agent_role=request.agent_role, version_label=request.prompt_version)
-        context = self._build_content(request)
         agent = AgentFactory.create_agent(request=request, chat=chat, system_prompt=system_prompt)
-        agent.set_context(context)
+        agent.set_context(self.retrieval_service.get_agent_context(request))
         return agent
     
     def build_agents_for_graph(self, request: CreateGraphReviewRequest) -> dict[str, Agent]:
@@ -36,6 +35,13 @@ class AgentService:
             agents[agent.name] = agent
         return agents
     
+    def _build_system_prompt(self, agent_role: str, version_label: str) -> str:
+        """Retrieve the system prompt for the given agent role and version label."""
+        prompt_version: PromptVersion = self.store_service.get_promt_by_role_label(agent_role=agent_role, version_label=version_label)
+        if prompt_version is None or prompt_version.template is None:
+            raise ValueError(f"No prompt found for role '{agent_role}' and version '{version_label}'.")
+        return prompt_version.template
+    
     def _build_chat(self, model: ChatModelName, temperature: float) -> Chat:
         """Create a new chat client for the given model and temperature."""
         key = (model, temperature)
@@ -44,13 +50,3 @@ class AgentService:
         chat: Chat = ChatFactory.create_chat(model=model, temperature=temperature)
         self.chat_clients_instances[key] = chat
         return self.chat_clients_instances[key]
-    
-    def _build_system_prompt(self, agent_role: str, version_label: str) -> str:
-        """Retrieve the system prompt for the given agent role and version label."""
-        prompt_version: PromptVersion = self.store_service.get_promt_by_role_label(agent_role=agent_role, version_label=version_label)
-        if prompt_version is None or prompt_version.template is None:
-            raise ValueError(f"No prompt found for role '{agent_role}' and version '{version_label}'.")
-        return prompt_version.template
-    
-    def _build_content(self, request):
-        return self.retrieval_service.get_agent_context(request)

@@ -10,7 +10,7 @@ import service.store_service as store_service_mod
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.retrieval import IndexInfo, RagIndex
-from domain.models.run_record import AgentRun, GraphReviewRecord, GraphReviewSummary
+from domain.models.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 from domain.store.db.models import (
     PaperTable,
     ReviewAgentRunPayloadTable,
@@ -148,7 +148,7 @@ def _run_record() -> GraphReviewRecord:
         run_id="RID", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2,
         reviews=["r"], meta_review={"overall_score": 7}, author_response=None, retrieval_metadata=None,
         graph_config={"max_rounds": 3},
-        agent_runs=[AgentRun(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
+        agent_runs=[AgentResponseRecord(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
     )
 
 

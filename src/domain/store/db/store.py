@@ -13,7 +13,8 @@ from domain.store.db.result_repository import DbResultRepository
 from domain.models.agent import AgentRole
 from domain.models.paper import Paper, PaperType
 from domain.models.prompt import PromptVersion
-from domain.models.run_record import AgentRun, GraphReviewRecord, GraphReviewSummary
+from domain.models.graph import CreateGraphReviewRequest
+from domain.models.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 from domain.store.db.models import (
     PaperTable,
     PromptVersionTable,
@@ -89,17 +90,18 @@ class Adapter:
         )
 
     @staticmethod
-    def to_agent_run(row: ReviewAgentRunTable, payload: ReviewAgentRunPayloadTable | None) -> AgentRun:
-        """``review_agent_run`` row (+ payload) -> ``AgentRun``."""
-        return AgentRun(
+    def to_agent_run(row: ReviewAgentRunTable, payload: ReviewAgentRunPayloadTable | None) -> AgentResponseRecord:
+        """``review_agent_run`` row (+ payload) -> ``AgentResponseRecord``."""
+        return AgentResponseRecord(
             agent_role=AgentRole(row.agent_role),
             agent_index=row.agent_index,
             round=row.round,
             input_message=row.input_message,
             context_used=row.context_used,
             response_payload=payload.response_payload if payload else {},
-            prompt_trace=payload.prompt_trace if payload else None,
-            runtime_trace=payload.runtime_trace if payload else None,
+            input_tokens=row.input_tokens,
+            output_tokens=row.output_tokens,
+            total_tokens=row.total_tokens,
         )
 
     @staticmethod
@@ -115,7 +117,7 @@ class Adapter:
         return [Adapter.to_run_summary(row) for row in rows]
 
     @staticmethod
-    def to_agent_runs(pairs: list[tuple[ReviewAgentRunTable, ReviewAgentRunPayloadTable | None]]) -> list[AgentRun]:
+    def to_agent_runs(pairs: list[tuple[ReviewAgentRunTable, ReviewAgentRunPayloadTable | None]]) -> list[AgentResponseRecord]:
         return [Adapter.to_agent_run(row, payload) for row, payload in pairs]
 
 
@@ -179,11 +181,10 @@ class Factory:
         )
 
     @staticmethod
-    def to_agent_row(run_id: str, agent_run: AgentRun) -> ReviewAgentRunTable:
+    def to_agent_row(run_id: str, agent_run: AgentResponseRecord) -> ReviewAgentRunTable:
         """Build one ``review_agent_run`` facts row (rating/confidence/overall_score/
-        decision, latency and token counts extracted from payload and trace)."""
+        decision extracted from the payload, token counts from the record)."""
         payload = agent_run.response_payload
-        runtime = agent_run.runtime_trace or {}
         return ReviewAgentRunTable(
             run_id=run_id,
             agent_role=str(agent_run.agent_role),
@@ -195,23 +196,23 @@ class Factory:
             confidence=payload.get("confidence"),
             overall_score=payload.get("overall_score"),
             decision=payload.get("decision") or payload.get("recommendation"),
-            latency_ms=runtime.get("latency_ms"),
-            input_tokens=runtime.get("input_tokens"),
-            output_tokens=runtime.get("output_tokens"),
-            total_tokens=runtime.get("total_tokens"),
+            latency_ms=None,
+            input_tokens=agent_run.input_tokens,
+            output_tokens=agent_run.output_tokens,
+            total_tokens=agent_run.total_tokens,
         )
 
     @staticmethod
-    def to_agent_payload_row(agent_run: AgentRun) -> ReviewAgentRunPayloadTable:
+    def to_agent_payload_row(agent_run: AgentResponseRecord) -> ReviewAgentRunPayloadTable:
         """Build one ``review_agent_run_payload`` row. The ``agent_run_id`` FK is
         assigned by the repository after the parent agent row is flushed."""
         return ReviewAgentRunPayloadTable(
             response_payload=agent_run.response_payload,
-            prompt_trace=agent_run.prompt_trace,
-            runtime_trace=agent_run.runtime_trace,
+            prompt_trace={"system_prompt": agent_run.system_prompt} if agent_run.system_prompt else None,
+            runtime_trace=None,
         )
 
     @staticmethod
-    def to_agent_pairs(run_id: str, agent_runs: list[AgentRun]) -> list[tuple[ReviewAgentRunTable, ReviewAgentRunPayloadTable]]:
+    def to_agent_pairs(run_id: str, agent_runs: list[AgentResponseRecord]) -> list[tuple[ReviewAgentRunTable, ReviewAgentRunPayloadTable]]:
         """Build the (facts row, payload row) pair for every agent invocation."""
         return [(Factory.to_agent_row(run_id, agent_run), Factory.to_agent_payload_row(agent_run)) for agent_run in agent_runs]

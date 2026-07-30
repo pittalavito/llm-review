@@ -7,7 +7,7 @@ from core.observability import observed, LogPrefix
 from service.store_service import StoreService
 from service.agent_service import AgentService
 from service.retrieval_service import RetrievalService
-from service.graph_service import GraphService
+from service.graph_service import ReviewGraphService
 
 class Container:
     
@@ -17,7 +17,7 @@ class Container:
         self.store_service = StoreService()
         self.retrieval_service = RetrievalService(store_service=self.store_service)
         self.agent_service = AgentService(retrieval_service=self.retrieval_service)
-        self.graph_service = GraphService(agent_service=self.agent_service)
+        self.graph_service = ReviewGraphService(agent_service=self.agent_service)
         
 def agent_service(request: Request) -> AgentService:
     """Dependency provider for AgentService."""
@@ -34,6 +34,6 @@ def retrieval_service(request: Request) -> RetrievalService:
     return request.app.state.container.retrieval_service
 
 
-def graph_service(request: Request) -> GraphService:
+def graph_service(request: Request) -> ReviewGraphService:
     """Dependency provider for GraphService."""
     return request.app.state.container.graph_service

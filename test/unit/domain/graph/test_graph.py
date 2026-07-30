@@ -1,13 +1,14 @@
-"""Unit tests for the review graph itself (domain/graph/base.py): an end-to-end
+"""Unit tests for the review graph itself (domain/graph/review.py): an end-to-end
 run over MockChatModel with an arbitrary committee size (no LLM, no DB) driven via
-Builder, plus the two conditional-edge functions. Orchestration/persistence live
-in GraphService and are not exercised here."""
+ReviewGraph, plus the two conditional-edge functions. Orchestration/persistence
+live in ReviewGraphService and are not exercised here."""
 from domain.agent.base import Factory as AgentFactory
 from domain.chat.base import Chat
 from domain.chat.mock_chat import MockChatModel
-from domain.graph.base import Builder, route_after_area_chair, route_after_author
+from domain.graph.review import ReviewGraph, route_after_area_chair, route_after_author
 from domain.models.agent import AgentRole, CreateAgentRequest
 from domain.models.chat import ChatModelName, ChatReviewDecision
+from domain.models.graph import CreateGraphReviewRequest, GraphReviewConfig
 
 
 def _agents(num_reviewers: int) -> dict:
@@ -28,8 +29,13 @@ def _agents(num_reviewers: int) -> dict:
 
 
 def _run(agents: dict, paper_id: str, max_rounds: int) -> dict:
-    graph = Builder.build_graph(agents).compile()
-    return graph.invoke(Builder.build_initial_state(paper_id, max_rounds))
+    graph = ReviewGraph()
+    graph.compile(agents)
+    request = CreateGraphReviewRequest(
+        paper_id=paper_id,
+        graph_config=GraphReviewConfig.default_config(max_rounds=max_rounds),
+    )
+    return graph.invoke(graph.build_initial_state(request))
 
 
 class TestGraphRun:

@@ -71,15 +71,17 @@ class AgentResponse(BaseModel):
     was produced."""
     agent_role: AgentRole
     agent_index: int | None = None
+    
     response_schema: SerializeAsAny[ChatModelResponseSchema]
+    
+    system_prompt: str | None = None
     input_message: str | None = None
     context_used: str | None = None
+    
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None
-    prompt_trace: dict[str, Any] | None = None
-    runtime_trace: dict[str, Any] | None = None
-
+    
     def to_json(self) -> str:
         return self.model_dump_json(ensure_ascii=False)
 
