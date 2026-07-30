@@ -7,13 +7,14 @@ from domain.models.graph import CreateGraphReviewRequest
 from domain.models.prompt import PromptVersion
 
 from service.retrieval_service import RetrievalService
+from service.store_service import StoreService
 
 class AgentService:
     
-    def __init__(self, retrieval_service: RetrievalService):
-        self.retrieval_service = retrieval_service
-        self.store_service = retrieval_service.store_service
-        self.chat_clients_instances = {}
+    def __init__(self, retrieval_service: RetrievalService, store_service: StoreService):
+        self._retrieval_service = retrieval_service
+        self._store_service = store_service
+        self._chat_clients_instances = {}
     
     def ping_chat(self, model: ChatModelName, temperature: float, message: str) -> ChatResponse:
         """Ping the chat model with the given message and return the response."""
@@ -25,7 +26,7 @@ class AgentService:
         chat = self._build_chat(model=request.model, temperature=request.temperature)
         system_prompt = self._build_system_prompt(agent_role=request.agent_role, version_label=request.prompt_version)
         agent = AgentFactory.create_agent(request=request, chat=chat, system_prompt=system_prompt)
-        agent.set_context(self.retrieval_service.get_agent_context(request))
+        agent.set_context(self._retrieval_service.get_agent_context(request))
         return agent
     
     def build_agents_for_graph(self, request: CreateGraphReviewRequest) -> dict[str, Agent]:
@@ -37,7 +38,7 @@ class AgentService:
     
     def _build_system_prompt(self, agent_role: str, version_label: str) -> str:
         """Retrieve the system prompt for the given agent role and version label."""
-        prompt_version: PromptVersion = self.store_service.get_promt_by_role_label(agent_role=agent_role, version_label=version_label)
+        prompt_version: PromptVersion = self._store_service.get_promt_by_role_label(agent_role=agent_role, version_label=version_label)
         if prompt_version is None or prompt_version.template is None:
             raise ValueError(f"No prompt found for role '{agent_role}' and version '{version_label}'.")
         return prompt_version.template
@@ -45,8 +46,8 @@ class AgentService:
     def _build_chat(self, model: ChatModelName, temperature: float) -> Chat:
         """Create a new chat client for the given model and temperature."""
         key = (model, temperature)
-        if key in self.chat_clients_instances:
-            return self.chat_clients_instances[key]
+        if key in self._chat_clients_instances:
+            return self._chat_clients_instances[key]
         chat: Chat = ChatFactory.create_chat(model=model, temperature=temperature)
-        self.chat_clients_instances[key] = chat
-        return self.chat_clients_instances[key]
+        self._chat_clients_instances[key] = chat
+        return self._chat_clients_instances[key]

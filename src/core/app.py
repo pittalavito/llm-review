@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from config import Config, initialize_global_config
 from core.container import Container
 from core.spa import mount_spa
-from controller.controller import router as chat_router
+from controller.controller import router as api_router
 
 # src/core/app.py -> parents[2] is the project root.
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -29,7 +29,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(lifespan=lifespan, title="llm-review")
     configure_cors(app)
-    app.include_router(chat_router)
+    app.include_router(api_router)
     mount_ui(app, config)  # last: the "/" mount shadows anything registered after it
     return app
 

@@ -5,15 +5,16 @@ from core.observability import observed, LogPrefix, log_error
 from domain.agent.base import Agent
 from domain.models.graph import CreateGraphReviewRequest
 from domain.models.run_record import GraphReviewRecord
-from service.agent_service import AgentService
 
+from service.agent_service import AgentService
+from service.store_service import StoreService
 
 class ReviewGraphService:
 
     @observed(LogPrefix.GRAPH_SERVICE)
-    def __init__(self, agent_service: AgentService):
+    def __init__(self, agent_service: AgentService, store_service: StoreService):
         self._agent_service = agent_service
-        self._store_service = agent_service.store_service
+        self._store_service = store_service
         self._graph: ReviewGraph = ReviewGraph()
         self._lock = RLock()
 

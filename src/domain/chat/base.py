@@ -203,12 +203,15 @@ class Chat:
         response_schema: type[ChatModelResponseSchema] | None = None,
     ) -> ChatResponse:
         """Estimate token usage for the given chat invocation."""
+        
         system_prompt_tokens = self._estimate_tokens(system_prompt)
         message_tokens = self._estimate_tokens(message)
         context_tokens = self._estimate_tokens(context) if context else 0
-        response_schema_tokens = 500
-        estimated_output_tokens = 500
+        response_schema_tokens = self._estimate_tokens(response_schema.model_dump_json(ensure_ascii=False)) if response_schema else 0
         estimated_input_tokens = system_prompt_tokens + message_tokens + context_tokens + response_schema_tokens
+        
+        estimated_output_tokens = 500
+        
         total_estimated_tokens = estimated_input_tokens + estimated_output_tokens
 
         return ChatResponse(

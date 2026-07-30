@@ -1,6 +1,7 @@
 from pydantic import Base64Bytes, BaseModel, Field
 
 from domain.models.chat import ChatModelName
+from domain.models.graph import GraphReviewConfig
 from domain.models.paper import Paper
 from domain.models.retrieval import RagStrategy
 
@@ -48,3 +49,9 @@ class IndexPaperAccepted(BaseModel):
     paper_id: str
     strategy: RagStrategy
     strategy_version: str
+
+class CreateGraphReviewRequest(BaseModel):
+    """Request to run the review graph on a paper with a given configuration."""
+    paper_id: str
+    graph_config: GraphReviewConfig
+    run_description: str = ""

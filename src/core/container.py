@@ -16,8 +16,8 @@ class Container:
         
         self.store_service = StoreService()
         self.retrieval_service = RetrievalService(store_service=self.store_service)
-        self.agent_service = AgentService(retrieval_service=self.retrieval_service)
-        self.graph_service = ReviewGraphService(agent_service=self.agent_service)
+        self.agent_service = AgentService(retrieval_service=self.retrieval_service, store_service=self.store_service)
+        self.graph_service = ReviewGraphService(agent_service=self.agent_service, store_service=self.store_service)
         
 def agent_service(request: Request) -> AgentService:
     """Dependency provider for AgentService."""

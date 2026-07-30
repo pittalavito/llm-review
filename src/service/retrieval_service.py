@@ -10,7 +10,7 @@ MOCK_EMBEDD: Embedder = MockEmbedder()
 class RetrievalService:
 
     def __init__(self, store_service: StoreService):
-        self.store_service = store_service
+        self._store_service = store_service
         self._reader = PaperFileReader()
         self._embedder = MOCK_EMBEDD
 
@@ -39,17 +39,17 @@ class RetrievalService:
 
     def get_index(self, paper_id: str, strategy: RagStrategy, strategy_version: str) -> RagIndex | None:
         """The stored index for (paper, strategy, version), without building it."""
-        doc_id = self.store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
+        doc_id = self._store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
         return self._load(doc_id)
 
     def get_index_info(self, paper_id: str, strategy: RagStrategy, strategy_version: str) -> IndexInfo | None:
         """Lightweight metadata of the stored index (None when not indexed yet).
         Used by the FE to poll a background indexing for completion."""
-        doc_id = self.store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
-        return self.store_service.get_index_info(doc_id)
+        doc_id = self._store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
+        return self._store_service.get_index_info(doc_id)
 
     def list_indexed(self) -> list[str]:
-        return self.store_service.list_indexed_papers()
+        return self._store_service.list_indexed_papers()
 
     def multi_strategy_indexed(self, paper_id: str) -> list[IndexInfo]:
         """All the (strategy, version) indexes for this paper, with their lightweight metadata."""
@@ -62,16 +62,16 @@ class RetrievalService:
     # ------------------------------------------------------------------
 
     def _get_or_build(self, paper_id: str, strategy: RagStrategy, strategy_version: str, force: bool = False) -> RagIndex:
-        doc_id = self.store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
-        signature = self.store_service.signature(paper_id)
+        doc_id = self._store_service.compute_doc_id(paper_id, str(strategy), strategy_version)
+        signature = self._store_service.signature(paper_id)
         existing = self._load(doc_id)
         if existing is not None and existing.file_signature == signature and not force:
             return existing
         
         raw_sections = None if force else self._sections_from_full_context(paper_id, strategy_version, signature)
         if raw_sections is None:
-            source_path = self.store_service.get_source_path_for_paper(paper_id)
-            format = self.store_service.file_format(paper_id)
+            source_path = self._store_service.get_source_path_for_paper(paper_id)
+            format = self._store_service.file_format(paper_id)
             raw_sections = self._reader.extract_structure(source_path, format)
         index = self._strategy(strategy, strategy_version).build_index(raw_sections, paper_id, doc_id, signature)
         self._save(index)
@@ -87,7 +87,7 @@ class RetrievalService:
         return RetrievalStrategy.create(strategy, strategy_version, embedder=self._embedder)
 
     def _load(self, doc_id: str) -> RagIndex | None:
-        return self.store_service.get_rag_index(doc_id)
+        return self._store_service.get_rag_index(doc_id)
 
     def _save(self, index: RagIndex) -> None:
-        self.store_service.save_rag_index(index)
+        self._store_service.save_rag_index(index)
