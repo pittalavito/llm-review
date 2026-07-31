@@ -1,10 +1,10 @@
 """Unit tests for the review graph itself (domain/graph/review.py): an end-to-end
-run over MockChatModel with an arbitrary committee size (no LLM, no DB) driven via
-ReviewGraph, plus the two conditional-edge functions. Orchestration/persistence
+run over MockChat with an arbitrary committee size (no LLM, no DB) driven via
+ReviewGraph, plus the two conditional-edge methods. Orchestration/persistence
 live in ReviewGraphService and are not exercised here."""
 from domain.agent.base import Factory as AgentFactory
 from domain.chat.base import MockChat
-from domain.graph.review import ReviewGraph, route_after_area_chair, route_after_author
+from domain.graph.review import ReviewGraph
 from models.domain.agent import AgentRole, CreateAgentRequest
 from models.domain.chat import ChatModelName, ChatReviewDecision
 from models.domain.graph import CreateGraphReviewRequest, ReviewGraphConfig
@@ -42,26 +42,31 @@ class TestGraphRun:
         n = 5  # not tied to 3
         result = _run(_agents(n), "/papers/p.pdf", max_rounds=1)
 
+        # Mock decision is minor_revision: only ACCEPT is terminal, so the
+        # author writes one revision round before the rounds run out.
         assert len(result["reviews_response"]) == n  # every reviewer ran (fan-out)
         assert result["meta_review_response"] is not None
         assert result["area_chair_response"] is not None
-        assert result["decision"] == ChatReviewDecision.MINOR_REVISION  # mock -> terminal
-        assert result["author_response"] is None  # terminal decision, no revision round
+        assert result["decision"] == ChatReviewDecision.MINOR_REVISION
+        assert result["author_response"] is not None  # revision round happened
+        assert result["revised_sections"]  # extracted from the author payload
         assert result["current_round"] == 1
-        assert len(result["agent_response_record"]) == n + 2  # N reviewers + meta + area chair
+        assert len(result["agent_response_record"]) == n + 3  # N reviewers + meta + area chair + author
 
 
 class TestConditionalEdges:
-    def test_area_chair_terminates_on_accept_and_minor_revision(self):
-        assert route_after_area_chair({"decision": ChatReviewDecision.ACCEPT}) == "accept"
-        assert route_after_area_chair({"decision": ChatReviewDecision.MINOR_REVISION}) == "accept"
+    _graph = ReviewGraph()
+
+    def test_area_chair_terminates_only_on_accept(self):
+        assert self._graph._route_after_area_chair({"decision": ChatReviewDecision.ACCEPT}) == "accept"
 
     def test_area_chair_revises_otherwise(self):
-        assert route_after_area_chair({"decision": ChatReviewDecision.MAJOR_REVISION}) == "revise"
-        assert route_after_area_chair({"decision": None}) == "revise"
+        assert self._graph._route_after_area_chair({"decision": ChatReviewDecision.MINOR_REVISION}) == "revise"
+        assert self._graph._route_after_area_chair({"decision": ChatReviewDecision.REJECT}) == "revise"
+        assert self._graph._route_after_area_chair({"decision": None}) == "revise"
 
     def test_end_loop_ends_when_rounds_exhausted(self):
-        assert route_after_author({"current_round": 1, "max_rounds": 1}) == "end"
+        assert self._graph._route_after_author({"current_round": 1, "max_rounds": 1}) == "end"
 
     def test_end_loop_continues_while_rounds_remain(self):
-        assert route_after_author({"current_round": 1, "max_rounds": 3}) == "loop"
+        assert self._graph._route_after_author({"current_round": 1, "max_rounds": 3}) == "loop"

@@ -21,17 +21,6 @@ class NodeNames(StrEnum):
     AUTHOR_AGENT = "AuthorAgent"
 
 
-def route_after_area_chair(state: ReviewState) -> str:
-    """After the Area Chair: terminate on accept/minor_revision, else revise."""
-    terminal_decision = {ChatReviewDecision.ACCEPT, ChatReviewDecision.MINOR_REVISION}
-    return "accept" if state.get("decision") in terminal_decision else "revise"
-
-
-def route_after_author(state: ReviewState) -> str:
-    """After the Author: keep looping while rounds remain, else end."""
-    return "end" if state["current_round"] >= state["max_rounds"] else "loop"
-
-
 class ReviewerNode(AgentNode):
 
     def update_message(self, state: ReviewState) -> str:
@@ -150,12 +139,21 @@ class ReviewGraph(Graph):
     def _register_conditional_edges(self, graph: StateGraph) -> None:
         area_chair_dict = {"accept": END, "revise": NodeNames.AUTHOR_AGENT}
         author_dict = {"loop": NodeNames.REVIEWER, "end": END}
+        
+        graph.add_conditional_edges(NodeNames.AREA_CHAIR, self._route_after_area_chair, area_chair_dict)
+        graph.add_conditional_edges(NodeNames.AUTHOR_AGENT, self._route_after_author, author_dict)
+        
+    def _route_after_area_chair(self, state: ReviewState) -> str:
+        """After the Area Chair: terminate only on accept, else revise."""
+        return "accept" if state.get("decision") == ChatReviewDecision.ACCEPT else "revise"
 
-        graph.add_conditional_edges(NodeNames.AREA_CHAIR, route_after_area_chair, area_chair_dict)
-        graph.add_conditional_edges(NodeNames.AUTHOR_AGENT, route_after_author, author_dict)
-
+    def _route_after_author(self, state: ReviewState) -> str:
+        """After the Author: keep looping while rounds remain, else end."""
+        return "end" if state["current_round"] >= state["max_rounds"] else "loop"
+    
     def _get_reviewers(self) -> list[Agent]:
         return sorted(
             (a for a in self.agents.values() if a.agent_role is AgentRole.REVIEWER),
             key=lambda a: a.agent_index or 0,
         )
+

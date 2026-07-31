@@ -58,7 +58,6 @@ class ChatReviewDecision(StrEnum):
     """The recommendation / decision produced by the review agents."""
     ACCEPT = "accept"
     MINOR_REVISION = "minor_revision"
-    MAJOR_REVISION = "major_revision"
     REJECT = "reject"
 
 

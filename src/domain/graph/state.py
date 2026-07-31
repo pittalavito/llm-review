@@ -26,7 +26,7 @@ class ReviewState(BaseGraphState):
     """ Area chair response produced by the area chair agent """
     
     decision: str | None
-    """ Current decision for the paper: accept | minor_revision | major_revision | reject (set by area chair) """
+    """ Current decision for the paper: accept | minor_revision | reject (set by area chair) """
     
     author_response: dict | None
     """ Author rebuttal produced by the author agent """
