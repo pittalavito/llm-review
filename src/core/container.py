@@ -13,7 +13,6 @@ class Container:
     
     @observed(LogPrefix.CONTAINER)
     def __init__(self):
-        
         self.store_service = StoreService()
         self.retrieval_service = RetrievalService(store_service=self.store_service)
         self.agent_service = AgentService(retrieval_service=self.retrieval_service, store_service=self.store_service)

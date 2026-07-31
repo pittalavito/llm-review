@@ -7,7 +7,7 @@ from domain.chat.base import MockChat
 from domain.graph.review import ReviewGraph, route_after_area_chair, route_after_author
 from domain.models.agent import AgentRole, CreateAgentRequest
 from domain.models.chat import ChatModelName, ChatReviewDecision
-from domain.models.graph import CreateGraphReviewRequest, GraphReviewConfig
+from domain.models.graph import CreateGraphReviewRequest, ReviewGraphConfig
 
 
 def _agents(num_reviewers: int) -> dict:
@@ -32,7 +32,7 @@ def _run(agents: dict, paper_id: str, max_rounds: int) -> dict:
     graph.compile(agents)
     request = CreateGraphReviewRequest(
         paper_id=paper_id,
-        graph_config=GraphReviewConfig.default_config(max_rounds=max_rounds),
+        graph_config=ReviewGraphConfig.default_config(max_rounds=max_rounds),
     )
     return graph.invoke(graph.build_initial_state(request))
 

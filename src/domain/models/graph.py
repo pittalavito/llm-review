@@ -15,7 +15,7 @@ class AgentConfig(BaseModel):
     request_context: AgentRequestContext = AgentRequestContext.default_none_context()
 
 
-class GraphReviewConfig(BaseModel):
+class ReviewGraphConfig(BaseModel):
     """Full configuration of one review-graph run: an AgentConfig per role, the
     number of reviewers on the committee (unbounded), and the revision rounds.
     The N reviewers share the single ``reviewer`` config (persona/focus deferred)."""
@@ -27,11 +27,11 @@ class GraphReviewConfig(BaseModel):
     max_rounds: int = Field(default=1, ge=1, le=5)
 
     @staticmethod
-    def default_config(num_reviewers: int = 3, max_rounds: int = 1) -> "GraphReviewConfig":
+    def default_config(num_reviewers: int = 3, max_rounds: int = 1) -> "ReviewGraphConfig":
         """A mock-backed default (every role on the mock model) for smoke runs/tests."""
         def cfg() -> AgentConfig:
             return AgentConfig(model=ChatModelName.MOCK, temperature=0.4)
-        return GraphReviewConfig(
+        return ReviewGraphConfig(
             reviewer=cfg(), 
             meta_reviewer=cfg(), 
             area_chair=cfg(), 
@@ -44,5 +44,5 @@ class GraphReviewConfig(BaseModel):
 class CreateGraphReviewRequest(BaseModel):
     """Request to run the review graph on a paper with a given configuration."""
     paper_id: str
-    graph_config: GraphReviewConfig
+    graph_config: ReviewGraphConfig
     run_description: str = ""

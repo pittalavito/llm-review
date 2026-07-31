@@ -3,7 +3,7 @@ from domain.graph.review import ReviewGraph
 from core.observability import observed, LogPrefix, log_error
 
 from domain.agent.base import Agent
-from domain.models.graph import CreateGraphReviewRequest
+from domain.models.graph import CreateGraphReviewRequest, ReviewGraphConfig
 from domain.models.run_record import GraphReviewRecord
 
 from service.agent_service import AgentService
@@ -15,6 +15,7 @@ class ReviewGraphService:
     def __init__(self, agent_service: AgentService, store_service: StoreService):
         self._agent_service = agent_service
         self._store_service = store_service
+        self._config: ReviewGraphConfig = ReviewGraphConfig.default_config()
         self._graph: ReviewGraph = ReviewGraph()
         self._lock = RLock()
 
@@ -22,6 +23,7 @@ class ReviewGraphService:
         """Compile the graph with the given request's configuration and return the agent config."""
         with self._lock:
             agents = self._agent_service.build_agents_for_graph(request)
+            self._config = request.graph_config
             self._graph.compile(agents)
             return self._graph.get_config()
 
@@ -31,7 +33,7 @@ class ReviewGraphService:
             return self._graph.get_config()
 
     @observed(LogPrefix.GRAPH_SERVICE)
-    def run(self, request: CreateGraphReviewRequest) -> GraphReviewRecord:
+    def invoke(self, request: CreateGraphReviewRequest) -> GraphReviewRecord:
         try:
             with self._lock:
                 state = self._graph.build_initial_state(request)

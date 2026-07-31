@@ -26,7 +26,9 @@ class AgentService:
         chat = self._build_chat(model=request.model, temperature=request.temperature)
         system_prompt = self._build_system_prompt(agent_role=request.agent_role, version_label=request.prompt_version)
         agent = AgentFactory.create_agent(request=request, chat=chat, system_prompt=system_prompt)
-        agent.set_context(self._retrieval_service.get_agent_context(request))
+        context = self._retrieval_service.get_agent_context(request)
+        if context is not None:  # NONE mode retrieves nothing — set_context would refuse it
+            agent.set_context(context)
         return agent
     
     def build_agents_for_graph(self, request: CreateGraphReviewRequest) -> dict[str, Agent]:

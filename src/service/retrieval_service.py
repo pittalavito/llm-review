@@ -15,14 +15,18 @@ class RetrievalService:
         self._embedder = MOCK_EMBEDD
 
     def get_agent_context(self, request: CreateAgentRequest) -> str | None:
-        if request.context is None or request.context == ContextMode.NONE:
+        """Context text for one agent, from its AgentRequestContext: nothing for
+        NONE, the whole paper for FULL_CONTEXT, a query-driven retrieval otherwise."""
+        context = request.context
+        if context is None or context.context_mode == ContextMode.NONE:
             return None
-        if request.context == ContextMode.FULL_CONTEXT:
+        if context.context_mode == ContextMode.FULL_CONTEXT:
             return self.retrieve_context(paper_id=request.paper_id, query="", strategy=RagStrategy.FULL_CONTEXT, strategy_version="v1")
-        if request.retrieval_context_query is None and request.context in (ContextMode.BM25, ContextMode.EMBEDDING):
+        query = context.retrieval_context_query or request.retrieval_context_query
+        if query is None:
             raise ValueError("retrieval_context_query must be provided for BM25 or EMBEDDING context modes.")
-        strategy = RagStrategy(request.context)
-        return self.retrieve_context(paper_id=request.paper_id, query=request.retrieval_context_query, strategy=strategy, strategy_version="v1")
+        strategy = RagStrategy(context.context_mode)
+        return self.retrieve_context(paper_id=request.paper_id, query=query, strategy=strategy, strategy_version="v1")
 
     def retrieve_context(self, paper_id: str, query: str, strategy: RagStrategy, strategy_version: str) -> str:
         """Context text for ``query`` under ``strategy`` — indexing the paper first

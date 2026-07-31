@@ -1,7 +1,7 @@
 from pydantic import Base64Bytes, BaseModel, Field
 
 from domain.models.chat import ChatModelName
-from domain.models.graph import GraphReviewConfig
+from domain.models.graph import ReviewGraphConfig
 from domain.models.paper import Paper
 from domain.models.retrieval import RagStrategy
 
@@ -54,5 +54,16 @@ class IndexPaperAccepted(BaseModel):
 class CreateGraphReviewRequest(BaseModel):
     """Request to run the review graph on a paper with a given configuration."""
     paper_id: str
-    graph_config: GraphReviewConfig
+    graph_config: ReviewGraphConfig
     run_description: str = ""
+
+
+class CompiledAgentInfo(BaseModel):
+    """Identity of one agent in the compiled committee."""
+    agent_role: str
+    agent_index: int | None = None
+
+
+class CompileGraphResponse(BaseModel):
+    """The compiled committee, keyed by agent name (``reviewer_1``…)."""
+    agents: dict[str, CompiledAgentInfo]
