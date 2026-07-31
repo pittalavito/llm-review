@@ -191,6 +191,49 @@
   padding: var(--s-6);
 }
 
+/* ── Launch modal ─────────────────────────────────────── */
+.rg-launch__summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s-2) var(--s-4);
+  margin-bottom: var(--s-4);
+  font-size: var(--text-sm);
+}
+
+.rg-launch__summary dt {
+  color: var(--c-text-muted);
+}
+
+.rg-launch__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+
+.rg-launch__note {
+  color: var(--c-text-muted);
+  font-size: var(--text-sm);
+}
+
+.rg-launch__result {
+  margin-top: var(--s-4);
+  padding: var(--s-4);
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-success);
+  border-radius: var(--r-md);
+  background: var(--c-surface-raised);
+  font-size: var(--text-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.rg-launch__hint {
+  color: var(--c-text-muted);
+  font-size: var(--text-xs);
+}
+
 /* ── Responsive: editor below the graph ───────────────── */
 @media (max-width: 900px) {
   .rg-layout {

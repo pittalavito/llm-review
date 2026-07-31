@@ -128,3 +128,58 @@ export interface GraphReviewSummary {
   decision: string | null;
   total_rounds: number;
 }
+
+// ---------------------------------------------------------------------------
+// Backend contract for compile/invoke — mirrors domain/models/graph.py, which
+// still shares ONE reviewer config and wants system_prompt as a string. The
+// richer FE GraphConfig is mapped onto this shape when launching a run.
+// ---------------------------------------------------------------------------
+
+// domain/models/graph.py :: AgentConfig (BE side).
+export interface BackendAgentConfig {
+  model: string;
+  temperature: number;
+  system_prompt: string;
+  request_context: AgentRequestContext;
+}
+
+// domain/models/graph.py :: ReviewGraphConfig.
+export interface ReviewGraphConfig {
+  reviewer: BackendAgentConfig;
+  meta_reviewer: BackendAgentConfig;
+  area_chair: BackendAgentConfig;
+  author: BackendAgentConfig;
+  num_reviewers: number;
+  max_rounds: number;
+}
+
+// domain/models/graph.py :: CreateGraphReviewRequest.
+export interface CreateGraphReviewRequest {
+  paper_id: string;
+  graph_config: ReviewGraphConfig;
+  run_description?: string;
+}
+
+// controller/models.py :: CompiledAgentInfo / CompileGraphResponse.
+export interface CompiledAgentInfo {
+  agent_role: string;
+  agent_index?: number | null;
+}
+
+export interface CompileGraphResponse {
+  agents: Record<string, CompiledAgentInfo>;
+}
+
+// domain/models/run_record.py :: GraphReviewRecord — the fields the FE shows.
+export interface GraphReviewRecord {
+  run_id: string;
+  timestamp: string;
+  paper_id: string;
+  run_description?: string | null;
+  decision: string | null;
+  total_rounds: number;
+  reviews?: string[] | null;
+  meta_review?: Record<string, unknown> | null;
+  area_chair_response?: Record<string, unknown> | null;
+  author_response?: Record<string, unknown> | null;
+}
