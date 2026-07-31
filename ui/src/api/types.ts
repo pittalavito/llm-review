@@ -105,14 +105,10 @@ export interface AgentConfig {
 // FE evolution of domain/models/graph.py :: GraphConfig — shared graph-level
 // settings are only paper_id, num_reviewers and max_rounds; every reviewer has
 // its own AgentConfig (the BE still shares one — alignment pending).
-// input_messages holds the message each agent receives at each round —
-// graph-level and FE-only for now: keyed by graph node ('reviewer-0'…,
-// 'meta_reviewer', 'area_chair', 'author'), value = one message per round.
 export interface GraphConfig {
   paper_id: string | null;
   num_reviewers: number;
   max_rounds: number;
-  input_messages: Record<string, string[]>;
   reviewers: AgentConfig[];
   meta_reviewer: AgentConfig;
   area_chair: AgentConfig;

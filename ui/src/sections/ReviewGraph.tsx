@@ -15,7 +15,6 @@ import type {
 } from '../api/types';
 import ActionCard from '../components/ActionCard';
 import AgentConfigPanel from '../components/AgentConfigPanel';
-import InputMessagesPanel from '../components/InputMessagesPanel';
 
 const STORAGE_KEY = 'llm-review-2.graph-config';
 
@@ -54,7 +53,6 @@ function defaultConfig(): GraphConfig {
     paper_id: null,
     num_reviewers: 3,
     max_rounds: 1,
-    input_messages: {},
     reviewers: Array.from({ length: 3 }, () => defaultAgent('full_context')),
     meta_reviewer: defaultAgent(),
     area_chair: defaultAgent(),
@@ -87,10 +85,6 @@ export function loadGraphConfig(): GraphConfig {
         );
       }
       base.reviewers = resizeReviewers(base.reviewers, base.num_reviewers);
-      // Legacy shapes stored no input_messages (or the dropped round_messages array).
-      if (typeof parsed.input_messages !== 'object' || Array.isArray(parsed.input_messages)) {
-        base.input_messages = {};
-      }
       return base;
     }
   } catch { /* corrupted/unavailable storage — fall through */ }
@@ -113,7 +107,7 @@ function toBackendAgent(agent: AgentConfig): BackendAgentConfig {
 
 /** FE GraphConfig -> BE CreateGraphReviewRequest. The BE still shares ONE
  * reviewer config: the first reviewer acts as the committee template
- * (per-reviewer configs and input_messages ship when the BE aligns). */
+ * (per-reviewer configs ship when the BE aligns). */
 function toBackendRequest(config: GraphConfig, description: string): CreateGraphReviewRequest {
   if (!config.paper_id) throw new Error('Nessun paper selezionato nella configurazione.');
   return {
@@ -218,11 +212,6 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
       setSelected((sel) =>
         sel?.role === 'reviewer' && sel.index >= patch.num_reviewers! ? null : sel);
     }
-  }
-
-  function updateInputMessages(messages: Record<string, string[]>) {
-    setSavedNote(false);
-    setConfig((prev) => ({ ...prev, input_messages: messages }));
   }
 
   function onSave() {
@@ -359,23 +348,14 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
                 Clicca un agente nel grafo per configurarlo.
               </p>
             ) : (
-              <>
-                <AgentConfigPanel
-                  key={selectionKey}
-                  idPrefix={`rg-${selectionKey}`}
-                  title={selectionTitle}
-                  agent={agent}
-                  onChange={updateAgent}
-                  showInputMessage={false}
-                />
-                <InputMessagesPanel
-                  idPrefix={`rg-messages-${selectionKey}`}
-                  agentKey={selectionKey}
-                  rounds={config.max_rounds}
-                  messages={config.input_messages}
-                  onChange={updateInputMessages}
-                />
-              </>
+              <AgentConfigPanel
+                key={selectionKey}
+                idPrefix={`rg-${selectionKey}`}
+                title={selectionTitle}
+                agent={agent}
+                onChange={updateAgent}
+                showInputMessage={false}
+              />
             )}
           </aside>
         </div>
