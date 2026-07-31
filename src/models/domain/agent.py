@@ -6,7 +6,7 @@ from enum import StrEnum
 from pydantic import BaseModel, SerializeAsAny
 from typing import Any
 
-from domain.models.chat import ChatModelName, ChatModelResponseSchema
+from models.domain.chat import ChatModelName, ChatModelResponseSchema
 
 
 class AgentRole(StrEnum):

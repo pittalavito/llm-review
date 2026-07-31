@@ -12,7 +12,7 @@ from sqlmodel import select
 
 from core.observability import observed, LogPrefix, log_warning
 from domain.store.db.repository import SqlRepository
-from domain.store.db.models import PromptVersionTable
+from models.store.db import PromptVersionTable
 
 
 class DbPromptRepository(SqlRepository[PromptVersionTable]):

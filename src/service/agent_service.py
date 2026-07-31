@@ -1,10 +1,10 @@
 from domain.chat.base import Chat, Factory as ChatFactory, ChatResponse
 from domain.agent.base import Agent, Factory as AgentFactory
 
-from domain.models.chat import ChatModelName
-from domain.models.agent import CreateAgentRequest
-from domain.models.graph import CreateGraphReviewRequest
-from domain.models.prompt import PromptVersion
+from models.domain.chat import ChatModelName
+from models.domain.agent import CreateAgentRequest
+from models.domain.graph import CreateGraphReviewRequest
+from models.domain.prompt import PromptVersion
 
 from service.retrieval_service import RetrievalService
 from service.store_service import StoreService

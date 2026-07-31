@@ -5,7 +5,7 @@ PDF/Docling path is not exercised here (no torch dependency needed)."""
 import pytest
 
 from core.error import ValidationError
-from domain.models.retrieval import RagFileSignature, RagIndex, RagStrategy
+from models.domain.retrieval import RagFileSignature, RagIndex, RagStrategy
 from domain.retrieval.base import FullContextStrategy, PaperFileReader
 
 

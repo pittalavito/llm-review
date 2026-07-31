@@ -14,8 +14,8 @@ from typing import TypedDict
 from langgraph.graph import StateGraph
 
 from domain.agent.base import Agent
-from domain.models.agent import AgentResponse
-from domain.models.run_record import AgentResponseRecord
+from models.domain.agent import AgentResponse
+from models.domain.run_record import AgentResponseRecord
 
 
 class BaseGraphState(TypedDict):

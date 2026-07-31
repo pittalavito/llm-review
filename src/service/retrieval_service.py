@@ -1,8 +1,8 @@
 from core.observability import observed, LogPrefix
 from domain.retrieval.base import Embedder, MockEmbedder, PaperFileReader, RetrievalStrategy
 from domain.store.redis.store import Adapter as RedisAdapter
-from domain.models.agent import CreateAgentRequest, ContextMode
-from domain.models.retrieval import IndexInfo, RagIndex, RagStrategy
+from models.domain.agent import CreateAgentRequest, ContextMode
+from models.domain.retrieval import IndexInfo, RagIndex, RagStrategy
 from service.store_service import StoreService
 
 MOCK_EMBEDD: Embedder = MockEmbedder()

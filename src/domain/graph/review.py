@@ -8,10 +8,10 @@ from domain.agent.base import Agent
 from domain.graph.base import Graph, AgentNode
 from domain.graph.state import ReviewState
 
-from domain.models.agent import AgentResponse, AgentRole
-from domain.models.chat import ChatReviewDecision
-from domain.models.graph import CreateGraphReviewRequest
-from domain.models.run_record import AgentResponseRecord
+from models.domain.agent import AgentResponse, AgentRole
+from models.domain.chat import ChatReviewDecision
+from models.domain.graph import CreateGraphReviewRequest
+from models.domain.run_record import AgentResponseRecord
 
 
 class NodeNames(StrEnum):

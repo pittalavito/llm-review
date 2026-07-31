@@ -14,8 +14,8 @@ from pathlib import Path
 
 from config import get_global_config
 from core.error import NotFoundError, ValidationError
-from domain.models.retrieval import RagFileSignature
-from domain.store.files.models import StoredPaper
+from models.domain.retrieval import RagFileSignature
+from models.store.files import StoredPaper
 from domain.store.files.repository import FileStore
 
 _PAPER_FORMAT_RE = re.compile(r"[-_](pdf|txt)$")

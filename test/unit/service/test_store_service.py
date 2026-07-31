@@ -7,18 +7,18 @@ without any infrastructure."""
 import pytest
 
 import service.store_service as store_service_mod
-from domain.models.agent import AgentRole
-from domain.models.paper import Paper, PaperType
-from domain.models.retrieval import IndexInfo, RagIndex
-from domain.models.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
-from domain.store.db.models import (
+from models.domain.agent import AgentRole
+from models.domain.paper import Paper, PaperType
+from models.domain.retrieval import IndexInfo, RagIndex
+from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
+from models.store.db import (
     PaperTable,
     ReviewAgentRunPayloadTable,
     ReviewAgentRunTable,
     ReviewRunPayloadTable,
     ReviewRunTable,
 )
-from domain.store.redis.models import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
+from models.store.redis import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
 from service.store_service import StoreService
 
 

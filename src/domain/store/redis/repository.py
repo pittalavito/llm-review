@@ -51,7 +51,7 @@ class RedisKeyspace:
 RAG_INDEX_KEYSPACE = RedisKeyspace(
     name="rag-index",
     value=(
-        "domain.store.redis.models.RagIndex as JSON — the RAG index for one paper. "
+        "models.store.redis.RagIndex as JSON — the RAG index for one paper. "
         "Suffix = SHA-256 of the paper's relative path. Derived data, rebuildable."
     ),
 )
@@ -59,7 +59,7 @@ RAG_INDEX_KEYSPACE = RedisKeyspace(
 OPEN_REVIEW_CACHE_KEYSPACE = RedisKeyspace(
     name="open-review-cache",
     value=(
-        "domain.store.redis.models.OpenReviewCache as JSON — the OpenReview notes cached for "
+        "models.store.redis.OpenReviewCache as JSON — the OpenReview notes cached for "
         "one paper. Suffix = paper filename stem. Re-fetched on a miss."
     ),
 )

@@ -2,9 +2,9 @@ from abc import ABC
 
 from core.error import ValidationError, UpstreamError
 from domain.chat.base import Chat, ChatResponse
-from domain.models.chat import AreaChairResponseSchema, AuthorResponseSchema, ChatModelResponseSchema, MetaReviewResponseSchema, ReviewerResponseSchema
-from domain.models.agent import AgentResponse, AgentRole, AgentRequestContext, ContextMode, CreateAgentRequest
-from domain.models.graph import CreateGraphReviewRequest
+from models.domain.chat import AreaChairResponseSchema, AuthorResponseSchema, ChatModelResponseSchema, MetaReviewResponseSchema, ReviewerResponseSchema
+from models.domain.agent import AgentResponse, AgentRole, AgentRequestContext, ContextMode, CreateAgentRequest
+from models.domain.graph import CreateGraphReviewRequest
 
 
 class Factory:

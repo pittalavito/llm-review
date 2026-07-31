@@ -2,10 +2,10 @@
 RagIndex/OpenReview deserialization and, above all, the OpenReview note parser
 (v1 flat content + v2 {"value": ...} wrapping) that produces the structured
 HumanReview / HumanMetaReview / decision. No Redis involved."""
-from domain.models.comparator import HumanMetaReview, HumanReview
-from domain.models.openreview import OpenReviewCache
-from domain.models.retrieval import IndexInfo, RagIndex
-from domain.store.redis.models import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
+from models.domain.comparator import HumanMetaReview, HumanReview
+from models.domain.openreview import OpenReviewCache
+from models.domain.retrieval import IndexInfo, RagIndex
+from models.store.redis import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
 from domain.store.redis.store import Adapter, Factory
 

@@ -1,9 +1,9 @@
 from pydantic import Base64Bytes, BaseModel, Field
 
-from domain.models.chat import ChatModelName
-from domain.models.graph import ReviewGraphConfig
-from domain.models.paper import Paper
-from domain.models.retrieval import RagStrategy
+from models.domain.chat import ChatModelName
+from models.domain.graph import ReviewGraphConfig
+from models.domain.paper import Paper
+from models.domain.retrieval import RagStrategy
 
 class ChatRequest(BaseModel):
     """Basic chat request: model, temperature and the message — nothing else."""
@@ -67,3 +67,11 @@ class CompiledAgentInfo(BaseModel):
 class CompileGraphResponse(BaseModel):
     """The compiled committee, keyed by agent name (``reviewer_1``…)."""
     agents: dict[str, CompiledAgentInfo]
+    
+    @classmethod
+    def from_agents(cls, agents: dict[str, CompiledAgentInfo]) -> "CompileGraphResponse":
+        """Construct a CompileGraphResponse from a dict of agent names to CompiledAgentInfo."""
+        return cls(agents={
+            name: CompiledAgentInfo(agent_role=str(agent.agent_role), agent_index=agent.agent_index)
+            for name, agent in agents.items()
+        })

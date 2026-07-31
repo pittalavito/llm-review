@@ -5,9 +5,9 @@ live in ReviewGraphService and are not exercised here."""
 from domain.agent.base import Factory as AgentFactory
 from domain.chat.base import MockChat
 from domain.graph.review import ReviewGraph, route_after_area_chair, route_after_author
-from domain.models.agent import AgentRole, CreateAgentRequest
-from domain.models.chat import ChatModelName, ChatReviewDecision
-from domain.models.graph import CreateGraphReviewRequest, ReviewGraphConfig
+from models.domain.agent import AgentRole, CreateAgentRequest
+from models.domain.chat import ChatModelName, ChatReviewDecision
+from models.domain.graph import CreateGraphReviewRequest, ReviewGraphConfig
 
 
 def _agents(num_reviewers: int) -> dict:

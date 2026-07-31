@@ -1,10 +1,10 @@
 """Review-graph endpoints — everything under /graph."""
 from fastapi import APIRouter, Depends
 
-from controller.models import CompileGraphResponse, CompiledAgentInfo
+from models.controller import CompileGraphResponse, CompiledAgentInfo
 from core.container import graph_service, store_service
-from domain.models.graph import CreateGraphReviewRequest
-from domain.models.run_record import GraphReviewRecord, GraphReviewSummary
+from models.domain.graph import CreateGraphReviewRequest
+from models.domain.run_record import GraphReviewRecord, GraphReviewSummary
 from service.graph_service import ReviewGraphService
 from service.store_service import StoreService
 
@@ -22,10 +22,7 @@ def compile_graph(request: CreateGraphReviewRequest, service: ReviewGraphService
     """Build the agents from the request's config and compile the review graph.
     Returns the compiled committee (Agent objects are not serializable)."""
     agents = service.compile(request)
-    return CompileGraphResponse(agents={
-        name: CompiledAgentInfo(agent_role=str(agent.agent_role), agent_index=agent.agent_index)
-        for name, agent in agents.items()
-    })
+    return CompileGraphResponse.from_agents(agents)
 
 
 @router.post("/invoke")

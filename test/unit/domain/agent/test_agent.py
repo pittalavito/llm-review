@@ -8,8 +8,8 @@ from langchain_core.messages import AIMessage
 from core.error import UpstreamError, ValidationError
 from domain.agent.base import Agent, AreaChairAgent, AuthorAgent, MetaReviewerAgent, ReviewerAgent
 from domain.chat.base import Chat, ChatResponse, MockChat
-from domain.models.agent import AgentResponse, AgentRole
-from domain.models.chat import (
+from models.domain.agent import AgentResponse, AgentRole
+from models.domain.chat import (
     AreaChairResponseSchema,
     AuthorResponseSchema,
     MetaReviewResponseSchema,

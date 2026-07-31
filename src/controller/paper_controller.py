@@ -1,9 +1,9 @@
 """Paper catalog endpoints — everything under /paper."""
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
-from controller.models import CreatePaperRequest
+from models.controller import CreatePaperRequest
 from core.container import retrieval_service, store_service
-from domain.models.paper import Paper, PaperType
+from models.domain.paper import Paper, PaperType
 from service.retrieval_service import RetrievalService
 from service.store_service import StoreService
 

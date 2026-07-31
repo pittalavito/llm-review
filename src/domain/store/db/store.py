@@ -10,11 +10,12 @@ from domain.store.db.paper_repository import DbPaperRepository
 from domain.store.db.prompt_repository import DbPromptRepository
 from domain.store.db.result_repository import DbResultRepository
 
-from domain.models.agent import AgentRole
-from domain.models.paper import Paper, PaperType
-from domain.models.prompt import PromptVersion
-from domain.models.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
-from domain.store.db.models import (
+from models.domain.agent import AgentRole
+from models.domain.paper import Paper, PaperType
+from models.domain.prompt import PromptVersion
+from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
+
+from models.store.db import (
     PaperTable,
     PromptVersionTable,
     ReviewAgentRunPayloadTable,

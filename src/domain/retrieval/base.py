@@ -23,7 +23,7 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 from rank_bm25 import BM25Okapi
 
 from core.error import ValidationError
-from domain.models.retrieval import RagChunk, RagFileSignature, RagIndex, RagIndexConfig, RagSectionEntry, RagStrategy
+from models.domain.retrieval import RagChunk, RagFileSignature, RagIndex, RagIndexConfig, RagSectionEntry, RagStrategy
 
 _HEADER_LABEL_VALUES = {"section_header", "title"}
 

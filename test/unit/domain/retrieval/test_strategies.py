@@ -3,7 +3,7 @@ pluggable RetrievalStrategy (full_context / bm25 / embedding), the Chunker, the
 MockEmbedder and the factory. No real embedding model or DB involved."""
 import pytest
 
-from domain.models.retrieval import RagFileSignature, RagSectionEntry, RagStrategy
+from models.domain.retrieval import RagFileSignature, RagSectionEntry, RagStrategy
 from domain.retrieval.base import (
     Bm25Strategy,
     Chunker,

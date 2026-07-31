@@ -1,7 +1,7 @@
 """Agent endpoints — everything under /agent."""
 from fastapi import APIRouter
 
-from domain.models.agent import AgentRole
+from models.domain.agent import AgentRole
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 

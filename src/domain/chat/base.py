@@ -19,7 +19,7 @@ from langchain_openai import ChatOpenAI
 
 from config import Config, get_global_config
 from core.error import ValidationError
-from domain.models.chat import (
+from models.domain.chat import (
     AreaChairResponseSchema,
     AuthorResponseSchema,
     ChatFallbackRawResponseSchema,

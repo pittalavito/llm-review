@@ -1,9 +1,9 @@
 from pydantic import BaseModel, SerializeAsAny
 from datetime import datetime, timezone
 
-from domain.models.agent import AgentResponse, AgentRole
-from domain.models.chat import ChatModelResponseSchema
-from domain.models.graph import CreateGraphReviewRequest
+from models.domain.agent import AgentResponse, AgentRole
+from models.domain.chat import ChatModelResponseSchema
+from models.domain.graph import CreateGraphReviewRequest
 
 class AgentResponseRecord(BaseModel):
     round: int

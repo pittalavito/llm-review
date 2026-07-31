@@ -6,7 +6,7 @@ from langchain_core.messages import AIMessage
 
 from core.error import ValidationError
 from domain.chat.base import Adapter, Chat, ChatResponse, Factory, MockChat
-from domain.models.chat import (
+from models.domain.chat import (
     ChatFallbackRawResponseSchema,
     ChatModelName,
     MetaReviewResponseSchema,

@@ -1,5 +1,5 @@
 """Domain models for retrieval: the RAG index (a domain replica of the stored
-``domain.store.redis.models.RagIndex`` record — same shape, converted by
+``models.store.redis.RagIndex`` record — same shape, converted by
 deserialization) and the lightweight ``IndexInfo`` metadata derived from it.
 
 An index is strategy-specific: the full-context strategy fills ``sections``, the

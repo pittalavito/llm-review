@@ -10,7 +10,7 @@ requires touching an existing database. Numeric ranges keep their CHECKs.
 from sqlalchemy import JSON, CheckConstraint, Column, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
-from domain.models import ranges
+from models.domain import ranges
 
 
 class ReviewRunTable(SQLModel, table=True):

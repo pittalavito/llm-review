@@ -11,11 +11,11 @@ import re
 
 from domain.store.redis.open_review_repository import RedisOpenReviewCacheRepository
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
-from domain.store.redis.models import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
+from models.store.redis import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
 
-from domain.models.comparator import HumanMetaReview, HumanReview
-from domain.models.openreview import OpenReviewCache
-from domain.models.retrieval import IndexInfo, RagIndex
+from models.domain.comparator import HumanMetaReview, HumanReview
+from models.domain.openreview import OpenReviewCache
+from models.domain.retrieval import IndexInfo, RagIndex
 
 __all__ = ["RedisRagIndexRepository", "RedisOpenReviewCacheRepository", "Adapter", "Factory"]
 

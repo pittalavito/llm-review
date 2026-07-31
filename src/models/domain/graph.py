@@ -3,8 +3,8 @@
 ``graph_config`` JSON; ``max_rounds`` is also mirrored into review_run."""
 from pydantic import BaseModel, Field
 
-from domain.models.chat import ChatModelName
-from domain.models.agent import AgentRequestContext
+from models.domain.chat import ChatModelName
+from models.domain.agent import AgentRequestContext
 
 
 class AgentConfig(BaseModel):

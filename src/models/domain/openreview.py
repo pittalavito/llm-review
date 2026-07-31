@@ -1,5 +1,5 @@
 """Domain models for the OpenReview cache: a domain replica of the stored
-``domain.store.redis.models.OpenReviewCache`` record (same shape, converted by
+``models.store.redis.OpenReviewCache`` record (same shape, converted by
 deserialization). The structured ``HumanReview`` / ``HumanMetaReview`` parsed out
 of it live in ``domain/models/comparator.py``."""
 from typing import Any

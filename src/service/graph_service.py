@@ -3,8 +3,8 @@ from domain.graph.review import ReviewGraph
 from core.observability import observed, LogPrefix, log_error
 
 from domain.agent.base import Agent
-from domain.models.graph import CreateGraphReviewRequest, ReviewGraphConfig
-from domain.models.run_record import GraphReviewRecord
+from models.domain.graph import CreateGraphReviewRequest, ReviewGraphConfig
+from models.domain.run_record import GraphReviewRecord
 
 from service.agent_service import AgentService
 from service.store_service import StoreService

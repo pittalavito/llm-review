@@ -6,7 +6,7 @@ import pytest
 
 from config import get_global_config
 from core.error import NotFoundError
-from domain.models.retrieval import IndexInfo, RagStrategy
+from models.domain.retrieval import IndexInfo, RagStrategy
 from domain.store.files.paper_repository import FilePaperRepository
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
 from service.retrieval_service import RetrievalService

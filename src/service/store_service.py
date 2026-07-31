@@ -18,13 +18,13 @@ from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, Db
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
 from domain.store.files.store import FilePaperRepository
 
-from domain.models.agent import AgentRole
-from domain.models.comparator import HumanMetaReview, HumanReview
-from domain.models.openreview import OpenReviewCache
-from domain.models.paper import Paper
-from domain.models.prompt import PromptVersion
-from domain.models.retrieval import IndexInfo, RagFileSignature, RagIndex
-from domain.models.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
+from models.domain.agent import AgentRole
+from models.domain.comparator import HumanMetaReview, HumanReview
+from models.domain.openreview import OpenReviewCache
+from models.domain.paper import Paper
+from models.domain.prompt import PromptVersion
+from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
+from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 
 class StoreService:
 

@@ -1,11 +1,11 @@
 """Unit tests for the DB store seams (domain/store/db/store.py): the pure
 row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 (domain models -> rows, writes). No database involved."""
-from domain.models.agent import AgentRole
-from domain.models.paper import Paper, PaperType
-from domain.models.prompt import PromptVersion
-from domain.models.run_record import AgentResponseRecord, GraphReviewRecord
-from domain.store.db.models import (
+from models.domain.agent import AgentRole
+from models.domain.paper import Paper, PaperType
+from models.domain.prompt import PromptVersion
+from models.domain.run_record import AgentResponseRecord, GraphReviewRecord
+from models.store.db import (
     PaperTable,
     PromptVersionTable,
     ReviewAgentRunPayloadTable,

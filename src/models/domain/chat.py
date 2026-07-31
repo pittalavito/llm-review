@@ -5,7 +5,7 @@ Agent identity/persona and the ``AgentResponse`` wrapper live in
 from enum import StrEnum
 from pydantic import BaseModel, Field
 
-from domain.models import ranges
+from models.domain import ranges
 
 
 class ChatModelName(StrEnum):

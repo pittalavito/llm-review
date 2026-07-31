@@ -15,7 +15,7 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from domain.store.db.repository import SqlRepository
-from domain.store.db.models import PaperTable, ReviewAgentRunPayloadTable, ReviewAgentRunTable, ReviewRunPayloadTable, ReviewRunTable
+from models.store.db import PaperTable, ReviewAgentRunPayloadTable, ReviewAgentRunTable, ReviewRunPayloadTable, ReviewRunTable
 
 AgentPair = tuple[ReviewAgentRunTable, ReviewAgentRunPayloadTable]
 RunRows = tuple[ReviewRunTable, ReviewRunPayloadTable | None, list[ReviewAgentRunTable], dict[int, ReviewAgentRunPayloadTable | None]]

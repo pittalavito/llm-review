@@ -1,10 +1,10 @@
 """Retrieval/RAG endpoints — everything under /retrieval."""
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
-from controller.models import IndexPaperAccepted, IndexPaperRequest
+from models.controller import IndexPaperAccepted, IndexPaperRequest
 from core.container import retrieval_service
 from core.error import NotFoundError
-from domain.models.retrieval import IndexInfo, RagStrategy
+from models.domain.retrieval import IndexInfo, RagStrategy
 from service.retrieval_service import RetrievalService
 
 router = APIRouter(prefix="/retrieval", tags=["retrieval"])

@@ -2,7 +2,7 @@
 
 Redis is the only store: no filesystem fallback, no in-memory fallback — a
 missing or unreachable Redis is a startup error. The value is a typed
-domain.store.redis.models.RagIndex (validated JSON).
+models.store.redis.RagIndex (validated JSON).
 """
 import re
 
@@ -10,7 +10,7 @@ from core.observability import LogPrefix, log_warning
 
 from domain.store.redis.repository import RAG_INDEX_KEYSPACE
 from domain.store.redis.repository import RedisRepository
-from domain.store.redis.models import RagIndex
+from models.store.redis import RagIndex
 
 
 _UNSAFE_KEY_CHARS = re.compile(r"[^\w.\-/]")

@@ -1,11 +1,11 @@
 """Cache store for OpenReview responses (keyspace open-review-cache).
 
 Redis is the only store: an unreachable Redis is a startup error, not a silent
-degradation. The value is a typed domain.store.redis.models.OpenReviewCache (validated JSON).
+degradation. The value is a typed models.store.redis.OpenReviewCache (validated JSON).
 """
 from domain.store.redis.repository import OPEN_REVIEW_CACHE_KEYSPACE
 from domain.store.redis.repository import RedisRepository
-from domain.store.redis.models import OpenReviewCache
+from models.store.redis import OpenReviewCache
 
 
 class RedisOpenReviewCacheRepository(RedisRepository):

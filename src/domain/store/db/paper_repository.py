@@ -10,8 +10,8 @@ from __future__ import annotations
 from sqlmodel import select
 
 from domain.store.db.repository import SqlRepository
-from domain.models.paper import PaperType
-from domain.store.db.models import PaperTable
+from models.domain.paper import PaperType
+from models.store.db import PaperTable
 
 
 class DbPaperRepository(SqlRepository[PaperTable]):
