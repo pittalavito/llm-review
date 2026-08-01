@@ -1,7 +1,7 @@
 """Chat endpoints — everything under /chat."""
 from fastapi import APIRouter, Depends
 
-from models.controller import ChatRequest, ChatResponse
+from models.controller.chat import ChatRequest, ChatResponse
 from core.container import agent_service
 from models.domain.chat import ChatModelName
 from service.agent_service import AgentService

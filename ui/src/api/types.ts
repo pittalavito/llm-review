@@ -43,10 +43,19 @@ export interface Paper {
   num_graph_review?: number;
 }
 
-// controller/models.py :: CreatePaperRequest — file_bytes is base64 in the JSON body.
+// models/controller/paper.py :: CreatePaperRequest — file_bytes is base64 in the JSON body.
 export interface CreatePaperRequest {
   paper: Paper;
   file_bytes: string;
+}
+
+// models/controller/paper.py :: CreatePaperResponse / PaperListResponse.
+export interface CreatePaperResponse {
+  paper: Paper;
+}
+
+export interface PaperListResponse {
+  papers: Paper[];
 }
 
 // GET /admin/config — the whole backend Config (secrets already masked by the BE).
@@ -71,12 +80,17 @@ export interface IndexInfo {
   section_count: number;
 }
 
-// controller/models.py :: IndexPaperAccepted — 202: the indexing runs in background.
+// models/controller/retrieval.py :: IndexPaperAccepted — 202: the indexing runs in background.
 export interface IndexPaperAccepted {
   status: string;
   paper_id: string;
   strategy: RagStrategy;
   strategy_version: string;
+}
+
+// models/controller/retrieval.py :: IndexStatusResponse — index_info is null until built.
+export interface IndexStatusResponse {
+  index_info: IndexInfo | null;
 }
 
 // domain/models/agent.py :: ContextMode (StrEnum).
@@ -159,11 +173,20 @@ export interface CreateGraphReviewRequest {
   description?: string;
 }
 
-// models/controller.py :: GraphReviewConfigResponse — returned by both
+// models/controller/graph.py :: GraphReviewConfigResponse — returned by both
 // GET /graph/config (current config) and POST /graph/compile (echo of the
 // compiled config).
 export interface GraphReviewConfigResponse {
   graph_config: GraphReviewConfig;
+}
+
+// models/controller/graph.py :: GraphReviewRecordResponse / GraphReviewSummaryResponse.
+export interface GraphReviewRecordResponse {
+  record: GraphReviewRecord;
+}
+
+export interface GraphReviewSummaryResponse {
+  summaries: GraphReviewSummary[];
 }
 
 // models/domain/run_record.py :: GraphReviewRecord — the fields the FE shows.

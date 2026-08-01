@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreatePaperRequest, GraphReviewConfigResponse, GraphReviewRecord, GraphReviewSummary, IndexInfo, IndexPaperAccepted, IndexPaperRequest, Paper, PaperType, RagStrategy } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreatePaperRequest, CreatePaperResponse, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, RagStrategy } from './types';
 
 export class ApiError extends Error {}
 
@@ -61,11 +61,13 @@ export const pingChat = (message: string, model: string, temperature = 0.7) =>
 
 export const listPaperTypes = () => get<PaperType[]>('/paper/types');
 
-/** The paper catalog — DB rows only. */
-export const listPapers = () => get<Paper[]>('/paper/list');
+/** The paper catalog — DB rows only (unwrapped from PaperListResponse). */
+export const listPapers = () =>
+  get<PaperListResponse>('/paper/list').then((r) => r.papers);
 
+/** The saved paper (unwrapped from CreatePaperResponse). */
 export const createPaper = (request: CreatePaperRequest) =>
-  post<Paper>('/paper/create', request);
+  post<CreatePaperResponse>('/paper/create', request).then((r) => r.paper);
 
 export const listRetrievalStrategies = () => get<RagStrategy[]>('/retrieval/strategy-types');
 
@@ -73,18 +75,19 @@ export const listRetrievalStrategies = () => get<RagStrategy[]>('/retrieval/stra
 export const indexPaper = (request: IndexPaperRequest) =>
   post<IndexPaperAccepted>('/retrieval/index', request);
 
-/** IndexInfo when the index is built, null otherwise. */
+/** IndexInfo when the index is built, null otherwise (unwrapped from IndexStatusResponse). */
 export const getIndexStatus = (paperId: string, strategy: RagStrategy, strategyVersion = 'v1') => {
   const params = new URLSearchParams({ paper_id: paperId, strategy, strategy_version: strategyVersion });
-  return get<IndexInfo | null>(`/retrieval/index/status?${params}`);
+  return get<IndexStatusResponse>(`/retrieval/index/status?${params}`).then((r) => r.index_info);
 };
 
 // ---------------------------------------------------------------------------
 // Review graph
 // ---------------------------------------------------------------------------
 
-/** Run history — lightweight summaries, most recent first. */
-export const listGraphRuns = () => get<GraphReviewSummary[]>('/graph/runs');
+/** Run history — lightweight summaries, most recent first (unwrapped). */
+export const listGraphRuns = () =>
+  get<GraphReviewSummaryResponse>('/graph/runs').then((r) => r.summaries);
 
 /** The configuration currently loaded in the graph service. */
 export const getGraphConfig = () => get<GraphReviewConfigResponse>('/graph/config');
@@ -94,6 +97,7 @@ export const getGraphConfig = () => get<GraphReviewConfigResponse>('/graph/confi
 export const compileGraph = (request: CreateGraphReviewRequest) =>
   post<GraphReviewConfigResponse>('/graph/compile', request);
 
-/** Run the compiled graph on the paper; persists and returns the full record. */
+/** Run the compiled graph on the paper; persists and returns the full record
+ * (unwrapped from GraphReviewRecordResponse). */
 export const invokeGraph = (request: CreateGraphReviewRequest) =>
-  post<GraphReviewRecord>('/graph/invoke', request);
+  post<GraphReviewRecordResponse>('/graph/invoke', request).then((r) => r.record);

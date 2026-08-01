@@ -1,10 +1,10 @@
 """Retrieval/RAG endpoints — everything under /retrieval."""
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
-from models.controller import IndexPaperAccepted, IndexPaperRequest
 from core.container import retrieval_service
 from core.error import NotFoundError
-from models.domain.retrieval import IndexInfo, RagStrategy
+from models.controller.retrieval import IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse
+from models.domain.retrieval import RagStrategy
 from service.retrieval_service import RetrievalService
 
 router = APIRouter(prefix="/retrieval", tags=["retrieval"])
@@ -36,6 +36,7 @@ def get_index_status(
     strategy: RagStrategy,
     strategy_version: str = "v1",
     service: RetrievalService = Depends(retrieval_service),
-) -> IndexInfo | None:
-    """Lightweight status of an index: the IndexInfo when built, null otherwise."""
-    return service.get_index_info(paper_id, strategy, strategy_version)
+) -> IndexStatusResponse:
+    """Index status: ``index_info`` valued when built, None otherwise."""
+    index_info = service.get_index_info(paper_id, strategy, strategy_version)
+    return IndexStatusResponse.from_response(index_info)

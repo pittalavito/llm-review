@@ -9,7 +9,10 @@ export default defineConfig({
     proxy: {
       '/chat': 'http://localhost:8081',
       '/agent': 'http://localhost:8081',
-      '/paper': 'http://localhost:8081',
+      // Precise keys: '/paper' alone is the SPA route for the Paper page.
+      '/paper/list': 'http://localhost:8081',
+      '/paper/create': 'http://localhost:8081',
+      '/paper/types': 'http://localhost:8081',
       '/retrieval': 'http://localhost:8081',
       '/graph': 'http://localhost:8081',
       // Precise key: '/admin' alone is the SPA route for the Admin page.
