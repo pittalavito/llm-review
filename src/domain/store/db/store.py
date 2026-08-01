@@ -8,18 +8,20 @@ DERIVES them from the agent traces, the single source of truth.
 """
 from pathlib import PurePosixPath
 
+from domain.store.db.author_repository import DbAuthorRepository
 from domain.store.db.instruction_repository import DbInstructionRepository
 from domain.store.db.paper_repository import DbPaperRepository
 from domain.store.db.prompt_repository import DbPromptRepository
 from domain.store.db.run_repository import AgentRecordPair, DbRunRepository
 
 from models.domain.agent import AgentRole
-from models.domain.paper import Paper, PaperType
+from models.domain.paper import Author, Paper, PaperType
 from models.domain.prompt import PromptInstruction, PromptVersion
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 
 from models.store.db import (
     AgentTraceTable,
+    AuthorTable,
     GraphReviewAgentTable,
     GraphReviewTable,
     PaperTable,
@@ -28,7 +30,7 @@ from models.store.db import (
 )
 
 
-__all__ = ["DbInstructionRepository", "DbPaperRepository", "DbPromptRepository", "DbRunRepository", "Adapter", "Factory"]
+__all__ = ["DbAuthorRepository", "DbInstructionRepository", "DbPaperRepository", "DbPromptRepository", "DbRunRepository", "Adapter", "Factory"]
 
 
 class Adapter:
@@ -48,6 +50,19 @@ class Adapter:
             openreview_api_version=row.openreview_api_version,
             human_decision=row.human_decision,
             num_graph_review=row.num_graph_review,
+        )
+
+    @staticmethod
+    def to_author(row: AuthorTable, position: int | None = None) -> Author:
+        """``AuthorTable`` row -> ``Author``; ``position`` comes from the
+        paper_author link when reading a specific paper's author list."""
+        return Author(
+            id=row.id,
+            full_name=row.full_name,
+            email=row.email,
+            affiliation=row.affiliation,
+            openreview_profile_id=row.openreview_profile_id,
+            position=position,
         )
 
     @staticmethod
@@ -135,6 +150,10 @@ class Adapter:
         return [Adapter.to_paper(row) for row in rows]
 
     @staticmethod
+    def to_authors(pairs: list[tuple[AuthorTable, int]]) -> list[Author]:
+        return [Adapter.to_author(row, position) for row, position in pairs]
+
+    @staticmethod
     def to_prompts(rows: list[PromptVersionTable]) -> list[PromptVersion]:
         return [Adapter.to_prompt(row) for row in rows]
 
@@ -180,6 +199,17 @@ class Factory:
             openreview_api_version=paper.openreview_api_version,
             human_decision=paper.human_decision,
             num_graph_review=paper.num_graph_review,
+        )
+
+    @staticmethod
+    def to_author_row(author: Author) -> AuthorTable:
+        """Build a new ``AuthorTable`` row from an ``Author`` (``id`` DB-generated;
+        ``position`` belongs to the paper_author link, not to this row)."""
+        return AuthorTable(
+            full_name=author.full_name,
+            email=author.email,
+            affiliation=author.affiliation,
+            openreview_profile_id=author.openreview_profile_id,
         )
 
     @staticmethod

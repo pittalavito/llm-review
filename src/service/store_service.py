@@ -15,14 +15,14 @@ from core.observability import observed, LogPrefix
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
 from domain.prompt.instruction_default import DEFAULT_INSTRUCTION_SEEDS
 
-from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbInstructionRepository, DbPaperRepository, DbPromptRepository, DbRunRepository
+from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbAuthorRepository, DbInstructionRepository, DbPaperRepository, DbPromptRepository, DbRunRepository
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
 from domain.store.files.store import FilePaperRepository
 
 from models.domain.agent import AgentRole
 from models.domain.comparator import HumanMetaReview, HumanReview
 from models.domain.openreview import OpenReviewCache
-from models.domain.paper import Paper
+from models.domain.paper import Author, Paper
 from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion
 from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
@@ -33,6 +33,7 @@ class StoreService:
     def __init__(self):
         self._runs_repository = DbRunRepository()
         self._papers_repository = DbPaperRepository()
+        self._authors_repository = DbAuthorRepository()
         self._prompts_repository = DbPromptRepository()
         self._instructions_repository = DbInstructionRepository()
         self._rag_index_repository = RedisRagIndexRepository()
@@ -42,13 +43,16 @@ class StoreService:
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
         self.seed_instructions(DEFAULT_INSTRUCTION_SEEDS)
     
-    def save_paper(self, paper: Paper, data: bytes) -> Paper | None:
-        """Create the catalog row and store the file under its paper_id.
-        None when a paper with the same id already exists."""
+    def save_paper(self, paper: Paper, data: bytes, authors: list[Author] | None = None) -> Paper | None:
+        """Create the catalog row, store the file under its paper_id and link
+        the authors (deduplicated, in list order). None when a paper with the
+        same id already exists."""
         db_row = self.create_paper(paper)
         if db_row is None:
             return None
         self.save_paper_file(db_row.paper_id, data)
+        if authors:
+            self.save_paper_authors(db_row.paper_id, authors)
         return db_row
     
     # ------------------------------------------------------------------
@@ -98,6 +102,30 @@ class StoreService:
         to_row = DbFactory.to_paper_row(paper)
         row = self._papers_repository.create(to_row)
         return DbAdapter.to_paper(row) if row is not None else None
+
+    # ------------------------------------------------------------------
+    # Authors db
+    # ------------------------------------------------------------------
+
+    def save_paper_authors(self, paper_id: str, authors: list[Author]) -> list[Author]:
+        """Link the authors to the paper in list order (1-based position),
+        creating the author rows that do not exist yet (dedup by openreview
+        profile id, else by name+email). Returns the linked authors."""
+        linked: list[Author] = []
+        for index, author in enumerate(authors, start=1):
+            row = self._authors_repository.get_or_create(DbFactory.to_author_row(author))
+            position = author.position or index
+            self._authors_repository.link_to_paper(paper_id, row.id, position)
+            linked.append(DbAdapter.to_author(row, position))
+        return linked
+
+    def get_paper_authors(self, paper_id: str) -> list[Author]:
+        """The paper's authors with their positions, ordered by position."""
+        return DbAdapter.to_authors(self._authors_repository.list_for_paper(paper_id))
+
+    def get_papers_for_author(self, author_id: int) -> list[str]:
+        """The paper_ids the author is linked to."""
+        return self._authors_repository.list_papers_for_author(author_id)
     
     # ------------------------------------------------------------------
     # Prompt version registry

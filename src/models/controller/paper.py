@@ -1,15 +1,17 @@
 """Request/response models for the /paper endpoints."""
 from pydantic import Base64Bytes, BaseModel, Field
 
-from models.domain.paper import Paper
+from models.domain.paper import Author, Paper
 
 
 class CreatePaperRequest(BaseModel):
     """Request model for creating a new paper. ``file_bytes`` travels as a
     base64 string in the JSON body (raw bytes would not survive UTF-8) and is
-    decoded to raw bytes by pydantic."""
+    decoded to raw bytes by pydantic. ``authors`` (optional) are linked to the
+    paper in list order."""
     paper: Paper
     file_bytes: Base64Bytes = Field(..., description="The paper's file content, base64-encoded.")
+    authors: list[Author] = []
 
 
 class CreatePaperResponse(BaseModel):

@@ -6,7 +6,7 @@
  * List/detail cards are TODO placeholders for the upcoming endpoints. */
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ApiError, createPaper, getIndexStatus, indexPaper, listPapers, listPaperTypes, listRetrievalStrategies } from '../api/client';
-import type { IndexInfo, Paper as PaperModel, RagStrategy } from '../api/types';
+import type { Author, IndexInfo, Paper as PaperModel, RagStrategy } from '../api/types';
 import ActionCard from '../components/ActionCard';
 import { useOptions } from '../components/useOptions';
 
@@ -48,12 +48,36 @@ async function fileToBase64(file: File): Promise<string> {
   return btoa(binary);
 }
 
+/** One editable author row in the upload form (position = row order). */
+interface AuthorDraft {
+  full_name: string;
+  email: string;
+  affiliation: string;
+  openreview_profile_id: string;
+}
+
+const emptyAuthor = (): AuthorDraft => ({ full_name: '', email: '', affiliation: '', openreview_profile_id: '' });
+
+/** Drafts -> request authors: rows without a name are dropped, order is kept. */
+function toRequestAuthors(drafts: AuthorDraft[]): Author[] {
+  return drafts
+    .filter((a) => a.full_name.trim() !== '')
+    .map((a, index) => ({
+      full_name: a.full_name.trim(),
+      email: a.email.trim() || null,
+      affiliation: a.affiliation.trim() || null,
+      openreview_profile_id: a.openreview_profile_id.trim() || null,
+      position: index + 1,
+    }));
+}
+
 function UploadPaperModal({ onClose }: { onClose: () => void }) {
   const { options: types, error: typesError } = useOptions(listPaperTypes);
   const [paperType, setPaperType] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState('');
   const [description, setDescription] = useState('');
+  const [authors, setAuthors] = useState<AuthorDraft[]>([]);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<PaperModel | null>(null);
   const [submitError, setSubmitError] = useState('');
@@ -89,6 +113,14 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
     setFileError('');
   }
 
+  function updateAuthor(index: number, patch: Partial<AuthorDraft>) {
+    setAuthors((prev) => prev.map((a, i) => (i === index ? { ...a, ...patch } : a)));
+  }
+
+  function removeAuthor(index: number) {
+    setAuthors((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!file || saving) return;
@@ -105,11 +137,13 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
           description: description.trim() || null,
         },
         file_bytes: await fileToBase64(file),
+        authors: toRequestAuthors(authors),
       });
       setResult(saved);
       // Form stays open, reset for the next upload.
       setFile(null);
       setDescription('');
+      setAuthors([]);
       if (fileRef.current) fileRef.current.value = '';
     } catch (err) {
       setSubmitError(err instanceof ApiError ? err.message : String(err));
@@ -169,6 +203,66 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
             disabled={saving}
             onChange={(e) => setDescription(e.target.value)}
           />
+
+          <span className="paper-form__label">Autori (opzionale, in ordine)</span>
+          {authors.map((author, index) => (
+            <div className="paper-authors__row" key={index}>
+              <span className="paper-authors__position">{index + 1}.</span>
+              <input
+                className="paper-form__input"
+                type="text"
+                placeholder="nome e cognome *"
+                aria-label={`Autore ${index + 1}: nome`}
+                value={author.full_name}
+                disabled={saving}
+                onChange={(e) => updateAuthor(index, { full_name: e.target.value })}
+              />
+              <input
+                className="paper-form__input"
+                type="email"
+                placeholder="email"
+                aria-label={`Autore ${index + 1}: email`}
+                value={author.email}
+                disabled={saving}
+                onChange={(e) => updateAuthor(index, { email: e.target.value })}
+              />
+              <input
+                className="paper-form__input"
+                type="text"
+                placeholder="affiliazione"
+                aria-label={`Autore ${index + 1}: affiliazione`}
+                value={author.affiliation}
+                disabled={saving}
+                onChange={(e) => updateAuthor(index, { affiliation: e.target.value })}
+              />
+              <input
+                className="paper-form__input"
+                type="text"
+                placeholder="~OpenReview_Id1"
+                aria-label={`Autore ${index + 1}: profilo OpenReview`}
+                value={author.openreview_profile_id}
+                disabled={saving}
+                onChange={(e) => updateAuthor(index, { openreview_profile_id: e.target.value })}
+              />
+              <button
+                className="btn btn--ghost btn--sm paper-authors__remove"
+                type="button"
+                aria-label={`Rimuovi autore ${index + 1}`}
+                disabled={saving}
+                onClick={() => removeAuthor(index)}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button
+            className="btn btn--ghost btn--sm paper-authors__add"
+            type="button"
+            disabled={saving}
+            onClick={() => setAuthors((prev) => [...prev, emptyAuthor()])}
+          >
+            + Aggiungi autore
+          </button>
 
           {file && (
             <p className="paper-form__preview">

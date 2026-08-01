@@ -196,6 +196,40 @@
   margin-top: var(--s-4);
 }
 
+/* ── Authors editor in the upload form ─────────────────── */
+/* One author = a 2x2 grid of inputs (name/email over affiliation/openreview)
+   with the position on the left and the remove button on the right. */
+.paper-authors__row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  gap: var(--s-1) var(--s-2);
+  align-items: center;
+  padding-bottom: var(--s-2);
+  border-bottom: 1px dashed var(--c-border);
+}
+
+.paper-authors__row > input:nth-of-type(1) { grid-column: 2; grid-row: 1; }
+.paper-authors__row > input:nth-of-type(2) { grid-column: 3; grid-row: 1; }
+.paper-authors__row > input:nth-of-type(3) { grid-column: 2; grid-row: 2; }
+.paper-authors__row > input:nth-of-type(4) { grid-column: 3; grid-row: 2; }
+
+.paper-authors__position {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--c-text-muted);
+}
+
+.paper-authors__remove {
+  grid-column: 4;
+  grid-row: 1 / span 2;
+}
+
+.paper-authors__add {
+  align-self: flex-start;
+}
+
 .paper-form__error {
   color: var(--c-error);
   font-size: var(--text-sm);

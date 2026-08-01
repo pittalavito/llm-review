@@ -43,10 +43,23 @@ export interface Paper {
   num_graph_review?: number;
 }
 
-// models/controller/paper.py :: CreatePaperRequest — file_bytes is base64 in the JSON body.
+// models/domain/paper.py :: Author — position is the 1-based slot in the
+// paper's author list.
+export interface Author {
+  id?: number | null;
+  full_name: string;
+  email?: string | null;
+  affiliation?: string | null;
+  openreview_profile_id?: string | null;
+  position?: number | null;
+}
+
+// models/controller/paper.py :: CreatePaperRequest — file_bytes is base64 in
+// the JSON body; authors (optional) are linked to the paper in list order.
 export interface CreatePaperRequest {
   paper: Paper;
   file_bytes: string;
+  authors?: Author[];
 }
 
 // models/controller/paper.py :: CreatePaperResponse / PaperListResponse.

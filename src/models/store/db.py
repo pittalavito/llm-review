@@ -127,6 +127,37 @@ class PromptInstructionTable(SQLModel, table=True):
     is_active: bool = True
 
 
+class AuthorTable(SQLModel, table=True):
+    """Catalog of paper authors, shared across papers (m2m via ``paper_author``).
+    Deduplication is the repository's job: by ``openreview_profile_id`` when
+    present, by (full_name, email) otherwise — no db-level unique key because
+    homonyms without email are legitimate distinct rows."""
+
+    __tablename__ = "author"
+
+    id: int | None = Field(default=None, primary_key=True)
+    full_name: str = Field(index=True)
+    email: str | None = None
+    affiliation: str | None = None
+    openreview_profile_id: str | None = Field(default=None, index=True)
+
+
+class PaperAuthorTable(SQLModel, table=True):
+    """Bridge paper <-> author, with the author's 1-based position in the
+    paper's author list. Deleting a paper or an author cascades away the link."""
+
+    __tablename__ = "paper_author"
+    __table_args__ = (
+        UniqueConstraint("paper_id", "author_id", name="uq_paper_author"),
+        CheckConstraint("position >= 1", name="ck_paper_author_position"),
+    )
+
+    id: int | None = Field(default=None, primary_key=True)
+    paper_id: str = Field(sa_column=Column(ForeignKey("paper.paper_id", ondelete="CASCADE"), nullable=False, index=True))
+    author_id: int = Field(sa_column=Column(ForeignKey("author.id", ondelete="CASCADE"), nullable=False, index=True))
+    position: int = 1
+
+
 class PaperTable(SQLModel, table=True):
     """Catalog of papers available to the pipeline. ``paper_id`` is the
     business key in the form ``<paper-type>_<name>_<extension>`` (see

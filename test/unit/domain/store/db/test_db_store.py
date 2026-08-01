@@ -3,11 +3,12 @@ row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 (domain models -> rows, writes), including the derivation of the run-level
 responses from the agent traces. No database involved."""
 from models.domain.agent import AgentRole
-from models.domain.paper import Paper, PaperType
+from models.domain.paper import Author, Paper, PaperType
 from models.domain.prompt import PromptVersion
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord
 from models.store.db import (
     AgentTraceTable,
+    AuthorTable,
     GraphReviewAgentTable,
     GraphReviewTable,
     PaperTable,
@@ -64,6 +65,25 @@ class TestAdapter:
         assert paper.human_decision == "accept"
         assert paper.num_graph_review == 3
         assert paper.open_review_id == "OR1"
+
+    def test_to_author_maps_fields_and_link_position(self):
+        row = AuthorTable(
+            id=3, full_name="Ada Lovelace", email="ada@ex.org",
+            affiliation="Analytical Engines", openreview_profile_id="~Ada_Lovelace1",
+        )
+        author = Adapter.to_author(row, position=2)
+        assert (author.id, author.full_name, author.email) == (3, "Ada Lovelace", "ada@ex.org")
+        assert (author.affiliation, author.openreview_profile_id) == ("Analytical Engines", "~Ada_Lovelace1")
+        assert author.position == 2
+
+    def test_to_author_without_link_has_no_position(self):
+        author = Adapter.to_author(AuthorTable(id=1, full_name="X"))
+        assert author.position is None
+
+    def test_to_authors_keeps_link_order(self):
+        pairs = [(AuthorTable(id=1, full_name="A"), 1), (AuthorTable(id=2, full_name="B"), 2)]
+        authors = Adapter.to_authors(pairs)
+        assert [(a.full_name, a.position) for a in authors] == [("A", 1), ("B", 2)]
 
     def test_to_prompt_is_field_for_field(self):
         row = PromptVersionTable(
@@ -156,6 +176,16 @@ class TestFactory:
         assert row.human_decision == "accept"
         assert row.num_graph_review == 3
         assert row.id is None  # DB-generated
+
+    def test_to_author_row_drops_position_and_id(self):
+        author = Author(
+            id=9, full_name="Ada Lovelace", email="ada@ex.org",
+            affiliation="Analytical Engines", openreview_profile_id="~Ada_Lovelace1", position=1,
+        )
+        row = Factory.to_author_row(author)
+        assert (row.full_name, row.email, row.affiliation) == ("Ada Lovelace", "ada@ex.org", "Analytical Engines")
+        assert row.openreview_profile_id == "~Ada_Lovelace1"
+        assert row.id is None  # DB-generated, never copied from the domain model
 
     def test_to_run_row_extracts_analytics_and_keeps_config(self):
         row = Factory.to_run_row(Utils.run_record())

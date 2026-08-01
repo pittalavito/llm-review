@@ -34,7 +34,7 @@ def create_paper(
 ) -> CreatePaperResponse:
     """Save the paper (row + file) and kick off the default full-context
     indexing in background — the response does not wait for it."""
-    saved = store_service.save_paper(request.paper, request.file_bytes)
+    saved = store_service.save_paper(request.paper, request.file_bytes, authors=request.authors)
     if saved is None:
         raise HTTPException(status_code=409, detail="A paper with this id already exists.")
     background_tasks.add_task(retrieval_service.multi_strategy_indexed, saved.paper_id)
