@@ -40,12 +40,8 @@ class AgentRequestContext(BaseModel):
 
 
 class AgentSystemPromptRequest(BaseModel):
-    base_prompt_version: str
-    focus_id: str 
-    commitment_id: str 
-    intention_id: str
-    knowledgeability_id: str 
-    style_id: str 
+    base_prompt_version: str | None = None
+    instruction_labels: list[str]
 
 
 class CreateAgentRequest(BaseModel):
@@ -79,6 +75,8 @@ class AgentResponse(BaseModel):
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None
+    
+    latency_seconds: float | None = None
     
     def to_json(self) -> str:
         return self.model_dump_json(ensure_ascii=False)

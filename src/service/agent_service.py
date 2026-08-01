@@ -24,8 +24,13 @@ class AgentService:
     def build_agent(self, request: CreateAgentRequest) -> Agent:
         """Create a new agent for the given role and chat client."""
         chat = self._build_chat(model=request.model, temperature=request.temperature)
+        
+        #if request.prompt_request is None:
+        
         system_prompt = self._build_system_prompt(agent_role=request.agent_role, version_label=request.prompt_version)
+        
         agent = AgentFactory.create_agent(request=request, chat=chat, system_prompt=system_prompt)
+        
         context = self._retrieval_service.get_agent_context(request)
         if context is not None:
             agent.set_context(context)

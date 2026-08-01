@@ -8,13 +8,14 @@ DERIVES them from the agent traces, the single source of truth.
 """
 from pathlib import PurePosixPath
 
+from domain.store.db.instruction_repository import DbInstructionRepository
 from domain.store.db.paper_repository import DbPaperRepository
 from domain.store.db.prompt_repository import DbPromptRepository
 from domain.store.db.run_repository import AgentRecordPair, DbRunRepository
 
 from models.domain.agent import AgentRole
 from models.domain.paper import Paper, PaperType
-from models.domain.prompt import PromptVersion
+from models.domain.prompt import PromptInstruction, PromptVersion
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 
 from models.store.db import (
@@ -22,11 +23,12 @@ from models.store.db import (
     GraphReviewAgentTable,
     GraphReviewTable,
     PaperTable,
+    PromptInstructionTable,
     PromptVersionTable,
 )
 
 
-__all__ = ["DbPaperRepository", "DbPromptRepository", "DbRunRepository", "Adapter", "Factory"]
+__all__ = ["DbInstructionRepository", "DbPaperRepository", "DbPromptRepository", "DbRunRepository", "Adapter", "Factory"]
 
 
 class Adapter:
@@ -52,6 +54,11 @@ class Adapter:
     def to_prompt(row: PromptVersionTable) -> PromptVersion:
         """``PromptVersionTable`` row -> ``PromptVersion`` (field-for-field)."""
         return PromptVersion.model_validate(row.model_dump())
+
+    @staticmethod
+    def to_instruction(row: PromptInstructionTable) -> PromptInstruction:
+        """``PromptInstructionTable`` row -> ``PromptInstruction`` (field-for-field)."""
+        return PromptInstruction.model_validate(row.model_dump())
 
     @staticmethod
     def to_run_summary(row: GraphReviewTable) -> GraphReviewSummary:
@@ -130,6 +137,10 @@ class Adapter:
     @staticmethod
     def to_prompts(rows: list[PromptVersionTable]) -> list[PromptVersion]:
         return [Adapter.to_prompt(row) for row in rows]
+
+    @staticmethod
+    def to_instructions(rows: list[PromptInstructionTable]) -> list[PromptInstruction]:
+        return [Adapter.to_instruction(row) for row in rows]
 
     @staticmethod
     def to_run_summaries(rows: list[GraphReviewTable]) -> list[GraphReviewSummary]:
@@ -227,6 +238,7 @@ class Factory:
             input_tokens=agent_record.input_tokens,
             output_tokens=agent_record.output_tokens,
             total_tokens=agent_record.total_tokens,
+            latency_seconds=agent_record.latency_seconds
         )
 
     @staticmethod

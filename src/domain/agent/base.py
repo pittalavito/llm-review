@@ -1,4 +1,5 @@
 from abc import ABC
+from time import perf_counter
 
 from core.error import ValidationError, UpstreamError
 from domain.chat.base import Chat, ChatResponse
@@ -98,10 +99,15 @@ class Agent(ABC):
     def run(self, input_message: str) -> AgentResponse:
         message = self._normalize_message(input_message)
         try:
+            start = perf_counter()
+
             chat_response = self._invoke_chat(message)
+
         except Exception as exc:
             raise UpstreamError(f"LLM call failed for agent '{self.name}': {exc}") from exc
-        return self._to_response(message, chat_response)
+        
+        latencyInSeconds = (perf_counter() - start)        
+        return self._to_response(message, chat_response, latencyInSeconds)
     
     def _invoke_chat(self, message: str) -> ChatResponse:
         return self.chat.invoke(self.system_prompt, message, self.context, self.response_schema, label=self.name)
@@ -113,7 +119,7 @@ class Agent(ABC):
             raise ValidationError("Message must not be empty.")
         return normalized
     
-    def _to_response(self, input_message: str, chat_response: ChatResponse) -> AgentResponse:
+    def _to_response(self, input_message: str, chat_response: ChatResponse, latency_seconds: float | None = None) -> AgentResponse:
         return AgentResponse(
             agent_role=self.agent_role,
             agent_index=self.agent_index,
@@ -124,6 +130,7 @@ class Agent(ABC):
             input_tokens=chat_response.input_tokens,
             output_tokens=chat_response.output_tokens,
             total_tokens=chat_response.total_tokens,
+            latency_seconds=latency_seconds,
         )
 
 

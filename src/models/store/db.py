@@ -107,6 +107,26 @@ class PromptVersionTable(SQLModel, table=True):
     is_active: bool = True
 
 
+class PromptInstructionTable(SQLModel, table=True):
+    """Registry of composable persona instructions, keyed by (type, label).
+    Like prompt versions they are immutable: a new text means a new row; only
+    description and is_active may change afterwards."""
+
+    __tablename__ = "prompt_instruction"
+    __table_args__ = (
+        UniqueConstraint("type", "label", name="uq_prompt_instruction_type_label"),
+    )
+
+    id: int | None = Field(default=None, primary_key=True)
+    type: str
+    label: str
+    instruction: str
+    description: str | None = None
+    agent_role: str | None = None
+    created_at: str
+    is_active: bool = True
+
+
 class PaperTable(SQLModel, table=True):
     """Catalog of papers available to the pipeline. ``paper_id`` is the
     business key in the form ``<paper-type>_<name>_<extension>`` (see

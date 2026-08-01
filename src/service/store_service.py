@@ -13,8 +13,9 @@ store record, writes). The repositories deal only in rows/records.
 from core.observability import observed, LogPrefix
 
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
+from domain.prompt.instruction_default import DEFAULT_INSTRUCTION_SEEDS
 
-from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbPaperRepository, DbPromptRepository, DbRunRepository
+from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbInstructionRepository, DbPaperRepository, DbPromptRepository, DbRunRepository
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
 from domain.store.files.store import FilePaperRepository
 
@@ -22,7 +23,7 @@ from models.domain.agent import AgentRole
 from models.domain.comparator import HumanMetaReview, HumanReview
 from models.domain.openreview import OpenReviewCache
 from models.domain.paper import Paper
-from models.domain.prompt import PromptVersion
+from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion
 from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 
@@ -33,11 +34,13 @@ class StoreService:
         self._runs_repository = DbRunRepository()
         self._papers_repository = DbPaperRepository()
         self._prompts_repository = DbPromptRepository()
+        self._instructions_repository = DbInstructionRepository()
         self._rag_index_repository = RedisRagIndexRepository()
         self._cache_repository = RedisOpenReviewCacheRepository()
         self._papers_files_repository = FilePaperRepository()
 
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
+        self.seed_instructions(DEFAULT_INSTRUCTION_SEEDS)
     
     def save_paper(self, paper: Paper, data: bytes) -> Paper | None:
         """Create the catalog row and store the file under its paper_id.
@@ -121,6 +124,25 @@ class StoreService:
 
     def seed_prompts(self, seeds: list[tuple[str, str, str, str]]) -> int:
         return self._prompts_repository.seed_defaults(seeds)
+
+    # ------------------------------------------------------------------
+    # Prompt instruction registry (persona axes)
+    # ------------------------------------------------------------------
+
+    def list_instructions(self, type: InstructionType | None = None, include_inactive: bool = False) -> list[PromptInstruction]:
+        type_value = str(type) if type is not None else None
+        return DbAdapter.to_instructions(self._instructions_repository.list(type_value, include_inactive))
+
+    def create_instruction(self, type: InstructionType, label: str, instruction: str, description: str | None = None, agent_role: str | None = None) -> PromptInstruction | None:
+        row = self._instructions_repository.create(str(type), label, instruction, description, agent_role)
+        return DbAdapter.to_instruction(row) if row is not None else None
+
+    def update_instruction_meta(self, instruction_id: int, description: str | None = None, is_active: bool | None = None) -> PromptInstruction | None:
+        row = self._instructions_repository.update_meta(instruction_id, description, is_active)
+        return DbAdapter.to_instruction(row) if row is not None else None
+
+    def seed_instructions(self, seeds: list[tuple[InstructionType, str, str, str, str]]) -> int:
+        return self._instructions_repository.seed_defaults(seeds)
 
     # ------------------------------------------------------------------
     # RAG index (Redis) — the record is already the domain shape

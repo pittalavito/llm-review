@@ -9,6 +9,7 @@ from controller.agent_controller import router as agent_router
 from controller.chat_controller import router as chat_router
 from controller.graph_controller import router as graph_router
 from controller.paper_controller import router as paper_router
+from controller.promts_controller import router as prompts_router
 from controller.retrieval_controller import router as retrieval_router
 
 router = APIRouter()
@@ -18,6 +19,7 @@ router.include_router(agent_router)
 router.include_router(paper_router)
 router.include_router(retrieval_router)
 router.include_router(graph_router)
+router.include_router(prompts_router)
 
 # TODO Compare APIs (/compare) — comparator_controller.py when the OpenReview
 # comparator lands.

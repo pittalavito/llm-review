@@ -86,9 +86,10 @@ class AgentNode(ABC):
     def __call__(self, state: BaseGraphState) -> dict:
         message = self.set_message(state)
         response = self.agent.run(message)
-        record = AgentResponseRecord.from_response(
-            response, round=state.get("current_round", 0) + self.round_offset,
-        )
+                
+        round = state.get("current_round", 0) + self.round_offset
+        record = AgentResponseRecord.from_response(response, round)
+        
         return self.update_state(state, response, record)
 
     @abstractmethod

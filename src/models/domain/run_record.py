@@ -15,6 +15,7 @@ class AgentResponseRecord(BaseModel):
     output_tokens: int | None = None
     total_tokens: int | None = None
     system_prompt: str | None = None
+    latency_seconds: float | None = None
 
     @classmethod
     def from_response(cls, response: AgentResponse, round: int) -> "AgentResponseRecord":
@@ -31,6 +32,7 @@ class AgentResponseRecord(BaseModel):
             output_tokens=response.output_tokens,
             total_tokens=response.total_tokens,
             system_prompt=response.system_prompt,
+            latency_seconds=response.latency_seconds
         )
 
 
