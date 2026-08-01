@@ -14,7 +14,7 @@ from core.observability import observed, LogPrefix
 
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
 
-from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbPaperRepository, DbPromptRepository, DbResultRepository
+from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbPaperRepository, DbPromptRepository, DbRunRepository
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
 from domain.store.files.store import FilePaperRepository
 
@@ -30,7 +30,7 @@ class StoreService:
 
     @observed(LogPrefix.STORE_SERVICE)
     def __init__(self):
-        self._results_repository = DbResultRepository()
+        self._runs_repository = DbRunRepository()
         self._papers_repository = DbPaperRepository()
         self._prompts_repository = DbPromptRepository()
         self._rag_index_repository = RedisRagIndexRepository()
@@ -54,28 +54,25 @@ class StoreService:
 
     @staticmethod
     def build_run_id(paper_id: str) -> str:
-        return DbResultRepository.build_run_id(paper_id)
+        return DbRunRepository.build_run_id(paper_id)
 
     def save_run(self, record: GraphReviewRecord) -> str:
-        run_row = DbFactory.to_run_row(record)
-        payload_row = DbFactory.to_run_payload_row(record)
-        agent_pairs = DbFactory.to_agent_pairs(record.run_id, record.agent_record)
-        return self._results_repository.save_rows(run_row, payload_row, agent_pairs)
+        return self._runs_repository.save_rows(*DbFactory.to_run_rows(record))
 
     def list_runs(self) -> list[GraphReviewSummary]:
-        return DbAdapter.to_run_summaries(self._results_repository.list_summaries())
+        return DbAdapter.to_run_summaries(self._runs_repository.list_summaries())
 
     def get_run(self, run_id: str) -> GraphReviewRecord | None:
-        rows = self._results_repository.get_rows(run_id)
+        rows = self._runs_repository.get_rows(run_id)
         return DbAdapter.to_run_record(*rows) if rows is not None else None
 
-    def get_agent_runs(self, run_id: str, agent_role: AgentRole | None = None, agent_index: int | None = None, round_index: int | None = None) -> list[AgentResponseRecord] | None:
+    def get_agent_records(self, run_id: str, agent_role: AgentRole | None = None, agent_index: int | None = None, round_index: int | None = None) -> list[AgentResponseRecord] | None:
         role = str(agent_role) if agent_role is not None else None
-        pairs = self._results_repository.get_agent_run_rows(run_id, role, agent_index, round_index)
-        return DbAdapter.to_agent_runs(pairs) if pairs is not None else None
+        pairs = self._runs_repository.get_agent_record_rows(run_id, role, agent_index, round_index)
+        return DbAdapter.to_agent_records(pairs) if pairs is not None else None
 
     def get_run_ids_for_paper(self, paper_id: str) -> list[str]:
-        return self._results_repository.list_run_ids_for_paper(paper_id)
+        return self._runs_repository.list_run_ids_for_paper(paper_id)
 
     # ------------------------------------------------------------------
     # Paper db

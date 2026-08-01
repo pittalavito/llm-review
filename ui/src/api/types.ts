@@ -115,14 +115,17 @@ export interface GraphConfig {
   author: AgentConfig;
 }
 
-// domain/models/run_record.py :: GraphReviewSummary — lightweight run-history row.
+// models/domain/run_record.py :: GraphReviewSummary — lightweight run-history
+// row, analytics facts included.
 export interface GraphReviewSummary {
   run_id: string;
   timestamp: string;
   paper_id: string;
-  run_description?: string | null;
+  description?: string | null;
   decision: string | null;
   total_rounds: number;
+  max_rounds?: number | null;
+  meta_overall_score?: number | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -149,11 +152,11 @@ export interface ReviewGraphConfig {
   max_rounds: number;
 }
 
-// domain/models/graph.py :: CreateGraphReviewRequest.
+// models/domain/graph.py :: CreateGraphReviewRequest.
 export interface CreateGraphReviewRequest {
   paper_id: string;
   graph_config: ReviewGraphConfig;
-  run_description?: string;
+  description?: string;
 }
 
 // models/controller.py :: GraphReviewConfigResponse — returned by both
@@ -168,10 +171,10 @@ export interface GraphReviewRecord {
   run_id: string;
   timestamp: string;
   paper_id: string;
-  run_description?: string | null;
+  description?: string | null;
   decision: string | null;
   total_rounds: number;
-  reviews_response?: string[] | null;
+  reviews_response?: Record<string, unknown>[] | null;
   meta_review_response?: Record<string, unknown> | null;
   area_chair_response?: Record<string, unknown> | null;
   author_response?: Record<string, unknown> | null;

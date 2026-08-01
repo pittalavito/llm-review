@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from enum import StrEnum
 
 from langgraph.graph import END, START, StateGraph
@@ -41,8 +42,8 @@ class ReviewerNode(AgentNode):
 
     def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
         return {
-            "reviews_response": [response.response_schema.model_dump_json()],
-            "agent_response_record": [record.model_dump()]
+            "reviews_response": [response.response_schema.model_dump()],
+            "agent_records": [record.model_dump()]
         }
 
 
@@ -50,14 +51,14 @@ class MetaReviewerNode(AgentNode):
 
     def set_message(self, state: ReviewState) -> str:
         reviews = state.get("reviews_response") or []
-        joined = "\n\n".join(f"- {review}" for review in reviews) if reviews else "(no reviews)"
+        joined = "\n\n".join(f"- {json.dumps(review)}" for review in reviews) if reviews else "(no reviews)"
         return f"Synthesize the following {len(reviews)} reviews into a meta-review:\n\n{joined}"
 
     def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
         return {
             "meta_review_response": response.response_schema.model_dump(),
             "current_round": state["current_round"] + 1,
-            "agent_response_record": [record.model_dump()],
+            "agent_records": [record.model_dump()],
         }
 
 
@@ -72,7 +73,7 @@ class AreaChairNode(AgentNode):
         return {
             "area_chair_response": payload.model_dump(),
             "decision": payload.decision,
-            "agent_response_record": [record.model_dump()],
+            "agent_records": [record.model_dump()],
         }
 
 
@@ -92,7 +93,7 @@ class AuthorNode(AgentNode):
         return {
             "author_response": payload.model_dump(),
             "revised_sections": {s.section_name: s.content for s in payload.revised_sections},
-            "agent_response_record": [record.model_dump()],
+            "agent_records": [record.model_dump()],
         }
 
 
@@ -111,7 +112,7 @@ class ReviewGraph(Graph):
             "revised_sections": None,
             "current_round": 0,
             "max_rounds": request.graph_config.max_rounds,
-            "agent_response_record": [],
+            "agent_records": [],
         }
 
     def _register_nodes(self, graph: StateGraph, agents: dict[str, Agent]) -> None:

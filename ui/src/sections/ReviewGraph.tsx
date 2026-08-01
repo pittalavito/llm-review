@@ -120,7 +120,7 @@ function toBackendRequest(config: GraphConfig, description: string): CreateGraph
       num_reviewers: config.num_reviewers,
       max_rounds: config.max_rounds,
     },
-    run_description: description,
+    description,
   };
 }
 
@@ -521,6 +521,8 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
                   <th>paper</th>
                   <th>decision</th>
                   <th>round</th>
+                  <th>max round</th>
+                  <th>meta score</th>
                   <th>descrizione</th>
                 </tr>
               </thead>
@@ -532,7 +534,9 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
                     <td className="paper-list__id">{run.paper_id}</td>
                     <td>{run.decision || '—'}</td>
                     <td>{run.total_rounds}</td>
-                    <td className="paper-list__desc">{run.run_description || '—'}</td>
+                    <td>{run.max_rounds ?? '—'}</td>
+                    <td>{run.meta_overall_score ?? '—'}</td>
+                    <td className="paper-list__desc">{run.description || '—'}</td>
                   </tr>
                 ))}
               </tbody>

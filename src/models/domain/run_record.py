@@ -1,15 +1,13 @@
-from pydantic import BaseModel, SerializeAsAny
+from pydantic import BaseModel
 from datetime import datetime, timezone
 
 from models.domain.agent import AgentResponse, AgentRole
-from models.domain.chat import ChatModelResponseSchema
 from models.domain.graph import CreateGraphReviewRequest
 
 class AgentResponseRecord(BaseModel):
     round: int
     agent_role: AgentRole
     agent_index: int | None = None
-    response_schema: SerializeAsAny[ChatModelResponseSchema] | None = None
     response_payload: dict
     input_message: str | None = None
     context_used: str | None = None
@@ -26,7 +24,6 @@ class AgentResponseRecord(BaseModel):
             round=round,
             agent_role=response.agent_role,
             agent_index=response.agent_index,
-            response_schema=response.response_schema,
             response_payload=response.response_schema.model_dump(),
             input_message=response.input_message,
             context_used=response.context_used,
@@ -46,45 +43,46 @@ class GraphReviewRecord(BaseModel):
     decision: str | None
     total_rounds: int
     graph_config: dict
-    
-    reviews_response: list[str] | None = None
+
+    reviews_response: list[dict] | None = None
     meta_review_response: dict | None
     area_chair_response: dict | None = None
     author_response: dict | None
-    
-    retrieval_metadata: dict | None
-    agent_record: list[AgentResponseRecord]
-    
+
+    agent_records: list[AgentResponseRecord]
+
     @classmethod
     def from_result(cls, result: dict, request: CreateGraphReviewRequest, run_id: str) -> "GraphReviewRecord":
-        """Assemble a full ``RunRecord`` from a live graph result (the final
+        """Assemble a full record from a live graph result (the final
         ReviewState mapping — typed as dict to keep this shared-models layer
         free of domain.graph imports) and its request. ``run_id`` comes from the
         caller (only the store can mint one); the timestamp is stamped here."""
-        agent_runs = [AgentResponseRecord.model_validate(run) for run in result.get("agent_response_record", [])]
+        agent_records = [AgentResponseRecord.model_validate(record) for record in result.get("agent_records", [])]
         return cls(
             run_id=run_id,
             timestamp=datetime.now(timezone.utc).isoformat(),
             paper_id=request.paper_id,
-            description=request.run_description or None,
+            description=request.description or None,
             decision=result.get("decision"),
             total_rounds=result.get("current_round", 0),
             reviews_response=result.get("reviews_response"),
             meta_review_response=result.get("meta_review_response"),
             area_chair_response=result.get("area_chair_response"),
             author_response=result.get("author_response"),
-            retrieval_metadata=result.get("retrieval_metadata"),
             graph_config=request.graph_config.model_dump(),
-            agent_record=agent_runs,
+            agent_records=agent_records,
         )
 
 
 class GraphReviewSummary(BaseModel):
-    """Lightweight version of RunRecord for the run-history list."""
+    """Lightweight projection of GraphReviewRecord for the run-history list,
+    plus the analytics facts extracted at save time."""
 
     run_id: str
     timestamp: str
     paper_id: str
-    run_description: str | None = None
+    description: str | None = None
     decision: str | None
     total_rounds: int
+    max_rounds: int | None = None
+    meta_overall_score: int | None = None

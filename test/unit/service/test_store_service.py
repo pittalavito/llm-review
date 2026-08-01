@@ -12,11 +12,10 @@ from models.domain.paper import Paper, PaperType
 from models.domain.retrieval import IndexInfo, RagIndex
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 from models.store.db import (
+    AgentTraceTable,
+    GraphReviewAgentTable,
+    GraphReviewTable,
     PaperTable,
-    ReviewAgentRunPayloadTable,
-    ReviewAgentRunTable,
-    ReviewRunPayloadTable,
-    ReviewRunTable,
 )
 from models.store.redis import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
 from service.store_service import StoreService
@@ -38,28 +37,27 @@ def _review_note() -> dict:
     }
 
 
-class FakeResults:
-    """Stand-in for DbResultRepository."""
+class FakeRuns:
+    """Stand-in for DbRunRepository."""
     saved: dict = {}
 
     def __init__(self):
         pass
 
-    def save_rows(self, run_row, payload_row, agent_pairs):
-        FakeResults.saved = {"run_row": run_row, "payload_row": payload_row, "agent_pairs": agent_pairs}
+    def save_rows(self, run_row, agent_pairs):
+        FakeRuns.saved = {"run_row": run_row, "agent_pairs": agent_pairs}
         return "RID-123"
 
     def list_summaries(self):
-        return [ReviewRunTable(run_id="R1", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=1)]
+        return [GraphReviewTable(run_id="R1", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=1)]
 
     def get_rows(self, run_id):
         if run_id == "missing":
             return None
-        run_row = ReviewRunTable(run_id=run_id, timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2)
-        payload = ReviewRunPayloadTable(run_id=run_id, reviews=["rev"], meta_review={"overall_score": 7}, graph_config={"max_rounds": 3})
-        agent_row = ReviewAgentRunTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, input_message="m")
-        agent_payload = ReviewAgentRunPayloadTable(agent_run_id=1, response_payload={"rating": 6})
-        return (run_row, payload, [agent_row], {1: agent_payload})
+        run_row = GraphReviewTable(run_id=run_id, timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2, graph_config={"max_rounds": 3})
+        agent_row = GraphReviewAgentTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, rating=6, agent_trace_id=11)
+        trace = AgentTraceTable(id=11, run_id=run_id, input_message="m", response_payload={"rating": 6})
+        return (run_row, [agent_row], {11: trace})
 
     @staticmethod
     def build_run_id(paper_id):
@@ -134,7 +132,7 @@ class FakeFiles:
 
 @pytest.fixture
 def service(monkeypatch) -> StoreService:
-    monkeypatch.setattr(store_service_mod, "DbResultRepository", FakeResults)
+    monkeypatch.setattr(store_service_mod, "DbRunRepository", FakeRuns)
     monkeypatch.setattr(store_service_mod, "DbPaperRepository", FakePapers)
     monkeypatch.setattr(store_service_mod, "DbPromptRepository", FakePrompts)
     monkeypatch.setattr(store_service_mod, "RedisRagIndexRepository", FakeRagIndex)
@@ -146,19 +144,23 @@ def service(monkeypatch) -> StoreService:
 def _run_record() -> GraphReviewRecord:
     return GraphReviewRecord(
         run_id="RID", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2,
-        reviews_response=["r"], meta_review_response={"overall_score": 7}, author_response=None, retrieval_metadata=None,
+        reviews_response=[{"summary": "r"}], meta_review_response={"overall_score": 7}, author_response=None,
         graph_config={"max_rounds": 3},
-        agent_record=[AgentResponseRecord(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
+        agent_records=[AgentResponseRecord(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
     )
 
 
 class TestRuns:
     def test_save_run_applies_factory_and_returns_id(self, service):
         assert service.save_run(_run_record()) == "RID-123"
-        run_row = FakeResults.saved["run_row"]
-        assert isinstance(run_row, ReviewRunTable)
+        run_row = FakeRuns.saved["run_row"]
+        assert isinstance(run_row, GraphReviewTable)
         assert run_row.max_rounds == 3 and run_row.meta_overall_score == 7  # Factory extracted these
-        assert len(FakeResults.saved["agent_pairs"]) == 1
+        assert run_row.graph_config == {"max_rounds": 3}
+        assert len(FakeRuns.saved["agent_pairs"]) == 1
+        agent_row, trace_row = FakeRuns.saved["agent_pairs"][0]
+        assert isinstance(agent_row, GraphReviewAgentTable)
+        assert isinstance(trace_row, AgentTraceTable)
 
     def test_list_runs_maps_rows_to_summaries(self, service):
         summaries = service.list_runs()
@@ -171,10 +173,11 @@ class TestRuns:
     def test_get_run_builds_full_record_via_adapter(self, service):
         record = service.get_run("R1")
         assert isinstance(record, GraphReviewRecord)
-        assert record.reviews_response == ["rev"]
+        assert record.reviews_response == [{"rating": 6}]  # derived from the reviewer trace
         assert record.graph_config == {"max_rounds": 3}
-        assert record.agent_record[0].agent_role is AgentRole.REVIEWER and record.agent_record[0].agent_index == 1
-        assert record.agent_record[0].response_payload == {"rating": 6}
+        assert record.agent_records[0].agent_role is AgentRole.REVIEWER and record.agent_records[0].agent_index == 1
+        assert record.agent_records[0].response_payload == {"rating": 6}
+        assert record.agent_records[0].input_message == "m"  # from the trace
 
     def test_build_run_id_delegates_to_repository(self, service):
         assert service.build_run_id("other_p_pdf") == "built:other_p_pdf"

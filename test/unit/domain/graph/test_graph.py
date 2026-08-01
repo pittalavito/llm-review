@@ -45,13 +45,14 @@ class TestGraphRun:
         # Mock decision is minor_revision: only ACCEPT is terminal, so the
         # author writes one revision round before the rounds run out.
         assert len(result["reviews_response"]) == n  # every reviewer ran (fan-out)
+        assert all(isinstance(review, dict) for review in result["reviews_response"])  # dicts, not JSON strings
         assert result["meta_review_response"] is not None
         assert result["area_chair_response"] is not None
         assert result["decision"] == ChatReviewDecision.MINOR_REVISION
         assert result["author_response"] is not None  # revision round happened
         assert result["revised_sections"]  # extracted from the author payload
         assert result["current_round"] == 1
-        assert len(result["agent_response_record"]) == n + 3  # N reviewers + meta + area chair + author
+        assert len(result["agent_records"]) == n + 3  # N reviewers + meta + area chair + author
 
 
 class TestConditionalEdges:

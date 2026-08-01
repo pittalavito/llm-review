@@ -13,7 +13,7 @@ class ReviewState(BaseGraphState):
     max_rounds: int
     """ Maximum number of revision rounds before forcing termination """
 
-    agent_response_record: Annotated[list, operator.add]
+    agent_records: Annotated[list, operator.add]
     """ History of agent invocations — accumulated across all rounds """
 
     reviews_response: Annotated[list, operator.add]

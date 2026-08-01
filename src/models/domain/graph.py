@@ -45,4 +45,4 @@ class CreateGraphReviewRequest(BaseModel):
     """Request to run the review graph on a paper with a given configuration."""
     paper_id: str
     graph_config: ReviewGraphConfig
-    run_description: str = ""
+    description: str = ""

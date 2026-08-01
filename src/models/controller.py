@@ -64,13 +64,6 @@ class IndexPaperAccepted(BaseModel):
     strategy_version: str
 
 
-class CreateGraphReviewRequest(BaseModel):
-    """Request to run the review graph on a paper with a given configuration."""
-    paper_id: str
-    graph_config: ReviewGraphConfig
-    run_description: str = ""
-
-
 class CompiledAgentInfo(BaseModel):
     """Identity of one agent in the compiled committee."""
     agent_role: str
