@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreatePaperRequest, CreatePaperResponse, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, RagStrategy } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreateInstructionRequest, CreatePaperRequest, CreatePaperResponse, CreatePromptRequest, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptInstructionResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, PromptVersionResponse, RagStrategy, UpdateInstructionRequest, UpdatePromptRequest } from './types';
 
 export class ApiError extends Error {}
 
@@ -33,6 +33,16 @@ async function get<T>(path: string): Promise<T> {
 async function post<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(path, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  await throwForResponse(res);
+  return res.json() as Promise<T>;
+}
+
+async function put<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(path, {
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
@@ -85,18 +95,40 @@ export const getIndexStatus = (paperId: string, strategy: RagStrategy, strategyV
 // Prompt registry
 // ---------------------------------------------------------------------------
 
+/** The whole prompt-version registry (unwrapped). */
+export const listPrompts = (includeInactive = false) =>
+  get<PromptVersionListResponse>(`/prompts/list?include_inactive=${includeInactive}`).then((r) => r.prompts as PromptVersion[]);
+
 /** The prompt versions registered for one agent role (unwrapped). */
 export const listPromptsByRole = (agentRole: string) =>
   get<PromptVersionListResponse>(`/prompts/role/${encodeURIComponent(agentRole)}`).then((r) => r.prompts as PromptVersion[]);
 
 /** The whole persona-instruction registry (unwrapped). */
-export const listInstructions = () =>
-  get<PromptInstructionListResponse>('/prompts/instructions/list').then((r) => r.instructions as PromptInstruction[]);
+export const listInstructions = (includeInactive = false) =>
+  get<PromptInstructionListResponse>(`/prompts/instructions/list?include_inactive=${includeInactive}`).then((r) => r.instructions as PromptInstruction[]);
 
 /** The composed system prompt (base template + instructions) an agent would
  * receive — the exact string the BE will use (unwrapped). */
 export const previewPrompt = (request: PromptPreviewRequest) =>
   post<PromptPreviewResponse>('/prompts/preview', request).then((r) => r.prompt);
+
+/** Register a new immutable prompt version (409 when (role, version) exists). */
+export const createPrompt = (request: CreatePromptRequest) =>
+  post<PromptVersionResponse>('/prompts/create', request).then((r) => r.prompt);
+
+/** Register a new immutable persona instruction (409 when (type, label) exists). */
+export const createInstruction = (request: CreateInstructionRequest) =>
+  post<PromptInstructionResponse>('/prompts/instructions/create', request).then((r) => r.instruction);
+
+/** Update a prompt version's mutable metadata (description, is_active) — the
+ * template never changes (unwrapped). */
+export const updatePrompt = (versionId: number, request: UpdatePromptRequest) =>
+  put<PromptVersionResponse>(`/prompts/${versionId}`, request).then((r) => r.prompt);
+
+/** Update an instruction's mutable metadata (description, is_active) — the
+ * text never changes (unwrapped). */
+export const updateInstruction = (instructionId: number, request: UpdateInstructionRequest) =>
+  put<PromptInstructionResponse>(`/prompts/instructions/${instructionId}`, request).then((r) => r.instruction);
 
 // ---------------------------------------------------------------------------
 // Review graph

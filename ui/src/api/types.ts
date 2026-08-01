@@ -168,6 +168,43 @@ export interface PromptInstructionListResponse {
   instructions: PromptInstruction[];
 }
 
+// models/controller/prompt.py :: CreatePromptRequest / PromptVersionResponse.
+export interface CreatePromptRequest {
+  agent_role: string;
+  version_label: string;
+  template: string;
+  description?: string | null;
+}
+
+export interface PromptVersionResponse {
+  prompt: PromptVersion;
+}
+
+// models/controller/prompt.py :: UpdatePromptRequest / UpdateInstructionRequest —
+// versions and instructions are immutable, only the metadata may change.
+export interface UpdatePromptRequest {
+  description?: string | null;
+  is_active?: boolean | null;
+}
+
+export interface UpdateInstructionRequest {
+  description?: string | null;
+  is_active?: boolean | null;
+}
+
+// models/controller/prompt.py :: CreateInstructionRequest / PromptInstructionResponse.
+export interface CreateInstructionRequest {
+  type: InstructionType;
+  label: string;
+  instruction: string;
+  description?: string | null;
+  agent_role?: string | null;
+}
+
+export interface PromptInstructionResponse {
+  instruction: PromptInstruction;
+}
+
 // models/controller/prompt.py :: PromptPreviewRequest / PromptPreviewResponse.
 export interface PromptPreviewRequest {
   agent_role: string;

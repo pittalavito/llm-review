@@ -13,12 +13,14 @@ import './styles/paper.css';
 import './styles/review-graph.css';
 import './styles/agent-config.css';
 import './styles/input-messages.css';
+import './styles/prompts.css';
 
 import AppLayout from './layout/AppLayout';
 import Admin from './sections/Admin';
 import Paper from './sections/Paper';
 import PingChat from './sections/PingChat';
 import GraphReview from './sections/GraphReview';
+import Prompts from './sections/Prompts';
 import { applyTheme, getInitialTheme } from './components/ThemeToggle';
 
 // Stamp the saved theme on <html> before the first paint (no theme flash).
@@ -35,6 +37,7 @@ const router = createBrowserRouter(
         { path: 'ping-chat', element: <PingChat /> },
         { path: 'paper', element: <Paper /> },
         { path: 'review-graph', element: <GraphReview /> },
+        { path: 'prompt', element: <Prompts /> },
         { path: '*', element: <Navigate to="/ping-chat" replace /> },
       ],
     },

@@ -19,6 +19,7 @@ const NAV_ENTRIES: NavEntry[] = [
   { to: '/ping-chat', icon: '✎', label: 'Ping Chat' },
   { to: '/paper', icon: '▤', label: 'Paper' },
   { to: '/review-graph', icon: '▶', label: 'Review Graph' },
+  { to: '/prompt', icon: '✍', label: 'Prompt' },
 ];
 
 function NavItem({ entry }: { entry: NavEntry }) {
