@@ -102,23 +102,26 @@ export interface AgentRequestContext {
   retrieval_context_query?: string | null;
 }
 
-// The system prompt is structured JSON (free-form object), not plain text.
-export type SystemPrompt = Record<string, unknown>;
+// models/domain/agent.py :: AgentSystemPromptRequest — the prompt is composed
+// on the BE from a registered base version plus persona instruction labels.
+export interface AgentSystemPromptRequest {
+  base_prompt_version: string | null;
+  instruction_labels: string[];
+}
 
-// domain/models/graph.py :: AgentConfig — LLM settings for one agent role.
-// system_prompt is treated as JSON on the FE (edited/validated as an object).
+// models/domain/graph.py :: AgentConfig — LLM settings for one agent role.
 // input_message is FE-only for now: the BE model has no such field yet.
 export interface AgentConfig {
   model: string;
   temperature: number;
-  system_prompt?: SystemPrompt | null;
+  system_prompt_request?: AgentSystemPromptRequest | null;
   input_message?: string | null;
   request_context: AgentRequestContext;
 }
 
 // FE evolution of domain/models/graph.py :: GraphConfig — shared graph-level
 // settings are only paper_id, num_reviewers and max_rounds; every reviewer has
-// its own AgentConfig (the BE still shares one — alignment pending).
+// its own AgentConfig, mirrored 1:1 by the BE `reviewers` list.
 export interface GraphConfig {
   paper_id: string | null;
   num_reviewers: number;
@@ -127,6 +130,53 @@ export interface GraphConfig {
   meta_reviewer: AgentConfig;
   area_chair: AgentConfig;
   author: AgentConfig;
+}
+
+// models/domain/prompt.py :: PromptVersion — a registered prompt-template version.
+export interface PromptVersion {
+  id: number;
+  agent_role: string;
+  version_label: string;
+  template: string;
+  template_hash: string;
+  description?: string | null;
+  created_at: string;
+  is_active: boolean;
+}
+
+// models/domain/prompt.py :: InstructionType (StrEnum).
+export type InstructionType = 'intention' | 'knowledgeability' | 'commitment' | 'focus';
+
+// models/domain/prompt.py :: PromptInstruction — (type, label) is the natural key.
+export interface PromptInstruction {
+  id: number;
+  type: InstructionType | null;
+  label: string;
+  instruction: string;
+  description?: string | null;
+  agent_role?: string | null;
+  created_at: string;
+  is_active: boolean;
+}
+
+// models/controller/prompt.py :: PromptVersionListResponse / PromptInstructionListResponse.
+export interface PromptVersionListResponse {
+  prompts: PromptVersion[];
+}
+
+export interface PromptInstructionListResponse {
+  instructions: PromptInstruction[];
+}
+
+// models/controller/prompt.py :: PromptPreviewRequest / PromptPreviewResponse.
+export interface PromptPreviewRequest {
+  agent_role: string;
+  base_prompt_version: string;
+  instruction_labels: string[];
+}
+
+export interface PromptPreviewResponse {
+  prompt: string;
 }
 
 // models/domain/run_record.py :: GraphReviewSummary — lightweight run-history
@@ -143,26 +193,25 @@ export interface GraphReviewSummary {
 }
 
 // ---------------------------------------------------------------------------
-// Backend contract for compile/invoke — mirrors domain/models/graph.py, which
-// still shares ONE reviewer config and wants system_prompt as a string. The
-// richer FE GraphConfig is mapped onto this shape when launching a run.
+// Backend contract for compile/invoke — mirrors models/domain/graph.py:
+// per-reviewer AgentConfig list, prompt composed on the BE from
+// system_prompt_request. The FE GraphConfig maps onto this when launching.
 // ---------------------------------------------------------------------------
 
-// domain/models/graph.py :: AgentConfig (BE side).
+// models/domain/graph.py :: AgentConfig (BE side).
 export interface BackendAgentConfig {
   model: string;
   temperature: number;
-  system_prompt: string;
+  system_prompt_request: AgentSystemPromptRequest | null;
   request_context: AgentRequestContext;
 }
 
-// domain/models/graph.py :: GraphReviewConfig.
+// models/domain/graph.py :: GraphReviewConfig — committee size is reviewers.length.
 export interface GraphReviewConfig {
-  reviewer: BackendAgentConfig;
+  reviewers: BackendAgentConfig[];
   meta_reviewer: BackendAgentConfig;
   area_chair: BackendAgentConfig;
   author: BackendAgentConfig;
-  num_reviewers: number;
   max_rounds: number;
 }
 

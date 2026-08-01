@@ -38,6 +38,23 @@ class PromptVersionListResponse(BaseModel):
         return cls(prompts=prompts)
 
 
+class PromptPreviewRequest(BaseModel):
+    """Request to compose the system prompt an agent would receive."""
+    agent_role: str
+    base_prompt_version: str
+    instruction_labels: list[str] = []
+
+
+class PromptPreviewResponse(BaseModel):
+    """Response containing the composed system prompt."""
+    prompt: str
+
+    @classmethod
+    def from_response(cls, prompt: str) -> "PromptPreviewResponse":
+        """Construct a PromptPreviewResponse from the composed prompt string."""
+        return cls(prompt=prompt)
+
+
 class CreateInstructionRequest(BaseModel):
     """Request to register a new immutable persona instruction."""
     type: InstructionType

@@ -38,15 +38,15 @@ class Factory:
         config = request.graph_config
         agent_requests: list[CreateAgentRequest] = []
         
-        for index in range(1, config.num_reviewers + 1):
+        for index, reviewer_config in enumerate(config.reviewers, start=1):
             agent_requests.append(CreateAgentRequest(
-                model=config.reviewer.model,
-                temperature=config.reviewer.temperature,
+                model=reviewer_config.model,
+                temperature=reviewer_config.temperature,
                 agent_role=AgentRole.REVIEWER,
                 agent_index=index,
-                system_prompt_request=config.reviewer.system_prompt_request,
+                system_prompt_request=reviewer_config.system_prompt_request,
                 paper_id=request.paper_id,
-                context=config.reviewer.request_context
+                context=reviewer_config.request_context
             ))
         
         for role, agent_config in (

@@ -7,6 +7,8 @@ from models.controller.prompt import (
     CreatePromptRequest,
     PromptInstructionListResponse,
     PromptInstructionResponse,
+    PromptPreviewRequest,
+    PromptPreviewResponse,
     PromptVersionListResponse,
     PromptVersionResponse,
     UpdateInstructionRequest,
@@ -50,6 +52,17 @@ def update_prompt(version_id: int, request: UpdatePromptRequest, service: Prompt
     if prompt is None:
         raise HTTPException(status_code=404, detail="Prompt version not found.")
     return PromptVersionResponse.from_response(prompt)
+
+
+@router.post("/preview")
+def preview_prompt(request: PromptPreviewRequest, service: PromptService = Depends(prompt_service)) -> PromptPreviewResponse:
+    """Compose the system prompt an agent would receive for this (role, base
+    version, instruction labels) selection; 404 when the base prompt is missing."""
+    try:
+        prompt = service.build_system_prompt(agent_role=request.agent_role, promt_label=request.base_prompt_version, instruction_labels=request.instruction_labels)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    return PromptPreviewResponse.from_response(prompt)
 
 
 @router.get("/instructions/list")

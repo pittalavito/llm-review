@@ -5,8 +5,8 @@
  * graph below (click a node to open its editor), and the reusable
  * AgentConfigPanel on the side for the selected agent. Every reviewer has its
  * own AgentConfig; the config persists in localStorage. "Lancia review" maps
- * it onto the BE contract (one shared reviewer config, system_prompt as
- * string) and drives POST /graph/compile + /graph/invoke. */
+ * it onto the BE contract (per-reviewer configs, prompt composed on the BE
+ * from system_prompt_request) and drives POST /graph/compile + /graph/invoke. */
 import { useEffect, useState } from 'react';
 import { ApiError, compileGraph, invokeGraph, listGraphRuns, listPapers } from '../api/client';
 import type {
@@ -37,14 +37,28 @@ const ROLE_ICONS: Record<'reviewer' | SingleRole, string> = {
   author: '✍️',
 };
 
+const ROLE_TO_BE: Record<'reviewer' | SingleRole, string> = {
+  reviewer: 'reviewer',
+  meta_reviewer: 'meta_reviewer',
+  area_chair: 'area_chair',
+  author: 'author_agent',
+};
+
 function defaultAgent(contextMode: ContextMode = 'none'): AgentConfig {
   return {
     model: 'mock',
     temperature: 0.4,
-    system_prompt: null,
+    system_prompt_request: null,
     input_message: null,
     request_context: { context_mode: contextMode, retrieval_context_query: null },
   };
+}
+
+/** Drop the legacy JSON system_prompt from stored configs and default the
+ * composed-prompt request, so pre-migration localStorage keeps loading. */
+function sanitizeAgent(agent: AgentConfig & { system_prompt?: unknown }): AgentConfig {
+  const { system_prompt: _legacy, ...rest } = agent;
+  return { ...defaultAgent(), ...rest, system_prompt_request: rest.system_prompt_request ?? null };
 }
 
 /** BE default (mock everywhere), with the reviewers reading the whole paper. */
@@ -84,7 +98,10 @@ export function loadGraphConfig(): GraphConfig {
           () => structuredClone(parsed.reviewer ?? defaultAgent('full_context')),
         );
       }
-      base.reviewers = resizeReviewers(base.reviewers, base.num_reviewers);
+      base.reviewers = resizeReviewers(base.reviewers, base.num_reviewers).map(sanitizeAgent);
+      base.meta_reviewer = sanitizeAgent(base.meta_reviewer);
+      base.area_chair = sanitizeAgent(base.area_chair);
+      base.author = sanitizeAgent(base.author);
       return base;
     }
   } catch { /* corrupted/unavailable storage — fall through */ }
@@ -95,29 +112,28 @@ function saveGraphConfig(config: GraphConfig): void {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(config)); } catch { /* ignore */ }
 }
 
-/** FE AgentConfig -> BE AgentConfig: the JSON system prompt travels serialized. */
+/** FE AgentConfig -> BE AgentConfig: the prompt travels as the composed-request
+ * (base version + instruction labels); the BE builds the actual string. */
 function toBackendAgent(agent: AgentConfig): BackendAgentConfig {
   return {
     model: agent.model,
     temperature: agent.temperature,
-    system_prompt: agent.system_prompt ? JSON.stringify(agent.system_prompt) : '',
+    system_prompt_request: agent.system_prompt_request ?? null,
     request_context: agent.request_context,
   };
 }
 
-/** FE GraphConfig -> BE CreateGraphReviewRequest. The BE still shares ONE
- * reviewer config: the first reviewer acts as the committee template
- * (per-reviewer configs ship when the BE aligns). */
+/** FE GraphConfig -> BE CreateGraphReviewRequest: reviewers map 1:1 (the BE
+ * derives the committee size from the list). */
 function toBackendRequest(config: GraphConfig, description: string): CreateGraphReviewRequest {
   if (!config.paper_id) throw new Error('Nessun paper selezionato nella configurazione.');
   return {
     paper_id: config.paper_id,
     graph_config: {
-      reviewer: toBackendAgent(config.reviewers[0] ?? defaultAgent('full_context')),
+      reviewers: config.reviewers.map(toBackendAgent),
       meta_reviewer: toBackendAgent(config.meta_reviewer),
       area_chair: toBackendAgent(config.area_chair),
       author: toBackendAgent(config.author),
-      num_reviewers: config.num_reviewers,
       max_rounds: config.max_rounds,
     },
     description,
@@ -352,6 +368,7 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
                 key={selectionKey}
                 idPrefix={`rg-${selectionKey}`}
                 title={selectionTitle}
+                agentRole={ROLE_TO_BE[selected!.role]}
                 agent={agent}
                 onChange={updateAgent}
                 showInputMessage={false}
@@ -396,6 +413,18 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
     config.author.model,
   ];
 
+  /** "Reviewer 2: v1 +focus_novelty" — one row per agent with a composed prompt. */
+  const promptSummary = [
+    ...config.reviewers.map((r, i) => [`Reviewer ${i + 1}`, r.system_prompt_request] as const),
+    ['Meta Reviewer', config.meta_reviewer.system_prompt_request] as const,
+    ['Area Chair', config.area_chair.system_prompt_request] as const,
+    ['Author', config.author.system_prompt_request] as const,
+  ]
+    .filter(([, req]) => req?.base_prompt_version)
+    .map(([label, req]) =>
+      `${label}: ${req!.base_prompt_version}` +
+      (req!.instruction_labels.length ? ` +${req!.instruction_labels.join(' +')}` : ''));
+
   async function onLaunch() {
     setError('');
     setRecord(null);
@@ -436,6 +465,12 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
               <dt>Paper</dt><dd className="paper-list__id">{config.paper_id}</dd>
               <dt>Comitato</dt><dd>{config.num_reviewers} reviewer · max {config.max_rounds} round</dd>
               <dt>Modelli</dt><dd>{[...new Set(models)].join(', ')}</dd>
+              <dt>Prompt</dt>
+              <dd>
+                {promptSummary.length === 0
+                  ? 'nessun prompt dal registry'
+                  : promptSummary.map((row) => <div key={row}>{row}</div>)}
+              </dd>
             </dl>
 
             <label className="paper-form__label" htmlFor="rg-launch-description">Descrizione run (opzionale)</label>

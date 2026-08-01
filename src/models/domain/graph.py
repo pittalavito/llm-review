@@ -11,22 +11,24 @@ class AgentConfig(BaseModel):
     """LLM settings for one agent role."""
     model: ChatModelName
     temperature: float = Field(default=0.4, ge=0.0, le=2.0)
-    system_prompt: str = ""
-    
+
     system_prompt_request: AgentSystemPromptRequest | None = None
     request_context: AgentRequestContext = AgentRequestContext.default_none_context()
 
 
 class GraphReviewConfig(BaseModel):
-    """Full configuration of one review-graph run: an AgentConfig per role, the
-    number of reviewers on the committee (unbounded), and the revision rounds.
-    The N reviewers share the single ``reviewer`` config (persona/focus deferred)."""
-    reviewer: AgentConfig
+    """Full configuration of one review-graph run: an AgentConfig per reviewer
+    (each with its own prompt/persona), one per single-instance role, and the
+    revision rounds. The committee size is ``len(reviewers)``."""
+    reviewers: list[AgentConfig] = Field(min_length=1)
     meta_reviewer: AgentConfig
     area_chair: AgentConfig
     author: AgentConfig
-    num_reviewers: int = Field(default=3, ge=1)
     max_rounds: int = Field(default=1, ge=1, le=5)
+
+    @property
+    def num_reviewers(self) -> int:
+        return len(self.reviewers)
 
     @staticmethod
     def default_config(num_reviewers: int = 1, max_rounds: int = 1) -> "GraphReviewConfig":
@@ -34,11 +36,10 @@ class GraphReviewConfig(BaseModel):
         def cfg() -> AgentConfig:
             return AgentConfig(model=ChatModelName.MOCK, temperature=0.4)
         return GraphReviewConfig(
-            reviewer=cfg(), 
-            meta_reviewer=cfg(), 
-            area_chair=cfg(), 
+            reviewers=[cfg() for _ in range(num_reviewers)],
+            meta_reviewer=cfg(),
+            area_chair=cfg(),
             author=cfg(),
-            num_reviewers=num_reviewers, 
             max_rounds=max_rounds
         )
 

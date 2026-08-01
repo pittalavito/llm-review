@@ -2,14 +2,18 @@
  * AgentConfigPanel — standalone editor for a single AgentConfig.
  *
  * Section-agnostic on purpose: the Review Graph mounts it next to the pipeline
- * graph today, other sections can reuse it as-is. It owns the model catalog
- * fetch and the JSON draft of system_prompt; the parent owns the AgentConfig
- * value and receives patches via onChange. Remount it (React key) when the
- * edited agent switches, so the JSON draft resets with it.
+ * graph today, other sections can reuse it as-is. It owns the model catalog and
+ * prompt-registry fetches; the parent owns the AgentConfig value and receives
+ * patches via onChange. Remount it (React key) when the edited agent switches,
+ * so the local preview state resets with it.
+ *
+ * The system prompt is composed on the BE (base version + instruction labels):
+ * here the user picks a registered base prompt for the role, checks the persona
+ * instructions, and can preview the exact composed string via /prompts/preview.
  */
-import { useState } from 'react';
-import { listModels } from '../api/client';
-import type { AgentConfig, ContextMode, SystemPrompt } from '../api/types';
+import { useEffect, useState } from 'react';
+import { ApiError, listInstructions, listModels, listPromptsByRole, previewPrompt } from '../api/client';
+import type { AgentConfig, AgentSystemPromptRequest, ContextMode, PromptInstruction, PromptVersion } from '../api/types';
 import TemperatureSlider from './TemperatureSlider';
 import { useOptions } from './useOptions';
 
@@ -20,6 +24,9 @@ interface AgentConfigPanelProps {
   title: string;
   /** Optional muted note next to the title. */
   hint?: string;
+  /** BE role of the edited agent ('reviewer', 'meta_reviewer', …) — selects
+   * which prompt versions and instructions the composer offers. */
+  agentRole: string;
   agent: AgentConfig;
   onChange: (patch: Partial<AgentConfig>) => void;
   /** Prefix for input ids, to keep labels unique per mounted panel. */
@@ -28,16 +35,83 @@ interface AgentConfigPanelProps {
   showInputMessage?: boolean;
 }
 
-function formatPrompt(prompt: SystemPrompt | null | undefined): string {
-  return prompt == null ? '' : JSON.stringify(prompt, null, 2);
+/** Instructions the composer offers: active, and either global or bound to this role. */
+function relevantInstructions(all: PromptInstruction[], agentRole: string): PromptInstruction[] {
+  return all.filter((i) => i.is_active && (!i.agent_role || i.agent_role === agentRole));
+}
+
+/** Group instructions by axis type, untyped ones under "other". */
+function groupByType(instructions: PromptInstruction[]): [string, PromptInstruction[]][] {
+  const groups = new Map<string, PromptInstruction[]>();
+  for (const instr of instructions) {
+    const key = instr.type ?? 'other';
+    groups.set(key, [...(groups.get(key) ?? []), instr]);
+  }
+  return [...groups.entries()];
 }
 
 export default function AgentConfigPanel({
-  title, hint, agent, onChange, idPrefix = 'acp', showInputMessage = true,
+  title, hint, agentRole, agent, onChange, idPrefix = 'acp', showInputMessage = true,
 }: AgentConfigPanelProps) {
   const { options: models, error: modelsError } = useOptions(listModels);
-  const [promptDraft, setPromptDraft] = useState(() => formatPrompt(agent.system_prompt));
-  const [promptError, setPromptError] = useState('');
+  const [versions, setVersions] = useState<PromptVersion[]>([]);
+  const [instructions, setInstructions] = useState<PromptInstruction[]>([]);
+  const [registryError, setRegistryError] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState('');
+  const [previewBusy, setPreviewBusy] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all([listPromptsByRole(agentRole), listInstructions()])
+      .then(([promptRows, instructionRows]) => {
+        if (!alive) return;
+        setVersions(promptRows.filter((p) => p.is_active));
+        setInstructions(relevantInstructions(instructionRows, agentRole));
+      })
+      .catch(() => { if (alive) setRegistryError(true); });
+    return () => { alive = false; };
+  }, [agentRole]);
+
+  const promptRequest: AgentSystemPromptRequest | null = agent.system_prompt_request ?? null;
+  const baseVersion = promptRequest?.base_prompt_version ?? '';
+  const selectedLabels = promptRequest?.instruction_labels ?? [];
+
+  function updatePromptRequest(patch: Partial<AgentSystemPromptRequest>) {
+    setPreview(null);
+    setPreviewError('');
+    const next: AgentSystemPromptRequest = {
+      base_prompt_version: promptRequest?.base_prompt_version ?? null,
+      instruction_labels: promptRequest?.instruction_labels ?? [],
+      ...patch,
+    };
+    onChange({ system_prompt_request: next.base_prompt_version === null ? null : next });
+  }
+
+  function toggleInstruction(label: string) {
+    const labels = selectedLabels.includes(label)
+      ? selectedLabels.filter((l) => l !== label)
+      : [...selectedLabels, label];
+    updatePromptRequest({ instruction_labels: labels });
+  }
+
+  async function onPreview() {
+    if (!baseVersion) return;
+    setPreviewBusy(true);
+    setPreviewError('');
+    try {
+      setPreview(await previewPrompt({
+        agent_role: agentRole,
+        base_prompt_version: baseVersion,
+        instruction_labels: selectedLabels,
+      }));
+    } catch (err) {
+      setPreview(null);
+      setPreviewError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setPreviewBusy(false);
+    }
+  }
 
   function updateContextMode(mode: ContextMode) {
     onChange({
@@ -48,27 +122,6 @@ export default function AgentConfigPanel({
           : null,
       },
     });
-  }
-
-  /** Commit only valid JSON objects; keep typing free in the meantime. */
-  function updatePromptDraft(text: string) {
-    setPromptDraft(text);
-    if (text.trim() === '') {
-      setPromptError('');
-      onChange({ system_prompt: null });
-      return;
-    }
-    try {
-      const parsed: unknown = JSON.parse(text);
-      if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        setPromptError('Deve essere un oggetto JSON, es. {"role": "..."}');
-        return;
-      }
-      setPromptError('');
-      onChange({ system_prompt: parsed as SystemPrompt });
-    } catch {
-      setPromptError('JSON non valido — la modifica non è applicata.');
-    }
   }
 
   const needsQuery = agent.request_context.context_mode === 'bm25'
@@ -132,19 +185,62 @@ export default function AgentConfigPanel({
         </>
       )}
 
-      <label className="paper-form__label" htmlFor={`${idPrefix}-prompt`}>
-        System prompt <span className="acp__hint">(JSON)</span>
+      {/* ── System prompt composer: base version + persona instructions ── */}
+      <label className="paper-form__label" htmlFor={`${idPrefix}-prompt-version`}>
+        Prompt base <span className="acp__hint">(registry del ruolo)</span>
       </label>
-      <textarea
-        className={'paper-form__input acp__prompt' + (promptError ? ' acp__prompt--invalid' : '')}
-        id={`${idPrefix}-prompt`}
-        rows={7}
-        spellCheck={false}
-        placeholder={'{\n  "role": "sei un reviewer esperto",\n  "focus": ["novelty", "soundness"]\n}'}
-        value={promptDraft}
-        onChange={(e) => updatePromptDraft(e.target.value)}
-      />
-      {promptError && <p className="acp__prompt-error">{promptError}</p>}
+      <select
+        className="paper-form__select"
+        id={`${idPrefix}-prompt-version`}
+        value={baseVersion}
+        onChange={(e) => updatePromptRequest({ base_prompt_version: e.target.value || null })}
+      >
+        <option value="">— nessun prompt —</option>
+        {versions.map((v) => (
+          <option key={v.id} value={v.version_label}>
+            {v.version_label}{v.description ? ` — ${v.description}` : ''}
+          </option>
+        ))}
+      </select>
+      {registryError && (
+        <p className="acp__prompt-error">Registry dei prompt non raggiungibile.</p>
+      )}
+
+      {baseVersion && instructions.length > 0 && (
+        <fieldset className="acp__instructions">
+          <legend className="paper-form__label">Instructions (persona)</legend>
+          {groupByType(instructions).map(([type, group]) => (
+            <div key={type} className="acp__instructions-group">
+              <span className="acp__instructions-type">{type}</span>
+              {group.map((instr) => (
+                <label key={instr.label} className="acp__instructions-item">
+                  <input
+                    type="checkbox"
+                    checked={selectedLabels.includes(instr.label)}
+                    onChange={() => toggleInstruction(instr.label)}
+                  />
+                  <span title={instr.instruction}>{instr.label}</span>
+                </label>
+              ))}
+            </div>
+          ))}
+        </fieldset>
+      )}
+
+      {baseVersion && (
+        <div className="acp__preview">
+          <button
+            className="btn btn--ghost btn--sm"
+            type="button"
+            disabled={previewBusy}
+            onClick={onPreview}
+          >
+            {previewBusy ? 'Compongo…' : 'Anteprima prompt'}
+          </button>
+          {previewError && <p className="acp__prompt-error">{previewError}</p>}
+          {preview !== null && <pre className="acp__preview-text">{preview}</pre>}
+        </div>
+      )}
 
       {showInputMessage && (
         <>

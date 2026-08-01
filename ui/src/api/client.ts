@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreatePaperRequest, CreatePaperResponse, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, RagStrategy } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreatePaperRequest, CreatePaperResponse, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, RagStrategy } from './types';
 
 export class ApiError extends Error {}
 
@@ -80,6 +80,23 @@ export const getIndexStatus = (paperId: string, strategy: RagStrategy, strategyV
   const params = new URLSearchParams({ paper_id: paperId, strategy, strategy_version: strategyVersion });
   return get<IndexStatusResponse>(`/retrieval/index/status?${params}`).then((r) => r.index_info);
 };
+
+// ---------------------------------------------------------------------------
+// Prompt registry
+// ---------------------------------------------------------------------------
+
+/** The prompt versions registered for one agent role (unwrapped). */
+export const listPromptsByRole = (agentRole: string) =>
+  get<PromptVersionListResponse>(`/prompts/role/${encodeURIComponent(agentRole)}`).then((r) => r.prompts as PromptVersion[]);
+
+/** The whole persona-instruction registry (unwrapped). */
+export const listInstructions = () =>
+  get<PromptInstructionListResponse>('/prompts/instructions/list').then((r) => r.instructions as PromptInstruction[]);
+
+/** The composed system prompt (base template + instructions) an agent would
+ * receive — the exact string the BE will use (unwrapped). */
+export const previewPrompt = (request: PromptPreviewRequest) =>
+  post<PromptPreviewResponse>('/prompts/preview', request).then((r) => r.prompt);
 
 // ---------------------------------------------------------------------------
 // Review graph
