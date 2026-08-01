@@ -128,10 +128,14 @@ class StoreService:
     # ------------------------------------------------------------------
     # Prompt instruction registry (persona axes)
     # ------------------------------------------------------------------
+    def get_instructions_by_labels(self, labels: list[str]) -> list[PromptInstruction]:
+        rows = self._instructions_repository.list_by_labels(labels)
+        return DbAdapter.to_instructions(rows)
 
     def list_instructions(self, type: InstructionType | None = None, include_inactive: bool = False) -> list[PromptInstruction]:
         type_value = str(type) if type is not None else None
-        return DbAdapter.to_instructions(self._instructions_repository.list(type_value, include_inactive))
+        rows = self._instructions_repository.list(type_value, include_inactive)
+        return DbAdapter.to_instructions(rows)  
 
     def create_instruction(self, type: InstructionType, label: str, instruction: str, description: str | None = None, agent_role: str | None = None) -> PromptInstruction | None:
         row = self._instructions_repository.create(str(type), label, instruction, description, agent_role)

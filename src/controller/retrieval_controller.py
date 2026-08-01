@@ -3,8 +3,10 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 from core.container import retrieval_service
 from core.error import NotFoundError
-from models.controller.retrieval import IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse
+
 from models.domain.retrieval import RagStrategy
+from models.controller.retrieval import IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse
+
 from service.retrieval_service import RetrievalService
 
 router = APIRouter(prefix="/retrieval", tags=["retrieval"])

@@ -44,7 +44,7 @@ class Factory:
                 temperature=config.reviewer.temperature,
                 agent_role=AgentRole.REVIEWER,
                 agent_index=index,
-                prompt_version="v1",
+                system_prompt_request=config.reviewer.system_prompt_request,
                 paper_id=request.paper_id,
                 context=config.reviewer.request_context
             ))
@@ -59,7 +59,7 @@ class Factory:
                 temperature=agent_config.temperature,
                 agent_role=role,
                 agent_index=None,
-                prompt_version="v1",
+                system_prompt_request=agent_config.system_prompt_request,
                 paper_id=request.paper_id,
                 context=agent_config.request_context
             ))

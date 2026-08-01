@@ -52,11 +52,9 @@ class CreateAgentRequest(BaseModel):
     temperature: float
     agent_role: AgentRole
     agent_index: int | None = None
-    
-    prompt_version: str | None = None
-    
+        
     context: AgentRequestContext = AgentRequestContext.default_none_context()
-    prompt_request: AgentSystemPromptRequest | None = None
+    system_prompt_request: AgentSystemPromptRequest | None = None
     retrieval_context_query: str | None = None    
 
 

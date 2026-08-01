@@ -4,7 +4,7 @@
 from pydantic import BaseModel, Field
 
 from models.domain.chat import ChatModelName
-from models.domain.agent import AgentRequestContext
+from models.domain.agent import AgentRequestContext, AgentSystemPromptRequest
 
 
 class AgentConfig(BaseModel):
@@ -12,6 +12,8 @@ class AgentConfig(BaseModel):
     model: ChatModelName
     temperature: float = Field(default=0.4, ge=0.0, le=2.0)
     system_prompt: str = ""
+    
+    system_prompt_request: AgentSystemPromptRequest | None = None
     request_context: AgentRequestContext = AgentRequestContext.default_none_context()
 
 

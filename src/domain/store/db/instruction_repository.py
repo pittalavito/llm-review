@@ -20,6 +20,12 @@ class DbInstructionRepository(SqlRepository[PromptInstructionTable]):
     def __init__(self):
         super().__init__(PromptInstructionTable)
 
+    def list_by_labels(self, labels: list[str]) -> list[PromptInstructionTable]:
+        with self._session() as session:
+            return list(session.exec(
+                select(PromptInstructionTable).where(PromptInstructionTable.label.in_(labels))
+            ).all())
+
     def list(self, type: str | None = None, include_inactive: bool = False) -> list[PromptInstructionTable]:
         statement = select(PromptInstructionTable)
         if type is not None:

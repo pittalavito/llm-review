@@ -6,6 +6,21 @@ from pydantic import BaseModel
 from models.domain.graph import GraphReviewConfig
 from models.domain.run_record import GraphReviewRecord, GraphReviewSummary
 
+class CreateGraphReviewRequest(BaseModel):
+    """Request to run the review graph on a paper with a given configuration."""
+    paper_id: str
+    graph_config: GraphReviewConfig
+    description: str = "" 
+    
+    @classmethod
+    def from_domain(cls, request: "CreateGraphReviewRequest") -> "CreateGraphReviewRequest":
+        """Construct a CreateGraphReviewRequest from a domain-level request."""
+        return cls(
+            paper_id=request.paper_id,
+            graph_config=request.graph_config,
+            description=request.description
+        )
+
 
 class GraphReviewConfigResponse(BaseModel):
     """Response containing the current graph configuration."""
@@ -35,3 +50,4 @@ class GraphReviewSummaryResponse(BaseModel):
     def from_response(cls, summaries: list[GraphReviewSummary]) -> "GraphReviewSummaryResponse":
         """Construct a GraphReviewSummaryResponse from a list of GraphReviewSummary."""
         return cls(summaries=summaries)
+

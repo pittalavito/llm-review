@@ -3,10 +3,7 @@ from fastapi import APIRouter, Depends
 
 from core.container import graph_service, store_service
 
-from models.domain.graph import CreateGraphReviewRequest
-from models.domain.run_record import GraphReviewRecord, GraphReviewSummary
-
-from models.controller.graph import GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse
+from models.controller.graph import GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, CreateGraphReviewRequest
 
 from service.graph_service import GraphReviewService
 from service.store_service import StoreService
@@ -25,7 +22,9 @@ def get_config(service: GraphReviewService = Depends(graph_service)) -> GraphRev
 def compile(request: CreateGraphReviewRequest, service: GraphReviewService = Depends(graph_service)) -> GraphReviewConfigResponse:
     """Build the agents from the request's config and compile the review graph.
     Returns the compiled committee (Agent objects are not serializable)."""
-    config = service.compile(request)
+    
+    req = CreateGraphReviewRequest.from_domain(request)
+    config = service.compile(req)
     return GraphReviewConfigResponse.from_response(config)
 
 
@@ -33,7 +32,8 @@ def compile(request: CreateGraphReviewRequest, service: GraphReviewService = Dep
 def invoke(request: CreateGraphReviewRequest, service: GraphReviewService = Depends(graph_service)) -> GraphReviewRecordResponse:
     """Run the compiled review graph and persist the run; 409-free by design:
     compile() is expected first (invoke fails with 500 otherwise)."""
-    record = service.invoke(request)
+    req = CreateGraphReviewRequest.from_domain(request)
+    record = service.invoke(req)
     return GraphReviewRecordResponse.from_response(record)
 
 
