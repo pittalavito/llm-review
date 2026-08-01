@@ -7,21 +7,21 @@ from models.domain.graph import CreateGraphReviewRequest
 from models.domain.run_record import GraphReviewRecord, GraphReviewSummary
 from models.controller import GraphReviewConfigResponse
 
-from service.graph_service import ReviewGraphService
+from service.graph_service import GraphReviewService
 from service.store_service import StoreService
 
 router = APIRouter(prefix="/graph", tags=["graph"])
 
 
 @router.get("/config")
-def get_config(service: ReviewGraphService = Depends(graph_service)) -> GraphReviewConfigResponse:
+def get_config(service: GraphReviewService = Depends(graph_service)) -> GraphReviewConfigResponse:
     """Return the current graph configuration."""
     config = service.get_config()
     return GraphReviewConfigResponse.from_response(config)
 
     
 @router.post("/compile")
-def compile(request: CreateGraphReviewRequest, service: ReviewGraphService = Depends(graph_service)) -> GraphReviewConfigResponse:
+def compile(request: CreateGraphReviewRequest, service: GraphReviewService = Depends(graph_service)) -> GraphReviewConfigResponse:
     """Build the agents from the request's config and compile the review graph.
     Returns the compiled committee (Agent objects are not serializable)."""
     config = service.compile(request)
@@ -29,7 +29,7 @@ def compile(request: CreateGraphReviewRequest, service: ReviewGraphService = Dep
 
 
 @router.post("/invoke")
-def invoke(request: CreateGraphReviewRequest, service: ReviewGraphService = Depends(graph_service)) -> GraphReviewRecord:
+def invoke(request: CreateGraphReviewRequest, service: GraphReviewService = Depends(graph_service)) -> GraphReviewRecord:
     """Run the compiled review graph and persist the run; 409-free by design:
     compile() is expected first (invoke fails with 500 otherwise)."""
     return service.invoke(request)

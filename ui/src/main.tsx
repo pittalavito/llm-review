@@ -18,7 +18,7 @@ import AppLayout from './layout/AppLayout';
 import Admin from './sections/Admin';
 import Paper from './sections/Paper';
 import PingChat from './sections/PingChat';
-import ReviewGraph from './sections/ReviewGraph';
+import GraphReview from './sections/GraphReview';
 import { applyTheme, getInitialTheme } from './components/ThemeToggle';
 
 // Stamp the saved theme on <html> before the first paint (no theme flash).
@@ -34,7 +34,7 @@ const router = createBrowserRouter(
         { path: 'admin', element: <Admin /> },
         { path: 'ping-chat', element: <PingChat /> },
         { path: 'paper', element: <Paper /> },
-        { path: 'review-graph', element: <ReviewGraph /> },
+        { path: 'review-graph', element: <GraphReview /> },
         { path: '*', element: <Navigate to="/ping-chat" replace /> },
       ],
     },

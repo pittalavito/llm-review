@@ -1,13 +1,13 @@
 """Unit tests for the review graph itself (domain/graph/review.py): an end-to-end
 run over MockChat with an arbitrary committee size (no LLM, no DB) driven via
-ReviewGraph, plus the two conditional-edge methods. Orchestration/persistence
-live in ReviewGraphService and are not exercised here."""
+GraphReview, plus the two conditional-edge methods. Orchestration/persistence
+live in GraphReviewService and are not exercised here."""
 from domain.agent.base import Factory as AgentFactory
 from domain.chat.base import MockChat
-from domain.graph.review import ReviewGraph
+from domain.graph.review import GraphReview
 from models.domain.agent import AgentRole, CreateAgentRequest
 from models.domain.chat import ChatModelName, ChatReviewDecision
-from models.domain.graph import CreateGraphReviewRequest, ReviewGraphConfig
+from models.domain.graph import CreateGraphReviewRequest, GraphReviewConfig
 
 
 def _agents(num_reviewers: int) -> dict:
@@ -28,11 +28,11 @@ def _agents(num_reviewers: int) -> dict:
 
 
 def _run(agents: dict, paper_id: str, max_rounds: int) -> dict:
-    graph = ReviewGraph()
+    graph = GraphReview()
     graph.compile(agents)
     request = CreateGraphReviewRequest(
         paper_id=paper_id,
-        graph_config=ReviewGraphConfig.default_config(max_rounds=max_rounds),
+        graph_config=GraphReviewConfig.default_config(max_rounds=max_rounds),
     )
     return graph.invoke(graph.build_initial_state(request))
 
@@ -56,7 +56,7 @@ class TestGraphRun:
 
 
 class TestConditionalEdges:
-    _graph = ReviewGraph()
+    _graph = GraphReview()
 
     def test_area_chair_terminates_only_on_accept(self):
         assert self._graph._route_after_area_chair({"decision": ChatReviewDecision.ACCEPT}) == "accept"

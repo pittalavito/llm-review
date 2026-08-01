@@ -1,7 +1,7 @@
 from pydantic import Base64Bytes, BaseModel, Field
 
 from models.domain.chat import ChatModelName
-from models.domain.graph import ReviewGraphConfig
+from models.domain.graph import GraphReviewConfig
 from models.domain.paper import Paper
 from models.domain.retrieval import RagStrategy
 
@@ -72,9 +72,9 @@ class CompiledAgentInfo(BaseModel):
 
 class GraphReviewConfigResponse(BaseModel):
     """Response containing the current graph configuration."""
-    graph_config: ReviewGraphConfig
+    graph_config: GraphReviewConfig
     
     @classmethod
-    def from_response(cls, graph_config: ReviewGraphConfig) -> "GraphReviewConfigResponse":
-        """Construct a GraphConfigResponse from a ReviewGraphConfig."""
+    def from_response(cls, graph_config: GraphReviewConfig) -> "GraphReviewConfigResponse":
+        """Construct a GraphConfigResponse from a GraphReviewConfig."""
         return cls(graph_config=graph_config)

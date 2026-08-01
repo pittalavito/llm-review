@@ -142,8 +142,8 @@ export interface BackendAgentConfig {
   request_context: AgentRequestContext;
 }
 
-// domain/models/graph.py :: ReviewGraphConfig.
-export interface ReviewGraphConfig {
+// domain/models/graph.py :: GraphReviewConfig.
+export interface GraphReviewConfig {
   reviewer: BackendAgentConfig;
   meta_reviewer: BackendAgentConfig;
   area_chair: BackendAgentConfig;
@@ -155,7 +155,7 @@ export interface ReviewGraphConfig {
 // models/domain/graph.py :: CreateGraphReviewRequest.
 export interface CreateGraphReviewRequest {
   paper_id: string;
-  graph_config: ReviewGraphConfig;
+  graph_config: GraphReviewConfig;
   description?: string;
 }
 
@@ -163,7 +163,7 @@ export interface CreateGraphReviewRequest {
 // GET /graph/config (current config) and POST /graph/compile (echo of the
 // compiled config).
 export interface GraphReviewConfigResponse {
-  graph_config: ReviewGraphConfig;
+  graph_config: GraphReviewConfig;
 }
 
 // models/domain/run_record.py :: GraphReviewRecord — the fields the FE shows.

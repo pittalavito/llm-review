@@ -548,7 +548,7 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export default function ReviewGraph() {
+export default function GraphReview() {
   const [configureOpen, setConfigureOpen] = useState(false);
   const [launchOpen, setLaunchOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);

@@ -1,25 +1,25 @@
 from threading import RLock
-from domain.graph.review import ReviewGraph
+from domain.graph.review import GraphReview
 from core.observability import observed, LogPrefix, log_error
 
 from domain.agent.base import Agent
-from models.domain.graph import CreateGraphReviewRequest, ReviewGraphConfig
+from models.domain.graph import CreateGraphReviewRequest, GraphReviewConfig
 from models.domain.run_record import GraphReviewRecord
 
 from service.agent_service import AgentService
 from service.store_service import StoreService
 
-class ReviewGraphService:
+class GraphReviewService:
 
     @observed(LogPrefix.GRAPH_SERVICE)
     def __init__(self, agent_service: AgentService, store_service: StoreService):
         self._agent_service = agent_service
         self._store_service = store_service
-        self._config: ReviewGraphConfig = ReviewGraphConfig.default_config()
-        self._graph: ReviewGraph = ReviewGraph()
+        self._config: GraphReviewConfig = GraphReviewConfig.default_config()
+        self._graph: GraphReview = GraphReview()
         self._lock = RLock()
 
-    def compile(self, request: CreateGraphReviewRequest) -> ReviewGraphConfig:
+    def compile(self, request: CreateGraphReviewRequest) -> GraphReviewConfig:
         """Compile the graph from the request's configuration; returns the
         configuration now loaded (echoed by the /graph/compile endpoint)."""
         with self._lock:
@@ -28,7 +28,7 @@ class ReviewGraphService:
             self._graph.compile(agents)
             return self._config
 
-    def get_config(self) -> ReviewGraphConfig:
+    def get_config(self) -> GraphReviewConfig:
         """The configuration currently loaded (the default before any compile)."""
         with self._lock:
             return self._config

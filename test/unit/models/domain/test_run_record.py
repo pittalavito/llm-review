@@ -3,14 +3,14 @@ the mapping from the final LangGraph ReviewState dict to the persistable
 record. This pins the stringly-typed state-key contract (agent_records,
 reviews_response, meta_review_response, ...) shared with domain/graph."""
 from models.domain.agent import AgentRole
-from models.domain.graph import CreateGraphReviewRequest, ReviewGraphConfig
+from models.domain.graph import CreateGraphReviewRequest, GraphReviewConfig
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord
 
 
 def _request(description: str = "una prova") -> CreateGraphReviewRequest:
     return CreateGraphReviewRequest(
         paper_id="other_p_pdf",
-        graph_config=ReviewGraphConfig.default_config(num_reviewers=2, max_rounds=3),
+        graph_config=GraphReviewConfig.default_config(num_reviewers=2, max_rounds=3),
         description=description,
     )
 

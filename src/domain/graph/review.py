@@ -97,7 +97,7 @@ class AuthorNode(AgentNode):
         }
 
 
-class ReviewGraph(Graph):
+class GraphReview(Graph):
 
     state_schema = ReviewState
 
