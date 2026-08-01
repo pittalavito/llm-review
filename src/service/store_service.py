@@ -59,7 +59,7 @@ class StoreService:
     def save_run(self, record: GraphReviewRecord) -> str:
         run_row = DbFactory.to_run_row(record)
         payload_row = DbFactory.to_run_payload_row(record)
-        agent_pairs = DbFactory.to_agent_pairs(record.run_id, record.agent_runs)
+        agent_pairs = DbFactory.to_agent_pairs(record.run_id, record.agent_record)
         return self._results_repository.save_rows(run_row, payload_row, agent_pairs)
 
     def list_runs(self) -> list[GraphReviewSummary]:

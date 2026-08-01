@@ -10,7 +10,6 @@ from models.domain.chat import ChatModelName, ChatModelResponseSchema
 
 
 class AgentRole(StrEnum):
-    """Prompt-versioning roles; the three reviewers share the single 'reviewer' role."""
     CHAT_AGENT = "chat"
     REVIEWER = "reviewer"
     META_REVIEWER = "meta_reviewer"
@@ -21,13 +20,9 @@ class AgentRole(StrEnum):
 class ContextMode(StrEnum):
     """The retrieval strategy that built / serves an index."""
     FULL_CONTEXT = "full_context"
-    """Whole paper, all sections concatenated — no query."""
     BM25 = "bm25"
-    """Chunk the paper, rank chunks by BM25 lexical score against the query."""
     EMBEDDING = "embedding"
-    """Chunk the paper, rank chunks by embedding cosine similarity to the query."""
     NONE = "none"
-    """The agent has no access to the context (e.g. a paper)."""
 
 
 class AgentRequestContext(BaseModel):
@@ -55,12 +50,15 @@ class AgentSystemPromptRequest(BaseModel):
 
 class CreateAgentRequest(BaseModel):
     """Request to create an agent with a specific role, model, temperature, and optional system prompt."""
+    paper_id: str | None = None    
+    
     model: ChatModelName
     temperature: float
     agent_role: AgentRole
     agent_index: int | None = None
+    
     prompt_version: str | None = None
-    paper_id: str | None = None    
+    
     context: AgentRequestContext = AgentRequestContext.default_none_context()
     prompt_request: AgentSystemPromptRequest | None = None
     retrieval_context_query: str | None = None    

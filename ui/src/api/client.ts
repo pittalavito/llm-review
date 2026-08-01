@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CompileGraphResponse, CreateGraphReviewRequest, CreatePaperRequest, GraphReviewRecord, GraphReviewSummary, IndexInfo, IndexPaperAccepted, IndexPaperRequest, Paper, PaperType, RagStrategy } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreatePaperRequest, GraphReviewConfigResponse, GraphReviewRecord, GraphReviewSummary, IndexInfo, IndexPaperAccepted, IndexPaperRequest, Paper, PaperType, RagStrategy } from './types';
 
 export class ApiError extends Error {}
 
@@ -86,9 +86,13 @@ export const getIndexStatus = (paperId: string, strategy: RagStrategy, strategyV
 /** Run history — lightweight summaries, most recent first. */
 export const listGraphRuns = () => get<GraphReviewSummary[]>('/graph/runs');
 
-/** Build the agents from the config and compile the review graph. */
+/** The configuration currently loaded in the graph service. */
+export const getGraphConfig = () => get<GraphReviewConfigResponse>('/graph/config');
+
+/** Build the agents from the config and compile the review graph; echoes the
+ * compiled configuration back. */
 export const compileGraph = (request: CreateGraphReviewRequest) =>
-  post<CompileGraphResponse>('/graph/compile', request);
+  post<GraphReviewConfigResponse>('/graph/compile', request);
 
 /** Run the compiled graph on the paper; persists and returns the full record. */
 export const invokeGraph = (request: CreateGraphReviewRequest) =>

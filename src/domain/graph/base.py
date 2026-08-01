@@ -84,18 +84,18 @@ class AgentNode(ABC):
         self.agent = agent
 
     def __call__(self, state: BaseGraphState) -> dict:
-        message = self.update_message(state)
+        message = self.set_message(state)
         response = self.agent.run(message)
         record = AgentResponseRecord.from_response(
             response, round=state.get("current_round", 0) + self.round_offset,
         )
-        return self.update_graph_state(state, response, record)
+        return self.update_state(state, response, record)
 
     @abstractmethod
-    def update_message(self, state: BaseGraphState) -> str:
+    def set_message(self, state: BaseGraphState) -> str:
         """Build the input message for the agent from the current state."""
 
     @abstractmethod
-    def update_graph_state(self, state: BaseGraphState, response: AgentResponse, record: AgentResponseRecord) -> dict:
+    def update_state(self, state: BaseGraphState, response: AgentResponse, record: AgentResponseRecord) -> dict:
         """Update the state based on the agent's response and the run record."""
 

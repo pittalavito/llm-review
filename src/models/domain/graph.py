@@ -27,7 +27,7 @@ class ReviewGraphConfig(BaseModel):
     max_rounds: int = Field(default=1, ge=1, le=5)
 
     @staticmethod
-    def default_config(num_reviewers: int = 3, max_rounds: int = 1) -> "ReviewGraphConfig":
+    def default_config(num_reviewers: int = 1, max_rounds: int = 1) -> "ReviewGraphConfig":
         """A mock-backed default (every role on the mock model) for smoke runs/tests."""
         def cfg() -> AgentConfig:
             return AgentConfig(model=ChatModelName.MOCK, temperature=0.4)

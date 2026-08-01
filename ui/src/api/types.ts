@@ -19,7 +19,7 @@ export interface ChatRequest {
 
 // controller/models.py :: ChatResponse — the full ping payload, treated as JSON by the FE.
 export interface ChatResponse {
-  response: string;
+  response: string | null;
   input_tokens: number | null;
   output_tokens: number | null;
   total_tokens: number | null;
@@ -156,17 +156,14 @@ export interface CreateGraphReviewRequest {
   run_description?: string;
 }
 
-// controller/models.py :: CompiledAgentInfo / CompileGraphResponse.
-export interface CompiledAgentInfo {
-  agent_role: string;
-  agent_index?: number | null;
+// models/controller.py :: GraphReviewConfigResponse — returned by both
+// GET /graph/config (current config) and POST /graph/compile (echo of the
+// compiled config).
+export interface GraphReviewConfigResponse {
+  graph_config: ReviewGraphConfig;
 }
 
-export interface CompileGraphResponse {
-  agents: Record<string, CompiledAgentInfo>;
-}
-
-// domain/models/run_record.py :: GraphReviewRecord — the fields the FE shows.
+// models/domain/run_record.py :: GraphReviewRecord — the fields the FE shows.
 export interface GraphReviewRecord {
   run_id: string;
   timestamp: string;
@@ -174,8 +171,8 @@ export interface GraphReviewRecord {
   run_description?: string | null;
   decision: string | null;
   total_rounds: number;
-  reviews?: string[] | null;
-  meta_review?: Record<string, unknown> | null;
+  reviews_response?: string[] | null;
+  meta_review_response?: Record<string, unknown> | null;
   area_chair_response?: Record<string, unknown> | null;
   author_response?: Record<string, unknown> | null;
 }

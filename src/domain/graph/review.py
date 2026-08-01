@@ -23,7 +23,7 @@ class NodeNames(StrEnum):
 
 class ReviewerNode(AgentNode):
 
-    def update_message(self, state: ReviewState) -> str:
+    def set_message(self, state: ReviewState) -> str:
         revised = state.get("revised_sections")
         if not revised:
             return "Review the paper provided in your context and produce your structured assessment."
@@ -39,7 +39,7 @@ class ReviewerNode(AgentNode):
             f"Revised sections:\n{sections}"
         )
 
-    def update_graph_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
+    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
         return {
             "reviews_response": [response.response_schema.model_dump_json()],
             "agent_response_record": [record.model_dump()]
@@ -48,12 +48,12 @@ class ReviewerNode(AgentNode):
 
 class MetaReviewerNode(AgentNode):
 
-    def update_message(self, state: ReviewState) -> str:
+    def set_message(self, state: ReviewState) -> str:
         reviews = state.get("reviews_response") or []
         joined = "\n\n".join(f"- {review}" for review in reviews) if reviews else "(no reviews)"
         return f"Synthesize the following {len(reviews)} reviews into a meta-review:\n\n{joined}"
 
-    def update_graph_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
+    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
         return {
             "meta_review_response": response.response_schema.model_dump(),
             "current_round": state["current_round"] + 1,
@@ -64,10 +64,10 @@ class MetaReviewerNode(AgentNode):
 class AreaChairNode(AgentNode):
     round_offset = -1
 
-    def update_message(self, state: ReviewState) -> str:
+    def set_message(self, state: ReviewState) -> str:
         return f"Make the final decision based on the meta-review:\n\n{state.get('meta_review_response')}"
 
-    def update_graph_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
+    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
         payload = response.response_schema
         return {
             "area_chair_response": payload.model_dump(),
@@ -80,14 +80,14 @@ class AuthorNode(AgentNode):
 
     round_offset = -1
 
-    def update_message(self, state: ReviewState) -> str:
+    def set_message(self, state: ReviewState) -> str:
         reviews = state.get("reviews_response") or []
         return (
             f"Write a rebuttal and revisions addressing the decision "
             f"({state.get('area_chair_response')}) and {len(reviews)} reviews."
         )
 
-    def update_graph_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
+    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
         payload = response.response_schema
         return {
             "author_response": payload.model_dump(),

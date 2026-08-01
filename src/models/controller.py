@@ -5,6 +5,7 @@ from models.domain.graph import ReviewGraphConfig
 from models.domain.paper import Paper
 from models.domain.retrieval import RagStrategy
 
+
 class ChatRequest(BaseModel):
     """Basic chat request: model, temperature and the message — nothing else."""
     model: ChatModelName
@@ -21,6 +22,17 @@ class ChatResponse(BaseModel):
     output_tokens: int | None = None
     total_tokens: int | None = None
     parsing_error: str | None = None
+    
+    @classmethod
+    def from_response(cls, chat_response) -> "ChatResponse":
+        """Construct a ChatResponse from an AgentResponse."""
+        return cls(
+            response=getattr(chat_response.response_schema, "response", None),
+            input_tokens=chat_response.input_tokens,
+            output_tokens=chat_response.output_tokens,
+            total_tokens=chat_response.total_tokens,
+            parsing_error=str(chat_response.parsing_error) if chat_response.parsing_error else None,
+        )
     
     
 class CreatePaperRequest(BaseModel):
@@ -51,6 +63,7 @@ class IndexPaperAccepted(BaseModel):
     strategy: RagStrategy
     strategy_version: str
 
+
 class CreateGraphReviewRequest(BaseModel):
     """Request to run the review graph on a paper with a given configuration."""
     paper_id: str
@@ -64,14 +77,11 @@ class CompiledAgentInfo(BaseModel):
     agent_index: int | None = None
 
 
-class CompileGraphResponse(BaseModel):
-    """The compiled committee, keyed by agent name (``reviewer_1``…)."""
-    agents: dict[str, CompiledAgentInfo]
+class GraphReviewConfigResponse(BaseModel):
+    """Response containing the current graph configuration."""
+    graph_config: ReviewGraphConfig
     
     @classmethod
-    def from_agents(cls, agents: dict[str, CompiledAgentInfo]) -> "CompileGraphResponse":
-        """Construct a CompileGraphResponse from a dict of agent names to CompiledAgentInfo."""
-        return cls(agents={
-            name: CompiledAgentInfo(agent_role=str(agent.agent_role), agent_index=agent.agent_index)
-            for name, agent in agents.items()
-        })
+    def from_response(cls, graph_config: ReviewGraphConfig) -> "GraphReviewConfigResponse":
+        """Construct a GraphConfigResponse from a ReviewGraphConfig."""
+        return cls(graph_config=graph_config)

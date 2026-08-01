@@ -19,18 +19,19 @@ class ReviewGraphService:
         self._graph: ReviewGraph = ReviewGraph()
         self._lock = RLock()
 
-    def compile(self, request: CreateGraphReviewRequest) -> dict[str, Agent]:
-        """Compile the graph with the given request's configuration and return the agent config."""
+    def compile(self, request: CreateGraphReviewRequest) -> ReviewGraphConfig:
+        """Compile the graph from the request's configuration; returns the
+        configuration now loaded (echoed by the /graph/compile endpoint)."""
         with self._lock:
             agents = self._agent_service.build_agents_for_graph(request)
             self._config = request.graph_config
             self._graph.compile(agents)
-            return self._graph.get_config()
+            return self._config
 
-    def get_config(self) -> dict[str, Agent]:
-        """Return the current graph configuration."""
+    def get_config(self) -> ReviewGraphConfig:
+        """The configuration currently loaded (the default before any compile)."""
         with self._lock:
-            return self._graph.get_config()
+            return self._config
 
     @observed(LogPrefix.GRAPH_SERVICE)
     def invoke(self, request: CreateGraphReviewRequest) -> GraphReviewRecord:

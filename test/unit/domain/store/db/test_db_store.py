@@ -39,10 +39,10 @@ class Utils:
     def run_record() -> GraphReviewRecord:
         return GraphReviewRecord(
             run_id="RID", timestamp="2026-01-01", paper_id="other_p_pdf", run_description="d",
-            decision="accept", total_rounds=2, reviews=["r1"], meta_review={"overall_score": 7},
+            decision="accept", total_rounds=2, reviews_response=["r1"], meta_review_response={"overall_score": 7},
             area_chair_response={"decision": "accept"}, author_response={"rebuttal": "ok"},
             retrieval_metadata={"k": 1}, graph_config={"max_rounds": 3},
-            agent_runs=[Utils.agent_run()],
+            agent_record=[Utils.agent_run()],
         )
 
     @staticmethod
@@ -88,19 +88,19 @@ class TestAdapter:
         agent_row = ReviewAgentRunTable(id=1, run_id="R1", agent_role="reviewer", agent_index=1, round=0, input_message="m", context_used="c")
         agent_payload = ReviewAgentRunPayloadTable(agent_run_id=1, response_payload={"rating": 6})
         record = Adapter.to_run_record(run_row, payload, [agent_row], {1: agent_payload})
-        assert record.reviews == ["rev"]
+        assert record.reviews_response == ["rev"]
         assert record.graph_config == {"max_rounds": 3}
-        assert len(record.agent_runs) == 1
-        assert record.agent_runs[0].agent_role is AgentRole.REVIEWER and record.agent_runs[0].agent_index == 1
-        assert record.agent_runs[0].response_payload == {"rating": 6}
+        assert len(record.agent_record) == 1
+        assert record.agent_record[0].agent_role is AgentRole.REVIEWER and record.agent_record[0].agent_index == 1
+        assert record.agent_record[0].response_payload == {"rating": 6}
 
     def test_to_run_record_degrades_when_payload_missing(self):
         run_row = ReviewRunTable(run_id="R1", timestamp="t", paper_id="other_p_pdf", decision=None, total_rounds=0)
         record = Adapter.to_run_record(run_row, None, [], {})
-        assert record.reviews is None
-        assert record.meta_review is None
+        assert record.reviews_response is None
+        assert record.meta_review_response is None
         assert record.graph_config == {}
-        assert record.agent_runs == []
+        assert record.agent_record == []
 
     def test_to_agent_run_missing_payload_yields_empty_payload(self):
         row = ReviewAgentRunTable(id=2, run_id="R1", agent_role="meta_reviewer", round=1, input_message="m")
@@ -127,7 +127,7 @@ class TestFactory:
 
     def test_to_run_row_meta_score_none_when_no_meta(self):
         record = Utils.run_record()
-        record.meta_review = None
+        record.meta_review_response = None
         assert Factory.to_run_row(record).meta_overall_score is None
 
     def test_to_run_payload_row_is_verbatim(self):

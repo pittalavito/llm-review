@@ -77,16 +77,16 @@ class Adapter:
             run_id=run_row.run_id,
             timestamp=run_row.timestamp,
             paper_id=run_row.paper_id,
-            run_description=run_row.run_description,
+            description=run_row.run_description,
             decision=run_row.decision,
             total_rounds=run_row.total_rounds,
-            reviews=payload.reviews if payload else None,
-            meta_review=payload.meta_review if payload else None,
+            reviews_response=payload.reviews if payload else None,
+            meta_review_response=payload.meta_review if payload else None,
             area_chair_response=payload.area_chair_response if payload else None,
             author_response=payload.author_response if payload else None,
             retrieval_metadata=payload.retrieval_metadata if payload else None,
             graph_config=payload.graph_config if payload else {},
-            agent_runs=[Adapter.to_agent_run(row, agent_payloads.get(row.id)) for row in agent_rows],
+            agent_record=[Adapter.to_agent_run(row, agent_payloads.get(row.id)) for row in agent_rows],
         )
 
     @staticmethod
@@ -160,11 +160,11 @@ class Factory:
             run_id=record.run_id,
             timestamp=record.timestamp,
             paper_id=record.paper_id,
-            run_description=record.run_description,
+            run_description=record.description,
             decision=record.decision,
             total_rounds=record.total_rounds,
             max_rounds=record.graph_config.get("max_rounds"),
-            meta_overall_score=(record.meta_review or {}).get("overall_score"),
+            meta_overall_score=(record.meta_review_response or {}).get("overall_score"),
         )
 
     @staticmethod
@@ -172,8 +172,8 @@ class Factory:
         """Build the ``review_run_payload`` row (verbatim LLM payloads)."""
         return ReviewRunPayloadTable(
             run_id=record.run_id,
-            reviews=record.reviews,
-            meta_review=record.meta_review,
+            reviews=record.reviews_response,
+            meta_review=record.meta_review_response,
             area_chair_response=record.area_chair_response,
             author_response=record.author_response,
             retrieval_metadata=record.retrieval_metadata,

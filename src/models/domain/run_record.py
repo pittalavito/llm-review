@@ -10,8 +10,6 @@ class AgentResponseRecord(BaseModel):
     agent_role: AgentRole
     agent_index: int | None = None
     response_schema: SerializeAsAny[ChatModelResponseSchema] | None = None
-    """The typed payload instance, only available in-process: DB reads and
-    dict round-trips rebuild the data from ``response_payload`` instead."""
     response_payload: dict
     input_message: str | None = None
     context_used: str | None = None
@@ -44,16 +42,18 @@ class GraphReviewRecord(BaseModel):
     run_id: str
     timestamp: str
     paper_id: str
-    run_description: str | None = None
+    description: str | None = None
     decision: str | None
     total_rounds: int
-    reviews: list[str] | None = None
-    meta_review: dict | None
+    graph_config: dict
+    
+    reviews_response: list[str] | None = None
+    meta_review_response: dict | None
     area_chair_response: dict | None = None
     author_response: dict | None
+    
     retrieval_metadata: dict | None
-    graph_config: dict
-    agent_runs: list[AgentResponseRecord]
+    agent_record: list[AgentResponseRecord]
     
     @classmethod
     def from_result(cls, result: dict, request: CreateGraphReviewRequest, run_id: str) -> "GraphReviewRecord":
@@ -66,16 +66,16 @@ class GraphReviewRecord(BaseModel):
             run_id=run_id,
             timestamp=datetime.now(timezone.utc).isoformat(),
             paper_id=request.paper_id,
-            run_description=request.run_description or None,
+            description=request.run_description or None,
             decision=result.get("decision"),
             total_rounds=result.get("current_round", 0),
-            reviews=result.get("reviews_response"),
-            meta_review=result.get("meta_review_response"),
+            reviews_response=result.get("reviews_response"),
+            meta_review_response=result.get("meta_review_response"),
             area_chair_response=result.get("area_chair_response"),
             author_response=result.get("author_response"),
             retrieval_metadata=result.get("retrieval_metadata"),
             graph_config=request.graph_config.model_dump(),
-            agent_runs=agent_runs,
+            agent_record=agent_runs,
         )
 
 

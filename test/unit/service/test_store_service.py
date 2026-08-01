@@ -146,9 +146,9 @@ def service(monkeypatch) -> StoreService:
 def _run_record() -> GraphReviewRecord:
     return GraphReviewRecord(
         run_id="RID", timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2,
-        reviews=["r"], meta_review={"overall_score": 7}, author_response=None, retrieval_metadata=None,
+        reviews_response=["r"], meta_review_response={"overall_score": 7}, author_response=None, retrieval_metadata=None,
         graph_config={"max_rounds": 3},
-        agent_runs=[AgentResponseRecord(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
+        agent_record=[AgentResponseRecord(agent_role=AgentRole.REVIEWER, agent_index=1, round=0, input_message="m", context_used=None, response_payload={"rating": 6})],
     )
 
 
@@ -171,10 +171,10 @@ class TestRuns:
     def test_get_run_builds_full_record_via_adapter(self, service):
         record = service.get_run("R1")
         assert isinstance(record, GraphReviewRecord)
-        assert record.reviews == ["rev"]
+        assert record.reviews_response == ["rev"]
         assert record.graph_config == {"max_rounds": 3}
-        assert record.agent_runs[0].agent_role is AgentRole.REVIEWER and record.agent_runs[0].agent_index == 1
-        assert record.agent_runs[0].response_payload == {"rating": 6}
+        assert record.agent_record[0].agent_role is AgentRole.REVIEWER and record.agent_record[0].agent_index == 1
+        assert record.agent_record[0].response_payload == {"rating": 6}
 
     def test_build_run_id_delegates_to_repository(self, service):
         assert service.build_run_id("other_p_pdf") == "built:other_p_pdf"

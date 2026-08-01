@@ -40,7 +40,6 @@ class ChatResponse:
     the LangChain type never leaks past this layer."""
     response_schema: ChatModelResponseSchema | None
     raw: AIMessage | None
-    """None when no LLM call happened (e.g. token estimation)."""
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None

@@ -27,7 +27,7 @@ class AgentService:
         system_prompt = self._build_system_prompt(agent_role=request.agent_role, version_label=request.prompt_version)
         agent = AgentFactory.create_agent(request=request, chat=chat, system_prompt=system_prompt)
         context = self._retrieval_service.get_agent_context(request)
-        if context is not None:  # NONE mode retrieves nothing — set_context would refuse it
+        if context is not None:
             agent.set_context(context)
         return agent
     
