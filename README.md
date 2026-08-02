@@ -1,4 +1,4 @@
-# llm-review-2.0
+# llm-review
 
 ## 2.1 Abstract
 
