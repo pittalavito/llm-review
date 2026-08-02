@@ -159,11 +159,11 @@ class PaperAuthorTable(SQLModel, table=True):
 
 
 class PaperTable(SQLModel, table=True):
-    """Catalog of papers available to the pipeline. ``paper_id`` is the
-    business key in the form ``<paper-type>_<name>_<extension>`` (see
-    ``domain.store.db.store.Factory.build_paper_id``); the paper file lives in
-    the files store under the same id. OpenReview metadata columns are NULL for
-    OTHER papers; num_graph_review is a snapshot of the paper's run count."""
+    """Catalog of papers available to the pipeline. ``paper_id`` is an opaque
+    generated uid ending with the file-format segment (``…_pdf`` / ``…_txt``,
+    see ``domain.store.db.store.Factory.build_paper_id``); the paper file lives
+    in the files store under the same id. OpenReview metadata columns are NULL
+    for OTHER papers; num_graph_review is a snapshot of the paper's run count."""
 
     __tablename__ = "paper" # type: ignore
     __table_args__ = (

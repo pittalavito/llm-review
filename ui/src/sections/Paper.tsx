@@ -27,14 +27,10 @@ function extensionOf(name: string): string {
   return dot === -1 ? '' : name.slice(dot + 1).toLowerCase();
 }
 
-/** Mirror of the backend build_paper_id: <paper-type>_<stem>_<extension>. */
-function previewPaperId(paperType: string, fileName: string): string {
-  const dot = fileName.lastIndexOf('.');
-  const stem = dot === -1 ? fileName : fileName.slice(0, dot);
-  const ext = extensionOf(fileName);
-  const parts = [paperType.toLowerCase(), stem];
-  if (ext) parts.push(ext);
-  return parts.join('_');
+/** File name without its extension — prefill for the user-typed paper name. */
+function stemOf(name: string): string {
+  const dot = name.lastIndexOf('.');
+  return dot === -1 ? name : name.slice(0, dot);
 }
 
 /** File content -> base64 string (chunked to keep the call stack small). */
@@ -152,6 +148,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
   const [paperType, setPaperType] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState('');
+  const [paperName, setPaperName] = useState('');
   const [description, setDescription] = useState('');
   const [authors, setAuthors] = useState<AuthorDraft[]>([]);
   const [saving, setSaving] = useState(false);
@@ -180,7 +177,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  function onFileChange(selected: File | null) {
+  async function onFileChange(selected: File | null) {
     setResult(null);
     setSubmitError('');
     if (!selected) {
@@ -195,8 +192,22 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
       if (fileRef.current) fileRef.current.value = '';
       return;
     }
+    // Real PDFs start with "%PDF": a saved OpenReview challenge page does not.
+    if (extensionOf(selected.name) === 'pdf') {
+      const head = new TextDecoder().decode(await selected.slice(0, 5).arrayBuffer());
+      if (!head.startsWith('%PDF')) {
+        setFile(null);
+        setFileError('Il file non è un PDF valido — probabilmente è la pagina di verifica di OpenReview salvata come .pdf. Riapri il link e riscarica il paper.');
+        if (fileRef.current) fileRef.current.value = '';
+        return;
+      }
+    }
     setFile(selected);
     setFileError('');
+    // Prefill the user-typed name from the file when still empty (OTHER flow).
+    if (!isOpenReview) {
+      setPaperName((prev) => prev.trim() === '' ? stemOf(selected.name) : prev);
+    }
   }
 
   /** Parse the pasted JSON as the user types: preview + author prefill. */
@@ -229,11 +240,12 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
   }
 
   const canSubmitOpenReview = parsed !== null && forumId.trim() !== '' && parsed.title !== '' && file !== null;
+  const canSubmitOther = file !== null && paperName.trim() !== '';
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (saving) return;
-    if (isOpenReview ? !canSubmitOpenReview : !file) return;
+    if (isOpenReview ? !canSubmitOpenReview : !canSubmitOther) return;
 
     setSaving(true);
     setResult(null);
@@ -256,17 +268,19 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
         })
         : await createPaper({
           paper: {
-            paper_id: previewPaperId(paperType, file!.name),
-            paper_name: file!.name,
+            paper_id: '',  // generated (uid) by the BE
+            paper_name: paperName.trim(),
             paper_type: paperType as PaperModel['paper_type'],
             description: description.trim() || null,
           },
+          file_name: file!.name,
           file_bytes: await fileToBase64(file!),
           authors: toRequestAuthors(authors),
         });
       setResult(saved);
       // Form stays open, reset for the next upload.
       setFile(null);
+      setPaperName('');
       setDescription('');
       setAuthors([]);
       setForumId('');
@@ -323,6 +337,17 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
                   onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
                 />
                 {fileError && <p className="paper-form__error">{fileError}</p>}
+
+                <label className="paper-form__label" htmlFor="paper-name">Nome paper</label>
+                <input
+                  className="paper-form__input"
+                  id="paper-name"
+                  type="text"
+                  placeholder="nome leggibile del paper"
+                  value={paperName}
+                  disabled={saving}
+                  onChange={(e) => setPaperName(e.target.value)}
+                />
               </>
             )}
 
@@ -388,20 +413,27 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
               onChange={(e) => setDescription(e.target.value)}
             />
 
-            {!isOpenReview && file && (
-              <p className="paper-form__preview">
-                paper_id: <code>{previewPaperId(paperType, file.name)}</code>
-              </p>
-            )}
           </div>
 
           {/* ── Right column: JSON (OPEN_REVIEW) or authors (OTHER) ── */}
           <div className="paper-form__col">
             {isOpenReview ? (
               <>
-                <label className="paper-form__label" htmlFor="paper-notes-json">
+                <label className="paper-form__label" htmlFor="paper-notes-file">
                   Response JSON di <code>/notes?forum=&lt;forum_id&gt;&amp;limit=1000</code>
                 </label>
+                <input
+                  className="paper-form__file"
+                  id="paper-notes-file"
+                  type="file"
+                  accept=".json,application/json"
+                  disabled={saving}
+                  onChange={async (e) => {
+                    const selected = e.target.files?.[0];
+                    if (selected) onNotesJsonChange(await selected.text());
+                  }}
+                />
+                <span className="acp__hint">oppure incolla qui sotto:</span>
                 <textarea
                   className="paper-form__textarea paper-form__json"
                   id="paper-notes-json"
@@ -500,7 +532,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
             <button
               className="btn btn--primary"
               type="submit"
-              disabled={saving || (isOpenReview ? !canSubmitOpenReview : !file)}
+              disabled={saving || (isOpenReview ? !canSubmitOpenReview : !canSubmitOther)}
             >
               {saving ? 'Salvataggio…' : 'Salva paper'}
             </button>

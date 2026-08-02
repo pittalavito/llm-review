@@ -6,7 +6,7 @@ static-method classes: ``Adapter`` (rows -> domain models, reads) and ``Factory`
 area chair, author) are never persisted twice: ``Adapter.to_run_record``
 DERIVES them from the agent traces, the single source of truth.
 """
-from pathlib import PurePosixPath
+from uuid import uuid4
 
 from domain.store.db.author_repository import DbAuthorRepository
 from domain.store.db.instruction_repository import DbInstructionRepository
@@ -174,23 +174,18 @@ class Factory:
     """Write seam: domain models -> DB rows."""
 
     @staticmethod
-    def build_paper_id(paper_type: PaperType, file_name: str) -> str:
-        """Catalog id in the form ``<paper-type>_<name>_<extension>``
-        (e.g. ``other_attention_pdf``). ``file_name`` may be a bare name or a
-        relative path; directories and the extension dot are dropped."""
-        path = PurePosixPath(str(file_name).replace("\\", "/"))
-        extension = path.suffix.lstrip(".").lower()
-        parts = [paper_type.value.lower(), path.stem]
-        if extension:
-            parts.append(extension)
-        return "_".join(parts)
+    def build_paper_id(file_format: str) -> str:
+        """Opaque catalog id: a generated uid with the file format as trailing
+        segment (e.g. ``a1b2…f_pdf``) — the files store reads the format from
+        that suffix. The id carries no meaning: title/name live on the row."""
+        return f"{uuid4().hex}_{file_format.lower()}"
 
     @staticmethod
-    def to_paper_row(paper: Paper) -> PaperTable:
-        """Build a new ``PaperTable`` row from a ``Paper`` (``id`` DB-generated)."""
-        paper_id = Factory.build_paper_id(paper.paper_type, paper.paper_name)
+    def to_paper_row(paper: Paper, file_format: str) -> PaperTable:
+        """Build a new ``PaperTable`` row from a ``Paper`` (``id`` DB-generated,
+        ``paper_id`` generated here from ``file_format``)."""
         return PaperTable(
-            paper_id=paper_id,
+            paper_id=Factory.build_paper_id(file_format),
             paper_name=paper.paper_name,
             paper_type=paper.paper_type.value,
             description=paper.description,

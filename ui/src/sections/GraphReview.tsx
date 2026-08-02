@@ -7,7 +7,7 @@
  * own AgentConfig; the config persists in localStorage. "Lancia review" maps
  * it onto the BE contract (per-reviewer configs, prompt composed on the BE
  * from system_prompt_request) and drives POST /graph/compile + /graph/invoke. */
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ApiError, compileGraph, getGraphConfig, invokeGraph, listGraphRuns, listPapers } from '../api/client';
 import type {
   AgentConfig, BackendAgentConfig, ContextMode, CreateGraphReviewRequest,
@@ -573,6 +573,8 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
 function RunHistoryModal({ onClose }: { onClose: () => void }) {
   const [runs, setRuns] = useState<GraphReviewSummary[] | null>(null);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [expandedRunId, setExpandedRunId] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -589,10 +591,15 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  const visible = runs === null
+    ? null
+    : runs.filter((run) =>
+      (run.description ?? '').toLowerCase().includes(search.trim().toLowerCase()));
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal modal--wide"
+        className="modal modal--full"
         role="dialog"
         aria-modal="true"
         aria-labelledby="run-history-title"
@@ -603,44 +610,89 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
           <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
         </div>
 
+        <div className="prompts__filters">
+          <input
+            className="paper-form__input prompts__filters-search"
+            type="search"
+            placeholder="cerca nella descrizione delle run…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
         {error && <p className="paper-form__error">{error}</p>}
-        {!error && runs === null && <p className="paper-list__empty">Caricamento…</p>}
-        {runs !== null && runs.length === 0 && (
-          <p className="paper-list__empty">Nessuna run nel database.</p>
+        {!error && visible === null && <p className="paper-list__empty">Caricamento…</p>}
+        {visible !== null && visible.length === 0 && (
+          <p className="paper-list__empty">
+            {search.trim() ? 'Nessuna run corrisponde alla ricerca.' : 'Nessuna run nel database.'}
+          </p>
         )}
-        {runs !== null && runs.length > 0 && (
+        {visible !== null && visible.length > 0 && (
           <div className="paper-list__scroll">
             <table className="paper-list">
               <thead>
                 <tr>
-                  <th>run_id</th>
+                  <th></th>
                   <th>timestamp</th>
                   <th>paper</th>
                   <th>decision</th>
                   <th>round</th>
-                  <th>max round</th>
                   <th>meta score</th>
                   <th>descrizione</th>
                 </tr>
               </thead>
               <tbody>
-                {runs.map((run) => (
-                  <tr key={run.run_id}>
-                    <td className="paper-list__id">{run.run_id}</td>
-                    <td>{run.timestamp}</td>
-                    <td className="paper-list__id">{run.paper_id}</td>
-                    <td>{run.decision || '—'}</td>
-                    <td>{run.total_rounds}</td>
-                    <td>{run.max_rounds ?? '—'}</td>
-                    <td>{run.meta_overall_score ?? '—'}</td>
-                    <td className="paper-list__desc">{run.description || '—'}</td>
-                  </tr>
+                {visible.map((run) => (
+                  <Fragment key={run.run_id}>
+                    <tr
+                      className={'prompts__row' + (expandedRunId === run.run_id ? ' prompts__row--open' : '')}
+                      onClick={() => setExpandedRunId(expandedRunId === run.run_id ? null : run.run_id)}
+                    >
+                      <td className="rg-history__toggle">{expandedRunId === run.run_id ? '▾' : '▸'}</td>
+                      <td>{run.timestamp}</td>
+                      <td className="paper-list__id">{run.paper_id}</td>
+                      <td>{run.decision || '—'}</td>
+                      <td>{run.total_rounds}{run.max_rounds != null ? ` / ${run.max_rounds}` : ''}</td>
+                      <td>{run.meta_overall_score ?? '—'}</td>
+                      <td className="paper-list__desc">{run.description || '—'}</td>
+                    </tr>
+                    {expandedRunId === run.run_id && (
+                      <tr className="prompts__expand">
+                        <td colSpan={7}>
+                          <div className="prompts__fields">
+                            <Field label="run_id" value={run.run_id} />
+                            <Field label="timestamp" value={run.timestamp} />
+                            <Field label="paper" value={run.paper_id} />
+                            <Field label="decision" value={run.decision || '—'} />
+                            <Field label="round" value={`${run.total_rounds}${run.max_rounds != null ? ` / max ${run.max_rounds}` : ''}`} />
+                            <Field label="meta score" value={String(run.meta_overall_score ?? '—')} />
+                            <Field label="descrizione" value={run.description || '—'} />
+                          </div>
+                          <p className="rg-history__todo">
+                            Qui si aprirà il flusso completo della review — review dei
+                            reviewer, meta review, rebuttal e decisione, round per round.
+                            In preparazione.
+                          </p>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/** One labeled field inside the expanded run panel (prompts-accordion style). */
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="prompts__field">
+      <span className="prompts__field-label">{label}</span>
+      <span className="prompts__field-value">{value}</span>
     </div>
   );
 }

@@ -7,9 +7,11 @@ from models.domain.paper import Author, CreateOpenReviewPaperRequest as DomainCr
 class CreatePaperRequest(BaseModel):
     """Request model for creating a new paper. ``file_bytes`` travels as a
     base64 string in the JSON body (raw bytes would not survive UTF-8) and is
-    decoded to raw bytes by pydantic. ``authors`` (optional) are linked to the
-    paper in list order."""
+    decoded to raw bytes by pydantic. ``paper.paper_name`` is the user-typed
+    name; ``file_name`` is the uploaded file's original name, from which the
+    BE takes the format. ``authors`` (optional) are linked in list order."""
     paper: Paper
+    file_name: str
     file_bytes: Base64Bytes = Field(..., description="The paper's file content, base64-encoded.")
     authors: list[Author] = []
 
@@ -31,8 +33,12 @@ class CreateOpenReviewPaperRequest(BaseModel):
     notes: list[dict]
 
     def to_domain(self) -> DomainCreateOpenReviewPaperRequest:
-        """Controller request -> domain request (field-for-field)."""
-        return DomainCreateOpenReviewPaperRequest.model_validate(self.model_dump())
+        """Controller request -> domain request (field-for-field). ``file_bytes``
+        is taken from the attribute: ``model_dump()`` would RE-ENCODE the
+        Base64Bytes field to base64, corrupting the stored file."""
+        data = self.model_dump()
+        data["file_bytes"] = bytes(self.file_bytes)
+        return DomainCreateOpenReviewPaperRequest.model_validate(data)
 
 
 class CreatePaperResponse(BaseModel):

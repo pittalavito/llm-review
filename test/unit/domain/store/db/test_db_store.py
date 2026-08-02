@@ -169,13 +169,20 @@ class TestAdapter:
 
 
 class TestFactory:
-    def test_to_paper_row_derives_id_and_unwraps_enum(self):
-        row = Factory.to_paper_row(Utils.paper())
+    def test_to_paper_row_generates_uid_id_and_unwraps_enum(self):
+        row = Factory.to_paper_row(Utils.paper(), "pdf")
         assert row.paper_type == "OPEN_REVIEW"  # enum -> str value
-        assert row.paper_id == "open_review_p_pdf"  # derived from type + file name
+        assert row.paper_id.endswith("_pdf")  # format suffix for the files store
+        assert len(row.paper_id) == 32 + len("_pdf")  # uuid4 hex + suffix
+        assert row.paper_name == "p.pdf"  # name travels untouched
         assert row.human_decision == "accept"
         assert row.num_graph_review == 3
         assert row.id is None  # DB-generated
+
+    def test_to_paper_row_ids_are_unique(self):
+        first = Factory.to_paper_row(Utils.paper(), "pdf")
+        second = Factory.to_paper_row(Utils.paper(), "pdf")
+        assert first.paper_id != second.paper_id
 
     def test_to_author_row_drops_position_and_id(self):
         author = Author(

@@ -38,6 +38,8 @@ Thumbs.db
 resource/db/
 
 # paper
-resource/paper/*.pdf
+resource/papers/*.pdf
 resource/other
+
+resource/dataset/
 

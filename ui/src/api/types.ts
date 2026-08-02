@@ -55,9 +55,12 @@ export interface Author {
 }
 
 // models/controller/paper.py :: CreatePaperRequest — file_bytes is base64 in
-// the JSON body; authors (optional) are linked to the paper in list order.
+// the JSON body; paper.paper_name is the user-typed name, file_name carries
+// the original file name (the BE takes the format and generates the uid
+// paper_id); authors (optional) are linked to the paper in list order.
 export interface CreatePaperRequest {
   paper: Paper;
+  file_name: string;
   file_bytes: string;
   authors?: Author[];
 }

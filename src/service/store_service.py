@@ -43,11 +43,11 @@ class StoreService:
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
         self.seed_instructions(DEFAULT_INSTRUCTION_SEEDS)
     
-    def save_paper(self, paper: Paper, data: bytes, authors: list[Author] | None = None) -> Paper | None:
-        """Create the catalog row, store the file under its paper_id and link
-        the authors (deduplicated, in list order). None when a paper with the
-        same id already exists."""
-        db_row = self.create_paper(paper)
+    def save_paper(self, paper: Paper, data: bytes, file_format: str, authors: list[Author] | None = None) -> Paper | None:
+        """Create the catalog row (paper_id generated as uid + ``file_format``
+        suffix), store the file under it and link the authors (deduplicated,
+        in list order). None when a paper with the same id already exists."""
+        db_row = self.create_paper(paper, file_format)
         if db_row is None:
             return None
         self.save_paper_file(db_row.paper_id, data)
@@ -98,8 +98,8 @@ class StoreService:
         row = self._papers_repository.get_by_id(paper_id)
         return DbAdapter.to_paper(row) if row is not None else None
 
-    def create_paper(self, paper: Paper) -> Paper | None:
-        to_row = DbFactory.to_paper_row(paper)
+    def create_paper(self, paper: Paper, file_format: str) -> Paper | None:
+        to_row = DbFactory.to_paper_row(paper, file_format)
         row = self._papers_repository.create(to_row)
         return DbAdapter.to_paper(row) if row is not None else None
 

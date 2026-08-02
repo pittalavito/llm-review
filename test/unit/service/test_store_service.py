@@ -220,9 +220,11 @@ class TestPapers:
         assert paper.num_graph_review == 3
 
     def test_create_paper_roundtrips_through_factory_and_adapter(self, service):
-        result = service.create_paper(Paper(paper_id="ignored", paper_name="n.pdf", paper_type=PaperType.OTHER))
+        result = service.create_paper(Paper(paper_id="ignored", paper_name="My Paper", paper_type=PaperType.OTHER), "pdf")
         assert isinstance(result, Paper)
-        assert result.id == 99 and result.paper_id == "other_n_pdf"  # Factory derives the id from name+type
+        assert result.id == 99
+        assert result.paper_id.endswith("_pdf")  # generated uid + format suffix
+        assert result.paper_name == "My Paper"  # user-typed name, untouched
         assert FakePapers.created.paper_type == "OTHER"  # Factory unwrapped the enum
 
 

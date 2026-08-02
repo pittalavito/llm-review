@@ -5,6 +5,21 @@
    ═══════════════════════════════════════════════════════ */
 
 /* ── Fullscreen modal variant ─────────────────────────── */
+/* ── Run history: accordion rows (shared prompts__* accordion styles) ── */
+.rg-history__toggle {
+  width: 24px;
+  color: var(--c-text-muted);
+}
+
+.rg-history__todo {
+  margin-top: var(--s-2);
+  padding: var(--s-3);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--r-md);
+  color: var(--c-text-muted);
+  font-size: var(--text-sm);
+}
+
 .modal--full {
   max-width: min(1240px, 96vw);
   width: 96vw;
