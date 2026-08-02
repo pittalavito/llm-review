@@ -7,14 +7,15 @@
  * own AgentConfig; the config persists in localStorage. "Lancia review" maps
  * it onto the BE contract (per-reviewer configs, prompt composed on the BE
  * from system_prompt_request) and drives POST /graph/compile + /graph/invoke. */
-import { Fragment, useEffect, useState } from 'react';
-import { ApiError, compileGraph, getGraphConfig, invokeGraph, listGraphRuns, listPapers } from '../api/client';
+import { useEffect, useState } from 'react';
+import { ApiError, compileGraph, getGraphConfig, getGraphRun, invokeGraph, listGraphRuns, listPapers } from '../api/client';
 import type {
   AgentConfig, BackendAgentConfig, ContextMode, CreateGraphReviewRequest,
   GraphConfig, GraphReviewConfig, GraphReviewRecord, GraphReviewSummary, Paper,
 } from '../api/types';
 import ActionCard from '../components/ActionCard';
 import AgentConfigPanel from '../components/AgentConfigPanel';
+import RunFlowView from '../components/RunFlowView';
 
 const STORAGE_KEY = 'llm-review-2.graph-config';
 
@@ -291,13 +292,6 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
     }
   }
 
-  function onReset() {
-    setConfig(defaultConfig());
-    setSelected(null);
-    setCompileNote('');
-    setCompileError('');
-  }
-
   const isSelected = (sel: Selection) => selectionKey === keyOf(sel);
 
   return (
@@ -358,7 +352,6 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
             <button className="btn btn--primary" type="button" disabled={compiling || !config.paper_id} onClick={onCompile}>
               {compiling ? 'Compilo…' : 'Compila grafo'}
             </button>
-            <button className="btn btn--ghost btn--sm" type="button" disabled={compiling} onClick={onReset}>Ripristina default</button>
           </div>
         </div>
         {configSource === 'backend' && !compileNote && !compileError && (
@@ -489,6 +482,7 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
 
   /** Invoke only: the graph must already be compiled from "Configura review". */
   async function onLaunch() {
+    if (phase === 'running' || phase === 'done') return;
     setError('');
     setRecord(null);
     try {
@@ -547,8 +541,10 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
             />
 
             <div className="rg-launch__actions">
-              <button className="btn btn--primary" type="button" disabled={busy} onClick={onLaunch}>
-                {busy ? 'In esecuzione…' : 'Lancia'}
+              {/* Once done the button stays disabled: no accidental double invoke —
+                  close and reopen the modal to launch another run. */}
+              <button className="btn btn--primary" type="button" disabled={busy || phase === 'done'} onClick={onLaunch}>
+                {busy ? 'In esecuzione…' : phase === 'done' ? 'Review completata ✓' : 'Lancia'}
               </button>
               {PHASE_NOTES[phase] && <span className="rg-launch__note">{PHASE_NOTES[phase]}</span>}
             </div>
@@ -574,7 +570,9 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
   const [runs, setRuns] = useState<GraphReviewSummary[] | null>(null);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [expandedRunId, setExpandedRunId] = useState<string | null>(null);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<GraphReviewRecord | null>(null);
+  const [detailError, setDetailError] = useState('');
 
   useEffect(() => {
     let alive = true;
@@ -583,6 +581,18 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
       .catch((err) => { if (alive) setError(err instanceof ApiError ? err.message : String(err)); });
     return () => { alive = false; };
   }, []);
+
+  // Drill-in: fetch the full record when a run is selected.
+  useEffect(() => {
+    if (selectedRunId === null) return;
+    let alive = true;
+    setDetail(null);
+    setDetailError('');
+    getGraphRun(selectedRunId)
+      .then((record) => { if (alive) setDetail(record); })
+      .catch((err) => { if (alive) setDetailError(err instanceof ApiError ? err.message : String(err)); });
+    return () => { alive = false; };
+  }, [selectedRunId]);
 
   // Close on Esc.
   useEffect(() => {
@@ -596,6 +606,10 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
     : runs.filter((run) =>
       (run.description ?? '').toLowerCase().includes(search.trim().toLowerCase()));
 
+  const selectedSummary = selectedRunId === null
+    ? null
+    : runs?.find((run) => run.run_id === selectedRunId) ?? null;
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
@@ -606,81 +620,97 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal__header">
-          <h3 className="modal__title" id="run-history-title">Storico review</h3>
+          <h3 className="modal__title" id="run-history-title">
+            {selectedRunId === null
+              ? 'Storico review'
+              : `Review — ${selectedSummary?.description || selectedRunId}`}
+          </h3>
           <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
         </div>
 
-        <div className="prompts__filters">
-          <input
-            className="paper-form__input prompts__filters-search"
-            type="search"
-            placeholder="cerca nella descrizione delle run…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        {selectedRunId === null ? (
+          <>
+            <div className="prompts__filters">
+              <input
+                className="paper-form__input prompts__filters-search"
+                type="search"
+                placeholder="cerca nella descrizione delle run…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
-        {error && <p className="paper-form__error">{error}</p>}
-        {!error && visible === null && <p className="paper-list__empty">Caricamento…</p>}
-        {visible !== null && visible.length === 0 && (
-          <p className="paper-list__empty">
-            {search.trim() ? 'Nessuna run corrisponde alla ricerca.' : 'Nessuna run nel database.'}
-          </p>
-        )}
-        {visible !== null && visible.length > 0 && (
-          <div className="paper-list__scroll">
-            <table className="paper-list">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>timestamp</th>
-                  <th>paper</th>
-                  <th>decision</th>
-                  <th>round</th>
-                  <th>meta score</th>
-                  <th>descrizione</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.map((run) => (
-                  <Fragment key={run.run_id}>
-                    <tr
-                      className={'prompts__row' + (expandedRunId === run.run_id ? ' prompts__row--open' : '')}
-                      onClick={() => setExpandedRunId(expandedRunId === run.run_id ? null : run.run_id)}
-                    >
-                      <td className="rg-history__toggle">{expandedRunId === run.run_id ? '▾' : '▸'}</td>
-                      <td>{run.timestamp}</td>
-                      <td className="paper-list__id">{run.paper_id}</td>
-                      <td>{run.decision || '—'}</td>
-                      <td>{run.total_rounds}{run.max_rounds != null ? ` / ${run.max_rounds}` : ''}</td>
-                      <td>{run.meta_overall_score ?? '—'}</td>
-                      <td className="paper-list__desc">{run.description || '—'}</td>
+            {error && <p className="paper-form__error">{error}</p>}
+            {!error && visible === null && <p className="paper-list__empty">Caricamento…</p>}
+            {visible !== null && visible.length === 0 && (
+              <p className="paper-list__empty">
+                {search.trim() ? 'Nessuna run corrisponde alla ricerca.' : 'Nessuna run nel database.'}
+              </p>
+            )}
+            {visible !== null && visible.length > 0 && (
+              <div className="paper-list__scroll">
+                <table className="paper-list">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>timestamp</th>
+                      <th>paper</th>
+                      <th>decision</th>
+                      <th>round</th>
+                      <th>meta score</th>
+                      <th>descrizione</th>
                     </tr>
-                    {expandedRunId === run.run_id && (
-                      <tr className="prompts__expand">
-                        <td colSpan={7}>
-                          <div className="prompts__fields">
-                            <Field label="run_id" value={run.run_id} />
-                            <Field label="timestamp" value={run.timestamp} />
-                            <Field label="paper" value={run.paper_id} />
-                            <Field label="decision" value={run.decision || '—'} />
-                            <Field label="round" value={`${run.total_rounds}${run.max_rounds != null ? ` / max ${run.max_rounds}` : ''}`} />
-                            <Field label="meta score" value={String(run.meta_overall_score ?? '—')} />
-                            <Field label="descrizione" value={run.description || '—'} />
-                          </div>
-                          <p className="rg-history__todo">
-                            Qui si aprirà il flusso completo della review — review dei
-                            reviewer, meta review, rebuttal e decisione, round per round.
-                            In preparazione.
-                          </p>
-                        </td>
+                  </thead>
+                  <tbody>
+                    {visible.map((run) => (
+                      <tr
+                        key={run.run_id}
+                        className="prompts__row"
+                        onClick={() => setSelectedRunId(run.run_id)}
+                      >
+                        <td className="rg-history__toggle">▸</td>
+                        <td>{run.timestamp}</td>
+                        <td className="paper-list__id">{run.paper_id}</td>
+                        <td>{run.decision || '—'}</td>
+                        <td>{run.total_rounds}{run.max_rounds != null ? ` / ${run.max_rounds}` : ''}</td>
+                        <td>{run.meta_overall_score ?? '—'}</td>
+                        <td className="paper-list__desc">{run.description || '—'}</td>
                       </tr>
-                    )}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="run-flow__back">
+              <button
+                className="btn btn--ghost btn--sm"
+                type="button"
+                onClick={() => { setSelectedRunId(null); setDetail(null); setDetailError(''); }}
+              >
+                ← Torna alla lista
+              </button>
+            </div>
+
+            <div className="prompts__fields run-flow__summary">
+              <Field label="run_id" value={selectedRunId} />
+              <Field label="timestamp" value={detail?.timestamp ?? selectedSummary?.timestamp ?? '—'} />
+              <Field label="paper" value={detail?.paper_id ?? selectedSummary?.paper_id ?? '—'} />
+              <Field label="decision" value={detail?.decision ?? selectedSummary?.decision ?? '—'} />
+              <Field label="round" value={String(detail?.total_rounds ?? selectedSummary?.total_rounds ?? '—')} />
+              <Field label="descrizione" value={detail?.description || selectedSummary?.description || '—'} />
+            </div>
+
+            {detailError && <p className="paper-form__error">{detailError}</p>}
+            {!detailError && detail === null && <p className="paper-list__empty">Caricamento…</p>}
+            {detail !== null && (
+              <div className="run-flow__scroll">
+                <RunFlowView record={detail} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

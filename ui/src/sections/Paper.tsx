@@ -4,7 +4,7 @@
  * (POST /paper/create); the backend derives the paper_id
  * (<paper-type>_<name>_<extension>) and stores row + file under it.
  * List/detail cards are TODO placeholders for the upcoming endpoints. */
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Fragment, useEffect, useRef, useState, type FormEvent } from 'react';
 import { ApiError, createOpenreviewPaper, createPaper, getIndexStatus, indexPaper, listPapers, listPaperTypes, listRetrievalStrategies } from '../api/client';
 import type { Author, IndexInfo, Paper as PaperModel, RagStrategy } from '../api/types';
 import ActionCard from '../components/ActionCard';
@@ -708,9 +708,21 @@ function IndexPaperModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+/** One labeled field inside the expanded paper panel (accordion style). */
+function PaperField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="prompts__field">
+      <span className="prompts__field-label">{label}</span>
+      <span className="prompts__field-value">{value}</span>
+    </div>
+  );
+}
+
 function PaperListModal({ onClose }: { onClose: () => void }) {
   const [papers, setPapers] = useState<PaperModel[] | null>(null);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -727,10 +739,20 @@ function PaperListModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  const visible = papers === null
+    ? null
+    : papers.filter((p) => {
+      const query = search.trim().toLowerCase();
+      return query === ''
+        || p.paper_name.toLowerCase().includes(query)
+        || (p.description ?? '').toLowerCase().includes(query)
+        || (p.conference ?? '').toLowerCase().includes(query);
+    });
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal modal--wide"
+        className="modal modal--full"
         role="dialog"
         aria-modal="true"
         aria-labelledby="paper-list-title"
@@ -741,34 +763,75 @@ function PaperListModal({ onClose }: { onClose: () => void }) {
           <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
         </div>
 
+        <div className="prompts__filters">
+          <input
+            className="paper-form__input prompts__filters-search"
+            type="search"
+            placeholder="cerca in nome, descrizione, conference…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
         {error && <p className="paper-form__error">{error}</p>}
-        {!error && papers === null && <p className="paper-list__empty">Caricamento…</p>}
-        {papers !== null && papers.length === 0 && (
-          <p className="paper-list__empty">Nessun paper nel catalogo.</p>
+        {!error && visible === null && <p className="paper-list__empty">Caricamento…</p>}
+        {visible !== null && visible.length === 0 && (
+          <p className="paper-list__empty">
+            {search.trim() ? 'Nessun paper corrisponde alla ricerca.' : 'Nessun paper nel catalogo.'}
+          </p>
         )}
-        {papers !== null && papers.length > 0 && (
+        {visible !== null && visible.length > 0 && (
           <div className="paper-list__scroll">
             <table className="paper-list">
               <thead>
                 <tr>
-                  <th>paper_id</th>
+                  <th></th>
                   <th>nome</th>
                   <th>tipo</th>
-                  <th>descrizione</th>
+                  <th>conference</th>
                   <th>decision</th>
                   <th>review</th>
+                  <th>descrizione</th>
                 </tr>
               </thead>
               <tbody>
-                {papers.map((paper) => (
-                  <tr key={paper.paper_id}>
-                    <td className="paper-list__id">{paper.paper_id}</td>
-                    <td>{paper.paper_name}</td>
-                    <td>{paper.paper_type}</td>
-                    <td className="paper-list__desc">{paper.description || '—'}</td>
-                    <td>{paper.human_decision || '—'}</td>
-                    <td>{paper.num_graph_review ?? 0}</td>
-                  </tr>
+                {visible.map((paper) => (
+                  <Fragment key={paper.paper_id}>
+                    <tr
+                      className={'prompts__row' + (expandedId === paper.paper_id ? ' prompts__row--open' : '')}
+                      onClick={() => setExpandedId(expandedId === paper.paper_id ? null : paper.paper_id)}
+                    >
+                      <td className="rg-history__toggle">{expandedId === paper.paper_id ? '▾' : '▸'}</td>
+                      <td className="paper-list__name">{paper.paper_name}</td>
+                      <td>{paper.paper_type}</td>
+                      <td>{paper.conference || '—'}</td>
+                      <td>{paper.human_decision || '—'}</td>
+                      <td>{paper.num_graph_review ?? 0}</td>
+                      <td className="paper-list__desc">{paper.description || '—'}</td>
+                    </tr>
+                    {expandedId === paper.paper_id && (
+                      <tr className="prompts__expand">
+                        <td colSpan={7}>
+                          <div className="prompts__fields">
+                            <PaperField label="nome" value={paper.paper_name} />
+                            <PaperField label="paper_id" value={paper.paper_id} />
+                            <PaperField label="tipo" value={paper.paper_type} />
+                            <PaperField label="conference" value={paper.conference || '—'} />
+                            <PaperField label="forum OpenReview" value={paper.open_review_id || '—'} />
+                            <PaperField label="api version" value={paper.openreview_api_version || '—'} />
+                            <PaperField label="decision" value={paper.human_decision || '—'} />
+                            <PaperField label="review eseguite" value={String(paper.num_graph_review ?? 0)} />
+                          </div>
+                          {paper.description && (
+                            <>
+                              <span className="prompts__field-label">descrizione</span>
+                              <p className="prompts__field-value">{paper.description}</p>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
@@ -808,12 +871,6 @@ export default function Paper() {
         description={<>Elenco dei paper nel catalogo (dati dal DB).</>}
         actionLabel="Apri"
         onAction={() => setListOpen(true)}
-      />
-
-      <ActionCard
-        title="Dettaglio paper"
-        description={<>Scheda di un paper per id — in preparazione.</>}
-        actionLabel="Apri"
       />
 
       {uploadOpen && <UploadPaperModal onClose={() => setUploadOpen(false)} />}

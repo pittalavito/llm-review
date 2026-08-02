@@ -114,20 +114,6 @@ export default function Admin() {
         }
       />
 
-      <ActionCard
-        title="Files Store"
-        description={
-          <>
-            Gestione dei paper in <code>PAPERS_DIR</code> — in preparazione.
-          </>
-        }
-      />
-
-      <ActionCard
-        title="Back-up"
-        description={<>Backup e restore degli store — in preparazione.</>}
-      />
-
       {configOpen && <ConfigModal config={config} error={configError} onClose={() => setConfigOpen(false)} />}
     </div>
   );

@@ -143,6 +143,11 @@ export const updateInstruction = (instructionId: number, request: UpdateInstruct
 export const listGraphRuns = () =>
   get<GraphReviewSummaryResponse>('/graph/runs').then((r) => r.summaries);
 
+/** One full run — record rebuilt from the agent traces, agent_records included
+ * (unwrapped from GraphReviewRecordResponse). */
+export const getGraphRun = (runId: string) =>
+  get<GraphReviewRecordResponse>(`/graph/runs/${encodeURIComponent(runId)}`).then((r) => r.record);
+
 /** The configuration currently loaded in the graph service. */
 export const getGraphConfig = () => get<GraphReviewConfigResponse>('/graph/config');
 

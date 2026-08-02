@@ -331,6 +331,15 @@
   white-space: nowrap;
 }
 
+/* Paper display name in the list: readable, not mono-truncated. */
+.paper-list__name {
+  font-weight: 600;
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .paper-list__empty {
   color: var(--c-text-muted);
   font-size: var(--text-sm);

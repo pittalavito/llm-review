@@ -307,7 +307,24 @@ export interface GraphReviewSummaryResponse {
   summaries: GraphReviewSummary[];
 }
 
-// models/domain/run_record.py :: GraphReviewRecord — the fields the FE shows.
+// models/domain/run_record.py :: AgentResponseRecord — one agent invocation:
+// identity (role/index/round), the structured payload and the verbatim trace.
+export interface AgentResponseRecord {
+  round: number;
+  agent_role: AgentRole;
+  agent_index?: number | null;
+  response_payload: Record<string, unknown>;
+  input_message?: string | null;
+  context_used?: string | null;
+  system_prompt?: string | null;
+  input_tokens?: number | null;
+  output_tokens?: number | null;
+  total_tokens?: number | null;
+  latency_seconds?: number | null;
+}
+
+// models/domain/run_record.py :: GraphReviewRecord — the full run record;
+// agent_records/graph_config optional for defensiveness on legacy payloads.
 export interface GraphReviewRecord {
   run_id: string;
   timestamp: string;
@@ -319,4 +336,6 @@ export interface GraphReviewRecord {
   meta_review_response?: Record<string, unknown> | null;
   area_chair_response?: Record<string, unknown> | null;
   author_response?: Record<string, unknown> | null;
+  graph_config?: GraphReviewConfig;
+  agent_records?: AgentResponseRecord[];
 }
