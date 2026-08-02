@@ -37,6 +37,28 @@ def _review_note() -> dict:
     }
 
 
+def _neurips_review_note() -> dict:
+    """NeurIPS-style note, API v2 shape: ``invitations`` list and every content
+    field wrapped as {"value": ...}, with limitations and the sub-scores."""
+    return {
+        "id": "n2",
+        "invitations": ["NeurIPS.cc/2023/Conference/Submission1/-/Official_Review"],
+        "signatures": ["NeurIPS.cc/2023/Conference/Submission1/Reviewer_xyz"],
+        "content": {
+            "summary": {"value": "NS"},
+            "strengths": {"value": "solid"},
+            "weaknesses": {"value": "narrow"},
+            "questions": {"value": "q?"},
+            "limitations": {"value": "not discussed"},
+            "soundness": {"value": "3 good"},
+            "presentation": {"value": "2 fair"},
+            "contribution": {"value": "3 good"},
+            "rating": {"value": "7: Accept"},
+            "confidence": {"value": "4: You are confident"},
+        },
+    }
+
+
 class FakeRuns:
     """Stand-in for DbRunRepository."""
     saved: dict = {}
@@ -120,7 +142,7 @@ class FakeCache:
         pass
 
     def load(self, key):
-        return None if key == "missing" else StoreOpenReviewCache.model_validate({"notes": [_review_note()]})
+        return None if key == "missing" else StoreOpenReviewCache.model_validate({"notes": [_review_note(), _neurips_review_note()]})
 
 
 class FakeFiles:
@@ -229,9 +251,19 @@ class TestRagIndex:
 class TestOpenReview:
     def test_get_human_reviews_parses_cache_end_to_end(self, service):
         reviews = service.get_human_reviews("k")
-        assert len(reviews) == 1
+        assert len(reviews) == 2
         assert reviews[0].reviewer_id == "Reviewer_abc"
         assert reviews[0].rating == 6
+        assert reviews[0].soundness is None  # ICLR-2023-style note has no sub-scores
+
+    def test_get_human_reviews_parses_neurips_v2_note(self, service):
+        review = service.get_human_reviews("k")[1]
+        assert review.reviewer_id == "Reviewer_xyz"
+        assert (review.summary, review.strengths, review.weaknesses) == ("NS", "solid", "narrow")
+        assert (review.rating, review.confidence) == (7, 4)
+        assert review.limitations == "not discussed"
+        assert (review.soundness, review.presentation, review.contribution) == (3, 2, 3)
+        assert review.soundness_label == "3 good"
 
     def test_get_human_reviews_empty_when_cache_missing(self, service):
         assert service.get_human_reviews("missing") == []

@@ -5,7 +5,9 @@ from pydantic import BaseModel
 
 
 class HumanReview(BaseModel):
-    """A human reviewer's review, parsed from one OpenReview 'official review' note."""
+    """A human reviewer's review, parsed from one OpenReview 'official review' note.
+    ``limitations`` and the soundness/presentation/contribution sub-scores exist
+    on NeurIPS (and ICLR 2024+) review forms — None on venues without them."""
     note_id: str
     reviewer_id: str
     summary: str | None = None
@@ -17,6 +19,13 @@ class HumanReview(BaseModel):
     confidence: int | None = None
     confidence_label: str | None = None
     questions: str | None = None
+    limitations: str | None = None
+    soundness: int | None = None
+    soundness_label: str | None = None
+    presentation: int | None = None
+    presentation_label: str | None = None
+    contribution: int | None = None
+    contribution_label: str | None = None
 
 
 class HumanMetaReview(BaseModel):

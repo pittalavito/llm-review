@@ -18,7 +18,7 @@ class GraphReviewTable(SQLModel, table=True):
     """One row per review-graph execution: the indexed analytical facts plus
     the run's ``graph_config`` (verbatim JSON)."""
 
-    __tablename__ = "graph_review"
+    __tablename__ = "graph_review"  # type: ignore
     __table_args__ = (
         CheckConstraint("total_rounds >= 0", name="ck_graph_review_total_rounds"),
         CheckConstraint("max_rounds IS NULL OR max_rounds >= 1", name="ck_graph_review_max_rounds"),
@@ -42,7 +42,7 @@ class GraphReviewAgentTable(SQLModel, table=True):
     original order; the verbatim trace lives in ``agent_trace`` (1:1 via
     ``agent_trace_id``)."""
 
-    __tablename__ = "graph_review_agent"
+    __tablename__ = "graph_review_agent"  # type: ignore
     __table_args__ = (
         CheckConstraint("agent_index IS NULL OR agent_index >= 1", name="ck_graph_review_agent_index"),
         CheckConstraint('"round" >= 0', name="ck_graph_review_agent_round"),
@@ -70,7 +70,7 @@ class AgentTraceTable(SQLModel, table=True):
     ``graph_review_agent`` row; ``run_id`` is kept here only so deleting a run
     cascades away its traces."""
 
-    __tablename__ = "agent_trace"
+    __tablename__ = "agent_trace"  # type: ignore
 
     id: int | None = Field(default=None, primary_key=True)
     run_id: str = Field(sa_column=Column(ForeignKey("graph_review.run_id", ondelete="CASCADE"), nullable=False))
@@ -92,7 +92,7 @@ class PromptVersionTable(SQLModel, table=True):
     """Registry of base system-prompt templates. Versions are immutable: a new
     text means a new row; only description and is_active may change afterwards."""
 
-    __tablename__ = "prompt_version"
+    __tablename__ = "prompt_version"  # type: ignore
     __table_args__ = (
         UniqueConstraint("agent_role", "version_label", name="uq_prompt_role_label"),
     )
@@ -112,7 +112,7 @@ class PromptInstructionTable(SQLModel, table=True):
     Like prompt versions they are immutable: a new text means a new row; only
     description and is_active may change afterwards."""
 
-    __tablename__ = "prompt_instruction"
+    __tablename__ = "prompt_instruction"  # type: ignore
     __table_args__ = (
         UniqueConstraint("type", "label", name="uq_prompt_instruction_type_label"),
     )
@@ -133,7 +133,7 @@ class AuthorTable(SQLModel, table=True):
     present, by (full_name, email) otherwise — no db-level unique key because
     homonyms without email are legitimate distinct rows."""
 
-    __tablename__ = "author"
+    __tablename__ = "author"  # type: ignore
 
     id: int | None = Field(default=None, primary_key=True)
     full_name: str = Field(index=True)
@@ -146,7 +146,7 @@ class PaperAuthorTable(SQLModel, table=True):
     """Bridge paper <-> author, with the author's 1-based position in the
     paper's author list. Deleting a paper or an author cascades away the link."""
 
-    __tablename__ = "paper_author"
+    __tablename__ = "paper_author"  # type: ignore
     __table_args__ = (
         UniqueConstraint("paper_id", "author_id", name="uq_paper_author"),
         CheckConstraint("position >= 1", name="ck_paper_author_position"),
@@ -165,7 +165,7 @@ class PaperTable(SQLModel, table=True):
     the files store under the same id. OpenReview metadata columns are NULL for
     OTHER papers; num_graph_review is a snapshot of the paper's run count."""
 
-    __tablename__ = "paper"
+    __tablename__ = "paper" # type: ignore
     __table_args__ = (
         CheckConstraint("num_graph_review >= 0", name="ck_paper_num_graph_review"),
         UniqueConstraint("paper_id", name="uq_paper_id"),

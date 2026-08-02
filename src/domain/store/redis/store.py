@@ -61,6 +61,10 @@ class Adapter:
             content = Adapter.unwrap(note.get("content", {}))
             rating_raw = Adapter.get(content, "rating", "recommendation")
             conf_raw = Adapter.get(content, "confidence")
+            # NeurIPS (and ICLR 2024+) sub-scores, e.g. "3 good" — None elsewhere.
+            soundness_raw = Adapter.get(content, "soundness")
+            presentation_raw = Adapter.get(content, "presentation")
+            contribution_raw = Adapter.get(content, "contribution")
             reviews.append(HumanReview(
                 note_id=note.get("id", ""),
                 reviewer_id=str((note.get("signatures") or ["?"])[0]).split("/")[-1],
@@ -73,6 +77,13 @@ class Adapter:
                 confidence=Adapter.extract_int(conf_raw),
                 confidence_label=conf_raw,
                 questions=Adapter.get(content, "questions", "summary_of_the_review"),
+                limitations=Adapter.get(content, "limitations"),
+                soundness=Adapter.extract_int(soundness_raw),
+                soundness_label=soundness_raw,
+                presentation=Adapter.extract_int(presentation_raw),
+                presentation_label=presentation_raw,
+                contribution=Adapter.extract_int(contribution_raw),
+                contribution_label=contribution_raw,
             ))
         return reviews
 
