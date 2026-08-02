@@ -7,6 +7,7 @@ from core.observability import observed, LogPrefix
 from service.store_service import StoreService
 from service.chat_service import ChatService
 from service.prompt_service import PromptService
+from service.paper_service import PaperService
 from service.agent_service import AgentService
 from service.retrieval_service import RetrievalService
 from service.graph_service import GraphReviewService
@@ -18,6 +19,7 @@ class Container:
         self.store_service = StoreService()
         self.chat_service = ChatService()
         self.prompt_service = PromptService(store_service=self.store_service)
+        self.paper_service = PaperService(store_service=self.store_service)
         self.retrieval_service = RetrievalService(store_service=self.store_service)
         self.agent_service = AgentService(chat_service=self.chat_service, prompt_service=self.prompt_service, retrieval_service=self.retrieval_service)
         self.graph_service = GraphReviewService(agent_service=self.agent_service, store_service=self.store_service)
@@ -25,6 +27,11 @@ class Container:
 def chat_service(request: Request) -> ChatService:
     """Dependency provider for ChatService."""
     return request.app.state.container.chat_service
+
+
+def paper_service(request: Request) -> PaperService:
+    """Dependency provider for PaperService."""
+    return request.app.state.container.paper_service
 
 
 def prompt_service(request: Request) -> PromptService:

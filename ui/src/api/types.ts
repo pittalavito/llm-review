@@ -62,6 +62,20 @@ export interface CreatePaperRequest {
   authors?: Author[];
 }
 
+// models/controller/paper.py :: CreateOpenReviewPaperRequest — the FE parses
+// the pasted notes response and ships the extracted fields ready-to-use
+// (paper_name, ordered authors, human_decision); notes stays verbatim for the
+// BE cache and the PDF uri.
+export interface CreateOpenReviewPaperRequest {
+  conference: string;
+  forum_id: string;
+  paper_name: string;
+  authors?: Author[];
+  human_decision?: string | null;
+  description?: string | null;
+  notes: Record<string, unknown>[];
+}
+
 // models/controller/paper.py :: CreatePaperResponse / PaperListResponse.
 export interface CreatePaperResponse {
   paper: Paper;

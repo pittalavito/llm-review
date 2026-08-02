@@ -196,6 +196,47 @@
   margin-top: var(--s-4);
 }
 
+/* ── Upload modal: wider, two-column layout ────────────── */
+.modal--paper-upload {
+  max-width: 920px;
+}
+
+.paper-form--two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2) var(--s-6);
+  align-items: start;
+}
+
+.paper-form--two-col .paper-form__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.paper-form--two-col .paper-form__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+/* Narrow screens: stack the two columns. */
+@media (max-width: 760px) {
+  .paper-form--two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Pasted OpenReview notes JSON. */
+.paper-form__json {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  resize: vertical;
+}
+
 /* ── Authors editor in the upload form ─────────────────── */
 /* One author = a 2x2 grid of inputs (name/email over affiliation/openreview)
    with the position on the left and the remove button on the right. */

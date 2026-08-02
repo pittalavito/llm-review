@@ -14,6 +14,21 @@ class CreatePaperRequest(BaseModel):
     authors: list[Author] = []
 
 
+class CreateOpenReviewPaperRequest(BaseModel):
+    """Request model for creating a paper from an OpenReview forum: no file
+    upload. The FE already parses the pasted ``GET /notes?forum=<forum_id>``
+    response, so the extracted fields travel ready-to-use (paper_name, authors
+    in order, human_decision) and the BE never re-derives them; ``notes`` stays
+    the verbatim notes array (v1 or v2 shape) for the cache and the PDF uri."""
+    conference: str
+    forum_id: str
+    paper_name: str
+    authors: list[Author] = []
+    human_decision: str | None = None
+    description: str | None = None
+    notes: list[dict]
+
+
 class CreatePaperResponse(BaseModel):
     """Response containing the paper as saved in the catalog."""
     paper: Paper

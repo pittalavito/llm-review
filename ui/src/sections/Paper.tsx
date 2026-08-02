@@ -48,6 +48,65 @@ async function fileToBase64(file: File): Promise<string> {
   return btoa(binary);
 }
 
+const OPENREVIEW_CONFERENCES = ['ICLR', 'NeurIPS'];
+
+/** What the FE extracts from a pasted OpenReview forum response. */
+interface ParsedForum {
+  forumId: string;
+  title: string;
+  abstract: string | null;
+  pdf: string | null;
+  apiVersion: 'v1' | 'v2';
+  noteCount: number;
+  authors: { name: string; profileId: string }[];
+}
+
+/** OpenReview API v2 wraps content fields as {"value": ...}; flatten to the value. */
+function unwrapValue(value: unknown): unknown {
+  return value !== null && typeof value === 'object' && !Array.isArray(value) && 'value' in (value as Record<string, unknown>)
+    ? (value as Record<string, unknown>).value
+    : value;
+}
+
+/** Parse the pasted response of GET /notes?forum=<id>: finds the forum note
+ * (the submission itself) and extracts title, abstract, pdf uri and authors.
+ * Throws with a readable message when the JSON is not a notes response. */
+function parseForumJson(text: string, forumId: string): ParsedForum {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('JSON non valido: incolla la risposta completa della call.');
+  }
+  const notes = (data as { notes?: unknown }).notes;
+  if (!Array.isArray(notes) || notes.length === 0) {
+    throw new Error('Il JSON non contiene "notes": incolla la risposta di /notes?forum=<forum_id>.');
+  }
+  const forumNote = (notes.find((n) => n.id && (n.id === forumId || n.id === n.forum))
+    ?? notes.find((n) => !n.replyto)
+    ?? notes[0]) as { id?: unknown; forum?: unknown; content?: Record<string, unknown>; invitations?: unknown };
+  const content = forumNote.content ?? {};
+  const names = unwrapValue(content.authors);
+  const ids = unwrapValue(content.authorids);
+  const authors = Array.isArray(names)
+    ? names.map((name, i) => ({
+      name: String(name),
+      profileId: Array.isArray(ids) && ids[i] != null ? String(ids[i]) : '',
+    }))
+    : [];
+  const abstract = unwrapValue(content.abstract);
+  const pdf = unwrapValue(content.pdf);
+  return {
+    forumId: String(forumNote.forum ?? forumNote.id ?? ''),
+    title: String(unwrapValue(content.title) ?? ''),
+    abstract: abstract ? String(abstract) : null,
+    pdf: pdf ? String(pdf) : null,
+    apiVersion: Array.isArray(forumNote.invitations) ? 'v2' : 'v1',
+    noteCount: notes.length,
+    authors,
+  };
+}
+
 /** One editable author row in the upload form (position = row order). */
 interface AuthorDraft {
   full_name: string;
@@ -82,6 +141,15 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
   const [result, setResult] = useState<PaperModel | null>(null);
   const [submitError, setSubmitError] = useState('');
 
+  // OPEN_REVIEW mode: no file upload — conference + forum id + pasted notes JSON.
+  const [conference, setConference] = useState(OPENREVIEW_CONFERENCES[0]);
+  const [forumId, setForumId] = useState('');
+  const [notesJson, setNotesJson] = useState('');
+  const [notesError, setNotesError] = useState('');
+  const [parsed, setParsed] = useState<ParsedForum | null>(null);
+
+  const isOpenReview = paperType === 'OPEN_REVIEW';
+
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -111,6 +179,27 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
     }
     setFile(selected);
     setFileError('');
+  }
+
+  /** Parse the pasted JSON as the user types: preview + author prefill. */
+  function onNotesJsonChange(text: string) {
+    setNotesJson(text);
+    setResult(null);
+    setSubmitError('');
+    if (!text.trim()) {
+      setParsed(null);
+      setNotesError('');
+      return;
+    }
+    try {
+      const forum = parseForumJson(text, forumId.trim());
+      setParsed(forum);
+      setNotesError('');
+      if (forum.forumId) setForumId(forum.forumId);
+    } catch (err) {
+      setParsed(null);
+      setNotesError(err instanceof Error ? err.message : String(err));
+    }
   }
 
   function updateAuthor(index: number, patch: Partial<AuthorDraft>) {
@@ -155,7 +244,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal"
+        className="modal modal--paper-upload"
         role="dialog"
         aria-modal="true"
         aria-labelledby="upload-paper-title"
@@ -166,114 +255,197 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
           <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
         </div>
 
-        <form className="paper-form" noValidate onSubmit={onSubmit}>
-          <label className="paper-form__label" htmlFor="paper-file">File (.pdf o .txt)</label>
-          <input
-            ref={fileRef}
-            className="paper-form__file"
-            id="paper-file"
-            type="file"
-            accept=".pdf,.txt"
-            disabled={saving}
-            onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
-          />
-          {fileError && <p className="paper-form__error">{fileError}</p>}
+        <form className="paper-form paper-form--two-col" noValidate onSubmit={onSubmit}>
+          {/* ── Left column: metadata ── */}
+          <div className="paper-form__col">
+            <label className="paper-form__label" htmlFor="paper-type">Tipo</label>
+            <select
+              className="paper-form__select"
+              id="paper-type"
+              value={paperType}
+              disabled={saving}
+              onChange={(e) => setPaperType(e.target.value)}
+            >
+              {typesError && <option value="">Error loading</option>}
+              {!typesError && types.length === 0 && <option value="">Loading…</option>}
+              {types.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
 
-          <label className="paper-form__label" htmlFor="paper-type">Tipo</label>
-          <select
-            className="paper-form__select"
-            id="paper-type"
-            value={paperType}
-            disabled={saving}
-            onChange={(e) => setPaperType(e.target.value)}
-          >
-            {typesError && <option value="">Error loading</option>}
-            {!typesError && types.length === 0 && <option value="">Loading…</option>}
-            {types.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
+            {!isOpenReview && (
+              <>
+                <label className="paper-form__label" htmlFor="paper-file">File (.pdf o .txt)</label>
+                <input
+                  ref={fileRef}
+                  className="paper-form__file"
+                  id="paper-file"
+                  type="file"
+                  accept=".pdf,.txt"
+                  disabled={saving}
+                  onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+                />
+                {fileError && <p className="paper-form__error">{fileError}</p>}
+              </>
+            )}
 
-          <label className="paper-form__label" htmlFor="paper-description">Descrizione (opzionale)</label>
-          <textarea
-            className="paper-form__textarea"
-            id="paper-description"
-            rows={3}
-            maxLength={1000}
-            placeholder="Breve descrizione del paper…"
-            value={description}
-            disabled={saving}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+            {isOpenReview && (
+              <>
+                <label className="paper-form__label" htmlFor="paper-conference">Conference</label>
+                <select
+                  className="paper-form__select"
+                  id="paper-conference"
+                  value={conference}
+                  disabled={saving}
+                  onChange={(e) => setConference(e.target.value)}
+                >
+                  {OPENREVIEW_CONFERENCES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
 
-          <span className="paper-form__label">Autori (opzionale, in ordine)</span>
-          {authors.map((author, index) => (
-            <div className="paper-authors__row" key={index}>
-              <span className="paper-authors__position">{index + 1}.</span>
-              <input
-                className="paper-form__input"
-                type="text"
-                placeholder="nome e cognome *"
-                aria-label={`Autore ${index + 1}: nome`}
-                value={author.full_name}
-                disabled={saving}
-                onChange={(e) => updateAuthor(index, { full_name: e.target.value })}
-              />
-              <input
-                className="paper-form__input"
-                type="email"
-                placeholder="email"
-                aria-label={`Autore ${index + 1}: email`}
-                value={author.email}
-                disabled={saving}
-                onChange={(e) => updateAuthor(index, { email: e.target.value })}
-              />
-              <input
-                className="paper-form__input"
-                type="text"
-                placeholder="affiliazione"
-                aria-label={`Autore ${index + 1}: affiliazione`}
-                value={author.affiliation}
-                disabled={saving}
-                onChange={(e) => updateAuthor(index, { affiliation: e.target.value })}
-              />
-              <input
-                className="paper-form__input"
-                type="text"
-                placeholder="~OpenReview_Id1"
-                aria-label={`Autore ${index + 1}: profilo OpenReview`}
-                value={author.openreview_profile_id}
-                disabled={saving}
-                onChange={(e) => updateAuthor(index, { openreview_profile_id: e.target.value })}
-              />
-              <button
-                className="btn btn--ghost btn--sm paper-authors__remove"
-                type="button"
-                aria-label={`Rimuovi autore ${index + 1}`}
-                disabled={saving}
-                onClick={() => removeAuthor(index)}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-          <button
-            className="btn btn--ghost btn--sm paper-authors__add"
-            type="button"
-            disabled={saving}
-            onClick={() => setAuthors((prev) => [...prev, emptyAuthor()])}
-          >
-            + Aggiungi autore
-          </button>
+                <label className="paper-form__label" htmlFor="paper-forum-id">Forum id</label>
+                <input
+                  className="paper-form__input"
+                  id="paper-forum-id"
+                  type="text"
+                  placeholder="es. H1lGHsA9KX"
+                  value={forumId}
+                  disabled={saving}
+                  onChange={(e) => setForumId(e.target.value)}
+                />
+              </>
+            )}
 
-          {file && (
-            <p className="paper-form__preview">
-              paper_id: <code>{previewPaperId(paperType, file.name)}</code>
-            </p>
-          )}
+            <label className="paper-form__label" htmlFor="paper-description">Descrizione (opzionale)</label>
+            <textarea
+              className="paper-form__textarea"
+              id="paper-description"
+              rows={3}
+              maxLength={1000}
+              placeholder="Breve descrizione del paper…"
+              value={description}
+              disabled={saving}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+
+            {!isOpenReview && file && (
+              <p className="paper-form__preview">
+                paper_id: <code>{previewPaperId(paperType, file.name)}</code>
+              </p>
+            )}
+          </div>
+
+          {/* ── Right column: JSON (OPEN_REVIEW) or authors (OTHER) ── */}
+          <div className="paper-form__col">
+            {isOpenReview ? (
+              <>
+                <label className="paper-form__label" htmlFor="paper-notes-json">
+                  Response JSON di <code>/notes?forum=&lt;forum_id&gt;&amp;limit=1000</code>
+                </label>
+                <textarea
+                  className="paper-form__textarea paper-form__json"
+                  id="paper-notes-json"
+                  rows={8}
+                  spellCheck={false}
+                  placeholder={'{\n  "notes": [ ... ]\n}'}
+                  value={notesJson}
+                  disabled={saving}
+                  onChange={(e) => onNotesJsonChange(e.target.value)}
+                />
+                {notesError && <p className="paper-form__error">{notesError}</p>}
+
+                {parsed && (
+                  <div className="paper-form__preview">
+                    <p><strong>{parsed.title || '(titolo non trovato)'}</strong></p>
+                    <p>
+                      {parsed.noteCount} note · API {parsed.apiVersion}
+                      {parsed.pdf && <> · pdf: <code>{parsed.pdf}</code></>}
+                    </p>
+                    {parsed.authors.length > 0 && (
+                      <p>
+                        Autori (dalla response):{' '}
+                        {parsed.authors.map((a) => a.name).join(', ')}
+                      </p>
+                    )}
+                    <p>Il PDF non si carica: verrà recuperato dall'URI nel JSON.</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="paper-form__label">Autori (opzionale, in ordine)</span>
+                {authors.map((author, index) => (
+                  <div className="paper-authors__row" key={index}>
+                    <span className="paper-authors__position">{index + 1}.</span>
+                    <input
+                      className="paper-form__input"
+                      type="text"
+                      placeholder="nome e cognome *"
+                      aria-label={`Autore ${index + 1}: nome`}
+                      value={author.full_name}
+                      disabled={saving}
+                      onChange={(e) => updateAuthor(index, { full_name: e.target.value })}
+                    />
+                    <input
+                      className="paper-form__input"
+                      type="email"
+                      placeholder="email"
+                      aria-label={`Autore ${index + 1}: email`}
+                      value={author.email}
+                      disabled={saving}
+                      onChange={(e) => updateAuthor(index, { email: e.target.value })}
+                    />
+                    <input
+                      className="paper-form__input"
+                      type="text"
+                      placeholder="affiliazione"
+                      aria-label={`Autore ${index + 1}: affiliazione`}
+                      value={author.affiliation}
+                      disabled={saving}
+                      onChange={(e) => updateAuthor(index, { affiliation: e.target.value })}
+                    />
+                    <input
+                      className="paper-form__input"
+                      type="text"
+                      placeholder="~OpenReview_Id1"
+                      aria-label={`Autore ${index + 1}: profilo OpenReview`}
+                      value={author.openreview_profile_id}
+                      disabled={saving}
+                      onChange={(e) => updateAuthor(index, { openreview_profile_id: e.target.value })}
+                    />
+                    <button
+                      className="btn btn--ghost btn--sm paper-authors__remove"
+                      type="button"
+                      aria-label={`Rimuovi autore ${index + 1}`}
+                      disabled={saving}
+                      onClick={() => removeAuthor(index)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <button
+                  className="btn btn--ghost btn--sm paper-authors__add"
+                  type="button"
+                  disabled={saving}
+                  onClick={() => setAuthors((prev) => [...prev, emptyAuthor()])}
+                >
+                  + Aggiungi autore
+                </button>
+              </>
+            )}
+          </div>
 
           <div className="paper-form__actions">
-            <button className="btn btn--primary" type="submit" disabled={saving || !file}>
+            <button
+              className="btn btn--primary"
+              type="submit"
+              disabled={saving || (isOpenReview ? true : !file)}
+            >
               {saving ? 'Salvataggio…' : 'Salva paper'}
             </button>
+            {isOpenReview && (
+              <span className="paper-form__preview">
+                Il salvataggio OPEN_REVIEW arriva col supporto backend — per ora la modalità è solo FE.
+              </span>
+            )}
           </div>
         </form>
 
