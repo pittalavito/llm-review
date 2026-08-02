@@ -1,5 +1,5 @@
 """Review-graph endpoints — everything under /graph."""
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from core.container import graph_service, store_service
 
@@ -42,3 +42,13 @@ def list_summary_runs(service: StoreService = Depends(store_service)) -> GraphRe
     """Run history — lightweight summaries of every review-graph execution."""
     result = service.list_runs()
     return GraphReviewSummaryResponse.from_response(result)
+
+
+@router.get("/runs/{run_id}")
+def get_run(run_id: str, service: StoreService = Depends(store_service)) -> GraphReviewRecordResponse:
+    """One full run: the record rebuilt from the agent traces, agent_records
+    included — the data behind the FE run-flow view."""
+    record = service.get_run(run_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    return GraphReviewRecordResponse.from_response(record)

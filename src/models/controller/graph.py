@@ -3,8 +3,9 @@
 ``models.domain.graph``."""
 from pydantic import BaseModel
 
-from models.domain.graph import GraphReviewConfig
+from models.domain.graph import GraphReviewConfig, CreateGraphReviewRequest as DomainCreateGraphReviewRequest
 from models.domain.run_record import GraphReviewRecord, GraphReviewSummary
+
 
 class CreateGraphReviewRequest(BaseModel):
     """Request to run the review graph on a paper with a given configuration."""
@@ -13,9 +14,9 @@ class CreateGraphReviewRequest(BaseModel):
     description: str = "" 
     
     @classmethod
-    def from_domain(cls, request: "CreateGraphReviewRequest") -> "CreateGraphReviewRequest":
-        """Construct a CreateGraphReviewRequest from a domain-level request."""
-        return cls(
+    def from_domain(cls, request: "CreateGraphReviewRequest") -> DomainCreateGraphReviewRequest:
+        """Construct a CreateGraphReviewRequest from a domain-level CreateGraphReviewRequest."""
+        return DomainCreateGraphReviewRequest(
             paper_id=request.paper_id,
             graph_config=request.graph_config,
             description=request.description
