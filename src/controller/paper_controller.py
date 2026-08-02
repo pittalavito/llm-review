@@ -26,12 +26,21 @@ def list_papers(service: PaperService = Depends(paper_service)) -> PaperListResp
 
 
 @router.post("/create-openreview")
-def create_openreview_paper(request: CreateOpenReviewPaperRequest, service: PaperService = Depends(paper_service)) -> CreatePaperResponse:
-    """Create a paper from an OpenReview forum (conference + forum id + pasted
-    notes): metadata, authors and the notes cache come from the request; the
-    PDF is fetched from the uri inside the forum note. Not implemented in the
-    service layer yet."""
-    raise HTTPException(status_code=501, detail="OpenReview paper creation is not implemented yet.")
+def create_openreview_paper(
+    request: CreateOpenReviewPaperRequest,
+    background_tasks: BackgroundTasks,
+    paper_service: PaperService = Depends(paper_service),
+    retrieval_service: RetrievalService = Depends(retrieval_service),
+) -> CreatePaperResponse:
+    """Create a paper from an OpenReview forum: the FE ships everything (parsed
+    metadata, ordered authors, decision, PDF bytes); authors are linked and the
+    notes cached, then the default indexing runs in background like the regular
+    create. Bad notes payloads surface as 400."""
+    saved = paper_service.create_from_openreview(request.to_domain())
+    if saved is None:
+        raise HTTPException(status_code=409, detail="A paper with this id already exists.")
+    background_tasks.add_task(retrieval_service.multi_strategy_indexed, saved.paper_id)
+    return CreatePaperResponse.from_response(saved)
 
 
 @router.post("/create")

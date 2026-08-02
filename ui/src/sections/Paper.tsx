@@ -5,7 +5,7 @@
  * (<paper-type>_<name>_<extension>) and stores row + file under it.
  * List/detail cards are TODO placeholders for the upcoming endpoints. */
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ApiError, createPaper, getIndexStatus, indexPaper, listPapers, listPaperTypes, listRetrievalStrategies } from '../api/client';
+import { ApiError, createOpenreviewPaper, createPaper, getIndexStatus, indexPaper, listPapers, listPaperTypes, listRetrievalStrategies } from '../api/client';
 import type { Author, IndexInfo, Paper as PaperModel, RagStrategy } from '../api/types';
 import ActionCard from '../components/ActionCard';
 import { useOptions } from '../components/useOptions';
@@ -56,9 +56,12 @@ interface ParsedForum {
   title: string;
   abstract: string | null;
   pdf: string | null;
+  decision: string | null;
   apiVersion: 'v1' | 'v2';
   noteCount: number;
   authors: { name: string; profileId: string }[];
+  /** The verbatim notes array — shipped to the BE for the cache and the PDF uri. */
+  notes: Record<string, unknown>[];
 }
 
 /** OpenReview API v2 wraps content fields as {"value": ...}; flatten to the value. */
@@ -101,10 +104,24 @@ function parseForumJson(text: string, forumId: string): ParsedForum {
     title: String(unwrapValue(content.title) ?? ''),
     abstract: abstract ? String(abstract) : null,
     pdf: pdf ? String(pdf) : null,
+    decision: extractDecision(notes),
     apiVersion: Array.isArray(forumNote.invitations) ? 'v2' : 'v1',
     noteCount: notes.length,
     authors,
+    notes: notes as Record<string, unknown>[],
   };
+}
+
+/** The human decision from the forum's Decision note, when present. */
+function extractDecision(notes: { invitation?: unknown; invitations?: unknown; content?: Record<string, unknown> }[]): string | null {
+  for (const note of notes) {
+    const invitation = (Array.isArray(note.invitations) ? note.invitations.join(' ') : String(note.invitation ?? '')).toLowerCase();
+    if (!invitation.includes('decision')) continue;
+    const content = note.content ?? {};
+    const decision = unwrapValue(content.decision) ?? unwrapValue(content.recommendation);
+    if (decision) return String(decision);
+  }
+  return null;
 }
 
 /** One editable author row in the upload form (position = row order). */
@@ -171,9 +188,10 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
       setFileError('');
       return;
     }
-    if (!ALLOWED_EXTENSIONS.includes(extensionOf(selected.name))) {
+    const allowed = isOpenReview ? ['pdf'] : ALLOWED_EXTENSIONS;
+    if (!allowed.includes(extensionOf(selected.name))) {
       setFile(null);
-      setFileError('Formato non supportato: scegli un file .pdf o .txt.');
+      setFileError(isOpenReview ? 'Serve il PDF del paper (.pdf).' : 'Formato non supportato: scegli un file .pdf o .txt.');
       if (fileRef.current) fileRef.current.value = '';
       return;
     }
@@ -210,29 +228,50 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
     setAuthors((prev) => prev.filter((_, i) => i !== index));
   }
 
+  const canSubmitOpenReview = parsed !== null && forumId.trim() !== '' && parsed.title !== '' && file !== null;
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!file || saving) return;
+    if (saving) return;
+    if (isOpenReview ? !canSubmitOpenReview : !file) return;
 
     setSaving(true);
     setResult(null);
     setSubmitError('');
     try {
-      const saved = await createPaper({
-        paper: {
-          paper_id: previewPaperId(paperType, file.name),
-          paper_name: file.name,
-          paper_type: paperType as PaperModel['paper_type'],
+      const saved = isOpenReview
+        ? await createOpenreviewPaper({
+          conference,
+          forum_id: forumId.trim(),
+          paper_name: parsed!.title,
+          file_bytes: await fileToBase64(file!),
+          authors: parsed!.authors.map((a, index) => ({
+            full_name: a.name,
+            openreview_profile_id: a.profileId || null,
+            position: index + 1,
+          })),
+          human_decision: parsed!.decision,
           description: description.trim() || null,
-        },
-        file_bytes: await fileToBase64(file),
-        authors: toRequestAuthors(authors),
-      });
+          notes: parsed!.notes,
+        })
+        : await createPaper({
+          paper: {
+            paper_id: previewPaperId(paperType, file!.name),
+            paper_name: file!.name,
+            paper_type: paperType as PaperModel['paper_type'],
+            description: description.trim() || null,
+          },
+          file_bytes: await fileToBase64(file!),
+          authors: toRequestAuthors(authors),
+        });
       setResult(saved);
       // Form stays open, reset for the next upload.
       setFile(null);
       setDescription('');
       setAuthors([]);
+      setForumId('');
+      setNotesJson('');
+      setParsed(null);
       if (fileRef.current) fileRef.current.value = '';
     } catch (err) {
       setSubmitError(err instanceof ApiError ? err.message : String(err));
@@ -310,6 +349,30 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
                   disabled={saving}
                   onChange={(e) => setForumId(e.target.value)}
                 />
+
+                <label className="paper-form__label" htmlFor="paper-or-pdf">PDF del paper</label>
+                <input
+                  ref={fileRef}
+                  className="paper-form__file"
+                  id="paper-or-pdf"
+                  type="file"
+                  accept=".pdf"
+                  disabled={saving}
+                  onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+                />
+                {fileError && <p className="paper-form__error">{fileError}</p>}
+                {parsed?.pdf && (
+                  <p className="paper-form__preview">
+                    <a
+                      href={parsed.pdf.startsWith('http') ? parsed.pdf : `https://openreview.net${parsed.pdf}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Apri il PDF su OpenReview ↗
+                    </a>
+                    {' '}— scaricalo e caricalo qui (il server non può: bot protection).
+                  </p>
+                )}
               </>
             )}
 
@@ -356,6 +419,7 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
                     <p><strong>{parsed.title || '(titolo non trovato)'}</strong></p>
                     <p>
                       {parsed.noteCount} note · API {parsed.apiVersion}
+                      {parsed.decision && <> · decision: <code>{parsed.decision}</code></>}
                       {parsed.pdf && <> · pdf: <code>{parsed.pdf}</code></>}
                     </p>
                     {parsed.authors.length > 0 && (
@@ -364,7 +428,6 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
                         {parsed.authors.map((a) => a.name).join(', ')}
                       </p>
                     )}
-                    <p>Il PDF non si carica: verrà recuperato dall'URI nel JSON.</p>
                   </div>
                 )}
               </>
@@ -437,13 +500,18 @@ function UploadPaperModal({ onClose }: { onClose: () => void }) {
             <button
               className="btn btn--primary"
               type="submit"
-              disabled={saving || (isOpenReview ? true : !file)}
+              disabled={saving || (isOpenReview ? !canSubmitOpenReview : !file)}
             >
               {saving ? 'Salvataggio…' : 'Salva paper'}
             </button>
-            {isOpenReview && (
+            {isOpenReview && !canSubmitOpenReview && !saving && (
               <span className="paper-form__preview">
-                Il salvataggio OPEN_REVIEW arriva col supporto backend — per ora la modalità è solo FE.
+                Servono JSON valido, forum id e il PDF per salvare.
+              </span>
+            )}
+            {isOpenReview && saving && (
+              <span className="paper-form__preview">
+                Salvo paper, autori e cache delle review…
               </span>
             )}
           </div>

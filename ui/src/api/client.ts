@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreateInstructionRequest, CreatePaperRequest, CreatePaperResponse, CreatePromptRequest, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptInstructionResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, PromptVersionResponse, RagStrategy, UpdateInstructionRequest, UpdatePromptRequest } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreateInstructionRequest, CreateOpenReviewPaperRequest, CreatePaperRequest, CreatePaperResponse, CreatePromptRequest, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptInstructionResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, PromptVersionResponse, RagStrategy, UpdateInstructionRequest, UpdatePromptRequest } from './types';
 
 export class ApiError extends Error {}
 
@@ -78,6 +78,11 @@ export const listPapers = () =>
 /** The saved paper (unwrapped from CreatePaperResponse). */
 export const createPaper = (request: CreatePaperRequest) =>
   post<CreatePaperResponse>('/paper/create', request).then((r) => r.paper);
+
+/** Create a paper from an OpenReview forum — no file upload: the BE downloads
+ * the PDF from the uri inside the notes (unwrapped from CreatePaperResponse). */
+export const createOpenreviewPaper = (request: CreateOpenReviewPaperRequest) =>
+  post<CreatePaperResponse>('/paper/create-openreview', request).then((r) => r.paper);
 
 export const listRetrievalStrategies = () => get<RagStrategy[]>('/retrieval/strategy-types');
 

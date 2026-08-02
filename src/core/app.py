@@ -2,13 +2,15 @@
 main.py exposes ``app = create_app()`` for uvicorn."""
 import logging
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from uvicorn.logging import DefaultFormatter
 from contextlib import asynccontextmanager
 
 from config import Config, initialize_global_config
 from core.container import Container
+from core.error import AppError
 from core.spa import mount_spa
 from controller.router import router as api_router
 
@@ -29,9 +31,18 @@ def create_app() -> FastAPI:
 
     app = FastAPI(lifespan=lifespan, title="llm-review")
     configure_cors(app)
+    configure_error_handling(app)
     app.include_router(api_router)
     mount_ui(app, config)  # last: the "/" mount shadows anything registered after it
     return app
+
+
+def configure_error_handling(app: FastAPI) -> None:
+    """Map AppError subclasses to their HTTP status (400/404/409/502 — see
+    core/error.py) instead of a generic 500."""
+    @app.exception_handler(AppError)
+    async def on_app_error(request: Request, exc: AppError) -> JSONResponse:
+        return JSONResponse(status_code=exc.status_code, content=exc.payload())
 
 
 def mount_ui(app: FastAPI, config: Config) -> None:

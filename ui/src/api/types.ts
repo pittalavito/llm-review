@@ -64,12 +64,14 @@ export interface CreatePaperRequest {
 
 // models/controller/paper.py :: CreateOpenReviewPaperRequest — the FE parses
 // the pasted notes response and ships the extracted fields ready-to-use
-// (paper_name, ordered authors, human_decision); notes stays verbatim for the
-// BE cache and the PDF uri.
+// (paper_name, ordered authors, human_decision) plus the PDF base64 in
+// file_bytes (the browser downloads it — openreview.net blocks server fetches);
+// notes stays verbatim for the BE cache.
 export interface CreateOpenReviewPaperRequest {
   conference: string;
   forum_id: string;
   paper_name: string;
+  file_bytes: string;
   authors?: Author[];
   human_decision?: string | null;
   description?: string | null;
