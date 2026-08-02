@@ -12,8 +12,9 @@
  * instructions, and can preview the exact composed string via /prompts/preview.
  */
 import { useEffect, useState } from 'react';
-import { ApiError, listInstructions, listModels, listPromptsByRole, previewPrompt } from '../api/client';
+import { listInstructions, listModels, listPromptsByRole } from '../api/client';
 import type { AgentConfig, AgentSystemPromptRequest, ContextMode, PromptInstruction, PromptVersion } from '../api/types';
+import PromptPreviewModal from './PromptPreviewModal';
 import TemperatureSlider from './TemperatureSlider';
 import { useOptions } from './useOptions';
 
@@ -57,9 +58,7 @@ export default function AgentConfigPanel({
   const [versions, setVersions] = useState<PromptVersion[]>([]);
   const [instructions, setInstructions] = useState<PromptInstruction[]>([]);
   const [registryError, setRegistryError] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [previewError, setPreviewError] = useState('');
-  const [previewBusy, setPreviewBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -78,8 +77,6 @@ export default function AgentConfigPanel({
   const selectedLabels = promptRequest?.instruction_labels ?? [];
 
   function updatePromptRequest(patch: Partial<AgentSystemPromptRequest>) {
-    setPreview(null);
-    setPreviewError('');
     const next: AgentSystemPromptRequest = {
       base_prompt_version: promptRequest?.base_prompt_version ?? null,
       instruction_labels: promptRequest?.instruction_labels ?? [],
@@ -95,23 +92,9 @@ export default function AgentConfigPanel({
     updatePromptRequest({ instruction_labels: labels });
   }
 
-  async function onPreview() {
-    if (!baseVersion) return;
-    setPreviewBusy(true);
-    setPreviewError('');
-    try {
-      setPreview(await previewPrompt({
-        agent_role: agentRole,
-        base_prompt_version: baseVersion,
-        instruction_labels: selectedLabels,
-      }));
-    } catch (err) {
-      setPreview(null);
-      setPreviewError(err instanceof ApiError ? err.message : String(err));
-    } finally {
-      setPreviewBusy(false);
-    }
-  }
+  const selectedVersion = versions.find((v) => v.version_label === baseVersion) ?? null;
+  /** Registry order — the BE composes the instructions in this order. */
+  const selectedInstructions = instructions.filter((i) => selectedLabels.includes(i.label));
 
   function updateContextMode(mode: ContextMode) {
     onChange({
@@ -227,19 +210,29 @@ export default function AgentConfigPanel({
         </fieldset>
       )}
 
-      {baseVersion && (
-        <div className="acp__preview">
-          <button
-            className="btn btn--ghost btn--sm"
-            type="button"
-            disabled={previewBusy}
-            onClick={onPreview}
-          >
-            {previewBusy ? 'Compongo…' : 'Anteprima prompt'}
-          </button>
-          {previewError && <p className="acp__prompt-error">{previewError}</p>}
-          {preview !== null && <pre className="acp__preview-text">{preview}</pre>}
-        </div>
+      <div className="acp__preview">
+        <button
+          className="btn btn--ghost btn--sm"
+          type="button"
+          disabled={!selectedVersion}
+          title={selectedVersion ? undefined : 'Seleziona un prompt base per vedere l\'anteprima.'}
+          onClick={() => setPreviewOpen(true)}
+        >
+          👁 Anteprima prompt
+        </button>
+        {!selectedVersion && (
+          <span className="acp__hint">seleziona un prompt base</span>
+        )}
+      </div>
+
+      {previewOpen && selectedVersion && (
+        <PromptPreviewModal
+          agentTitle={title}
+          agentRole={agentRole}
+          version={selectedVersion}
+          instructions={selectedInstructions}
+          onClose={() => setPreviewOpen(false)}
+        />
       )}
 
       {showInputMessage && (

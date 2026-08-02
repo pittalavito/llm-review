@@ -8,10 +8,10 @@
  * it onto the BE contract (per-reviewer configs, prompt composed on the BE
  * from system_prompt_request) and drives POST /graph/compile + /graph/invoke. */
 import { useEffect, useState } from 'react';
-import { ApiError, compileGraph, invokeGraph, listGraphRuns, listPapers } from '../api/client';
+import { ApiError, compileGraph, getGraphConfig, invokeGraph, listGraphRuns, listPapers } from '../api/client';
 import type {
   AgentConfig, BackendAgentConfig, ContextMode, CreateGraphReviewRequest,
-  GraphConfig, GraphReviewRecord, GraphReviewSummary, Paper,
+  GraphConfig, GraphReviewConfig, GraphReviewRecord, GraphReviewSummary, Paper,
 } from '../api/types';
 import ActionCard from '../components/ActionCard';
 import AgentConfigPanel from '../components/AgentConfigPanel';
@@ -140,6 +140,32 @@ function toBackendRequest(config: GraphConfig, description: string): CreateGraph
   };
 }
 
+/** BE AgentConfig -> FE AgentConfig (input_message is FE-only, reset to null). */
+function fromBackendAgent(agent: BackendAgentConfig): AgentConfig {
+  return {
+    model: agent.model,
+    temperature: agent.temperature,
+    system_prompt_request: agent.system_prompt_request ?? null,
+    input_message: null,
+    request_context: agent.request_context,
+  };
+}
+
+/** BE GraphReviewConfig -> FE GraphConfig. The BE has no paper notion in the
+ * config: the paper selection stays whatever the FE already had. */
+function fromBackendConfig(graphConfig: GraphReviewConfig, paperId: string | null): GraphConfig {
+  const reviewers = graphConfig.reviewers.map(fromBackendAgent);
+  return {
+    paper_id: paperId,
+    num_reviewers: reviewers.length,
+    max_rounds: graphConfig.max_rounds,
+    reviewers,
+    meta_reviewer: fromBackendAgent(graphConfig.meta_reviewer),
+    area_chair: fromBackendAgent(graphConfig.area_chair),
+    author: fromBackendAgent(graphConfig.author),
+  };
+}
+
 function GraphNode({ label, icon, selected, muted, onSelect }: {
   label: string;
   icon?: string;
@@ -168,13 +194,30 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
   const [papers, setPapers] = useState<Paper[]>([]);
   const [config, setConfig] = useState<GraphConfig>(loadGraphConfig);
   const [selected, setSelected] = useState<Selection | null>(null);
-  const [savedNote, setSavedNote] = useState(false);
+  const [configSource, setConfigSource] = useState<'backend' | 'local'>('local');
+  const [compiling, setCompiling] = useState(false);
+  const [compileNote, setCompileNote] = useState('');
+  const [compileError, setCompileError] = useState('');
 
   useEffect(() => {
     let alive = true;
     listPapers()
       .then((rows) => { if (alive) setPapers(rows); })
       .catch(() => { /* catalog unavailable — the select stays empty */ });
+    return () => { alive = false; };
+  }, []);
+
+  // On open: the graph configuration currently loaded on the BE (its default
+  // before any compile). The locally stored config stays as offline fallback.
+  useEffect(() => {
+    let alive = true;
+    getGraphConfig()
+      .then((response) => {
+        if (!alive) return;
+        setConfig((prev) => fromBackendConfig(response.graph_config, prev.paper_id));
+        setConfigSource('backend');
+      })
+      .catch(() => { /* BE unreachable — keep the localStorage config */ });
     return () => { alive = false; };
   }, []);
 
@@ -204,7 +247,7 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
 
   function updateAgent(patch: Partial<AgentConfig>) {
     if (selected === null) return;
-    setSavedNote(false);
+    setCompileNote('');
     setConfig((prev) => {
       if (selected.role === 'reviewer') {
         const reviewers = prev.reviewers.map(
@@ -217,7 +260,7 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
   }
 
   function updateGlobal(patch: Partial<Pick<GraphConfig, 'paper_id' | 'num_reviewers' | 'max_rounds'>>) {
-    setSavedNote(false);
+    setCompileNote('');
     setConfig((prev) => {
       const next = { ...prev, ...patch };
       next.reviewers = resizeReviewers(next.reviewers, next.num_reviewers);
@@ -230,15 +273,29 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
     }
   }
 
-  function onSave() {
-    saveGraphConfig(config);
-    setSavedNote(true);
+  /** Push the config to the BE: POST /graph/compile builds the agents and
+   * loads the graph. On success it is also saved locally for "Lancia review". */
+  async function onCompile() {
+    setCompileError('');
+    setCompileNote('');
+    setCompiling(true);
+    try {
+      const request = toBackendRequest(config, '');
+      await compileGraph(request);
+      saveGraphConfig(config);
+      setCompileNote('Grafo compilato ✓ — configurazione caricata sul backend e salvata.');
+    } catch (err) {
+      setCompileError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setCompiling(false);
+    }
   }
 
   function onReset() {
     setConfig(defaultConfig());
     setSelected(null);
-    setSavedNote(false);
+    setCompileNote('');
+    setCompileError('');
   }
 
   const isSelected = (sel: Selection) => selectionKey === keyOf(sel);
@@ -298,11 +355,17 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
             />
           </div>
           <div className="rg-globals__actions">
-            <button className="btn btn--primary" type="button" onClick={onSave}>Salva configurazione</button>
-            <button className="btn btn--ghost btn--sm" type="button" onClick={onReset}>Ripristina default</button>
+            <button className="btn btn--primary" type="button" disabled={compiling || !config.paper_id} onClick={onCompile}>
+              {compiling ? 'Compilo…' : 'Compila grafo'}
+            </button>
+            <button className="btn btn--ghost btn--sm" type="button" disabled={compiling} onClick={onReset}>Ripristina default</button>
           </div>
         </div>
-        {savedNote && <p className="rg-saved">Configurazione salvata — verrà usata da "Lancia review".</p>}
+        {configSource === 'backend' && !compileNote && !compileError && (
+          <p className="rg-saved">Configurazione caricata dal backend{config.paper_id ? '' : ' — seleziona un paper per compilare'}.</p>
+        )}
+        {compileNote && <p className="rg-saved">{compileNote}</p>}
+        {compileError && <p className="paper-form__error">{compileError}</p>}
 
         <div className="rg-layout">
           {/* ── Pipeline graph ── */}
@@ -381,11 +444,10 @@ function ConfigureReviewModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-type LaunchPhase = 'idle' | 'compiling' | 'running' | 'done' | 'error';
+type LaunchPhase = 'idle' | 'running' | 'done' | 'error';
 
 const PHASE_NOTES: Record<LaunchPhase, string> = {
   idle: '',
-  compiling: 'Compilo il grafo e costruisco gli agenti…',
   running: 'Review in corso — reviewer, meta reviewer, area chair…',
   done: 'Review completata e salvata nello storico.',
   error: '',
@@ -405,7 +467,7 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const busy = phase === 'compiling' || phase === 'running';
+  const busy = phase === 'running';
   const models = [
     ...config.reviewers.map((r) => r.model),
     config.meta_reviewer.model,
@@ -425,19 +487,19 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
       `${label}: ${req!.base_prompt_version}` +
       (req!.instruction_labels.length ? ` +${req!.instruction_labels.join(' +')}` : ''));
 
+  /** Invoke only: the graph must already be compiled from "Configura review". */
   async function onLaunch() {
     setError('');
     setRecord(null);
     try {
       const request = toBackendRequest(config, description);
-      setPhase('compiling');
-      await compileGraph(request);
       setPhase('running');
       setRecord(await invokeGraph(request));
       setPhase('done');
     } catch (err) {
       setPhase('error');
-      setError(err instanceof ApiError ? err.message : String(err));
+      const message = err instanceof ApiError ? err.message : String(err);
+      setError(`${message} — se il grafo non è stato compilato, apri "Configura review" e premi "Compila grafo".`);
     }
   }
 
