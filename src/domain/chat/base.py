@@ -19,6 +19,7 @@ from langchain_openai import ChatOpenAI
 
 from config import Config, get_global_config
 from core.error import ValidationError
+from core.observability import LogPrefix, observed
 from models.domain.chat import (
     AreaChairResponseSchema,
     AuthorResponseSchema,
@@ -182,7 +183,8 @@ class Chat:
     def __init__(self, chat_model: BaseChatModel | None, model_name: ChatModelName | None = None):
         self._chat_model = chat_model
         self._model_name = model_name
-
+    
+    @observed(LogPrefix.CHAT_INVOKE)
     def invoke(
         self,
         system_prompt: str,

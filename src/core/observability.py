@@ -15,15 +15,17 @@ class LogPrefix(StrEnum):
     
     CONTAINER = "CONTAINER"
     DB_ENGINE = "DB_ENGINE"
-    REDIS_CLIENT = "REDIS_CLIENT"
     
     REDIS_MALFORMED_DATA = "REDIS_MALFORMED_DATA"
+
+    CHAT_INVOKE = "AGENT_NODE_CALL"
+    AGENT_RUN = "AGENT_RUN"
     
     RAG_INDEX_REPOSITORY = "RAG_INDEX_REPOSITORY"
     PROMPT_REPOSITORY = "PROMPT_REPOSITORY"
     STORE_SERVICE = "STORE_SERVICE"
     GRAPH_SERVICE = "GRAPH_SERVICE"
-    RETRIEVAL_SERVICE = "retrieval-service"
+    RETRIEVAL_SERVICE = "retrieval-service"    
 
 
 def log_info(prefix: LogPrefix | None = None, message: str = "", *args, **kwargs):

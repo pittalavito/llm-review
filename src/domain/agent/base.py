@@ -2,6 +2,7 @@ from abc import ABC
 from time import perf_counter
 
 from core.error import ValidationError, UpstreamError
+from core.observability import LogPrefix, observed
 from domain.chat.base import Chat, ChatResponse
 from models.domain.chat import AreaChairResponseSchema, AuthorResponseSchema, ChatModelResponseSchema, MetaReviewResponseSchema, ReviewerResponseSchema
 from models.domain.agent import AgentResponse, AgentRole, AgentRequestContext, ContextMode, CreateAgentRequest
@@ -95,7 +96,8 @@ class Agent(ABC):
         if self.agent_context is None or self.agent_context.context_mode == ContextMode.NONE:
             raise ValueError("Cannot set context when context_mode is NONE.")
         self.context = context
-        
+    
+    @observed(LogPrefix.AGENT_RUN)    
     def run(self, input_message: str) -> AgentResponse:
         message = self._normalize_message(input_message)
         start = perf_counter()

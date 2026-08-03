@@ -14,9 +14,8 @@ from typing import TypedDict
 from langgraph.graph import StateGraph
 
 from domain.agent.base import Agent
-from models.domain.agent import AgentResponse
+from models.domain.chat import ChatModelResponseSchema
 from models.domain.run_record import AgentResponseRecord
-
 
 class BaseGraphState(TypedDict):
     """Base state of a graph: concrete graphs subclass it with their fields.
@@ -82,21 +81,25 @@ class AgentNode(ABC):
 
     def __init__(self, agent: Agent):
         self.agent = agent
-
+        
     def __call__(self, state: BaseGraphState) -> dict:
         message = self.set_message(state)
-        response = self.agent.run(message)
-                
         round = state.get("current_round", 0) + self.round_offset
-        record = AgentResponseRecord.from_response(response, round)
+        try:
+            response = self.agent.run(message)                    
+            record = AgentResponseRecord.from_response(response, round)
+            schema = response.response_schema
+        except Exception as e:
+            record = AgentResponseRecord.from_response_error(error_message=str(e), round=round, agent_role=self.agent.agent_role, agent_index=self.agent.agent_index)
+            schema = None
         
-        return self.update_state(state, response, record)
+        return self.update_state(state, schema, record)
 
     @abstractmethod
     def set_message(self, state: BaseGraphState) -> str:
         """Build the input message for the agent from the current state."""
 
     @abstractmethod
-    def update_state(self, state: BaseGraphState, response: AgentResponse, record: AgentResponseRecord) -> dict:
+    def update_state(self, state: BaseGraphState, schema: ChatModelResponseSchema | None, record: AgentResponseRecord) -> dict:
         """Update the state based on the agent's response and the run record."""
 

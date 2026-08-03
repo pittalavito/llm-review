@@ -9,8 +9,8 @@ from domain.agent.base import Agent
 from domain.graph.base import Graph, AgentNode
 from domain.graph.state import ReviewState
 
-from models.domain.agent import AgentResponse, AgentRole
-from models.domain.chat import ChatReviewDecision
+from models.domain.agent import AgentRole
+from models.domain.chat import AreaChairResponseSchema, ChatReviewDecision, MetaReviewResponseSchema, ReviewerResponseSchema, AuthorResponseSchema
 from models.domain.graph import CreateGraphReviewRequest
 from models.domain.run_record import AgentResponseRecord
 
@@ -40,11 +40,17 @@ class ReviewerNode(AgentNode):
             f"Revised sections:\n{sections}"
         )
 
-    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
-        return {
-            "reviews_response": [response.response_schema.model_dump()],
-            "agent_records": [record.model_dump()]
-        }
+    def update_state(self, state: ReviewState, schema: ReviewerResponseSchema | None, record: AgentResponseRecord) -> dict:
+        if schema is None:
+            return {
+                "reviews_response": state.get("reviews_response") or [],
+                "agent_records": [record.model_dump()]
+            }
+        else:
+            return {
+                "reviews_response": [schema.model_dump()],
+                "agent_records": [record.model_dump()]
+            }
 
 
 class MetaReviewerNode(AgentNode):
@@ -54,12 +60,19 @@ class MetaReviewerNode(AgentNode):
         joined = "\n\n".join(f"- {json.dumps(review)}" for review in reviews) if reviews else "(no reviews)"
         return f"Synthesize the following {len(reviews)} reviews into a meta-review:\n\n{joined}"
 
-    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
-        return {
-            "meta_review_response": response.response_schema.model_dump(),
-            "current_round": state["current_round"] + 1,
-            "agent_records": [record.model_dump()],
-        }
+    def update_state(self, state: ReviewState, schema: MetaReviewResponseSchema | None, record: AgentResponseRecord) -> dict:
+        if schema is None:
+            return {
+                "meta_review_response": None,
+                "current_round": state["current_round"] + 1,
+                "agent_records": [record.model_dump()],
+            }
+        else:
+            return {
+                "meta_review_response": schema.model_dump(),
+                "current_round": state["current_round"] + 1,
+                "agent_records": [record.model_dump()],
+            }
 
 
 class AreaChairNode(AgentNode):
@@ -68,13 +81,19 @@ class AreaChairNode(AgentNode):
     def set_message(self, state: ReviewState) -> str:
         return f"Make the final decision based on the meta-review:\n\n{state.get('meta_review_response')}"
 
-    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
-        payload = response.response_schema
-        return {
-            "area_chair_response": payload.model_dump(),
-            "decision": payload.decision,
-            "agent_records": [record.model_dump()],
-        }
+    def update_state(self, state: ReviewState, schema: AreaChairResponseSchema | None, record: AgentResponseRecord) -> dict:
+        if schema is None:
+            return {
+                "area_chair_response": None,
+                "decision": None,
+                "agent_records": [record.model_dump()],
+            }
+        else:
+            return {
+                "area_chair_response": schema.model_dump(),
+                "decision": schema.decision,
+                "agent_records": [record.model_dump()],
+            }
 
 
 class AuthorNode(AgentNode):
@@ -88,13 +107,20 @@ class AuthorNode(AgentNode):
             f"({state.get('area_chair_response')}) and {len(reviews)} reviews."
         )
 
-    def update_state(self, state: ReviewState, response: AgentResponse, record: AgentResponseRecord) -> dict:
-        payload = response.response_schema
-        return {
-            "author_response": payload.model_dump(),
-            "revised_sections": {s.section_name: s.content for s in payload.revised_sections},
-            "agent_records": [record.model_dump()],
-        }
+    def update_state(self, state: ReviewState, schema: AuthorResponseSchema | None, record: AgentResponseRecord) -> dict:
+        if schema is None:
+            return {
+                "author_response": None,
+                "revised_sections": None,
+                "agent_records": [record.model_dump()],
+            }
+        else:
+            payload = schema
+            return {
+                "author_response": payload.model_dump(),
+                "revised_sections": {s.section_name: s.content for s in payload.revised_sections},
+                "agent_records": [record.model_dump()],
+            }
 
 
 class GraphReview(Graph):
@@ -138,19 +164,36 @@ class GraphReview(Graph):
         graph.add_edge(NodeNames.META_REVIEWER, NodeNames.AREA_CHAIR)
 
     def _register_conditional_edges(self, graph: StateGraph) -> None:
-        area_chair_dict = {"accept": END, "revise": NodeNames.AUTHOR_AGENT}
-        author_dict = {"loop": NodeNames.REVIEWER, "end": END}
-        
+        area_chair_dict: dict = {
+            "accept": END, 
+            "fail": END,
+            "revise": NodeNames.AUTHOR_AGENT
+        }
+        author_dict: dict = {
+            "loop": NodeNames.REVIEWER, 
+            "end": END,
+            "fail": END
+        }
         graph.add_conditional_edges(NodeNames.AREA_CHAIR, self._route_after_area_chair, area_chair_dict)
         graph.add_conditional_edges(NodeNames.AUTHOR_AGENT, self._route_after_author, author_dict)
         
     def _route_after_area_chair(self, state: ReviewState) -> str:
-        """After the Area Chair: terminate only on accept, else revise."""
-        return "accept" if state.get("decision") == ChatReviewDecision.ACCEPT else "revise"
+        """After the Area Chair: terminate only on accept; a missing decision
+        means the Area Chair failed to produce structured output, so fail
+        instead of looping forever."""
+        if state.get("decision") is None:
+            return "fail"
+        if state.get("decision") == ChatReviewDecision.ACCEPT:
+            return "accept"
+        return "revise"    
 
     def _route_after_author(self, state: ReviewState) -> str:
         """After the Author: keep looping while rounds remain, else end."""
-        return "end" if state["current_round"] >= state["max_rounds"] else "loop"
+        if state.get("author_response") is None:
+            return "fail"
+        if state["current_round"] >= state["max_rounds"]:
+            return "end"
+        return "loop"
     
     def _get_reviewers(self) -> list[Agent]:
         return sorted(
