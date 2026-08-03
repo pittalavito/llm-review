@@ -125,6 +125,7 @@ class Agent(ABC):
         return AgentResponse(
             agent_role=self.agent_role,
             agent_index=self.agent_index,
+            model=self.chat.model_name,
             response_schema=chat_response.response_schema,
             system_prompt=self.system_prompt,
             input_message=input_message,

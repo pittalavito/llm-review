@@ -183,7 +183,12 @@ class Chat:
     def __init__(self, chat_model: BaseChatModel | None, model_name: ChatModelName | None = None):
         self._chat_model = chat_model
         self._model_name = model_name
-    
+
+    @property
+    def model_name(self) -> ChatModelName | None:
+        return self._model_name
+
+
     @observed(LogPrefix.CHAT_INVOKE)
     def invoke(
         self,

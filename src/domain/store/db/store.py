@@ -122,20 +122,22 @@ class Adapter:
         )
 
     @staticmethod
-    def to_agent_record(row: GraphReviewAgentTable, trace: AgentTraceTable | None) -> AgentResponseRecord:
-        """``graph_review_agent`` row (+ its ``agent_trace``) -> ``AgentResponseRecord``:
-        identity/round from the agent row, everything verbatim from the trace."""
+    def to_agent_record(row: GraphReviewAgentTable, trace: AgentTraceTable | None = None) -> AgentResponseRecord:
+        """``graph_review_agent`` row -> ``AgentResponseRecord``: all data now
+        lives in the agent row itself (response_payload, system_prompt, tokens)."""
         return AgentResponseRecord(
             agent_role=AgentRole(row.agent_role),
             agent_index=row.agent_index,
             round=row.round,
+            model=row.model,
             input_message=trace.input_message if trace else None,
             context_used=trace.context_used if trace else None,
-            response_payload=trace.response_payload if trace else {},
-            system_prompt=trace.system_prompt if trace else None,
-            input_tokens=trace.input_tokens if trace else None,
-            output_tokens=trace.output_tokens if trace else None,
-            total_tokens=trace.total_tokens if trace else None,
+            response_payload=row.response_payload or {},
+            system_prompt=row.system_prompt,
+            input_tokens=row.input_tokens,
+            output_tokens=row.output_tokens,
+            total_tokens=row.total_tokens,
+            latency_seconds=row.latency_seconds,
         )
 
     @staticmethod
@@ -237,18 +239,24 @@ class Factory:
     @staticmethod
     def to_agent_record_row(run_id: str, agent_record: AgentResponseRecord) -> GraphReviewAgentTable:
         """Build one ``graph_review_agent`` facts row (rating/confidence/
-        overall_score/decision extracted from the payload). ``agent_trace_id``
-        is linked by the repository after the trace row is flushed."""
+        overall_score/decision extracted from the payload) + response + metadata."""
         payload = agent_record.response_payload
         return GraphReviewAgentTable(
             run_id=run_id,
             agent_role=str(agent_record.agent_role),
             agent_index=agent_record.agent_index,
             round=agent_record.round,
+            model=agent_record.model,
             rating=payload.get("rating"),
             confidence=payload.get("confidence"),
             overall_score=payload.get("overall_score"),
             decision=payload.get("decision") or payload.get("recommendation"),
+            response_payload=payload,
+            system_prompt=agent_record.system_prompt,
+            input_tokens=agent_record.input_tokens,
+            output_tokens=agent_record.output_tokens,
+            total_tokens=agent_record.total_tokens,
+            latency_seconds=agent_record.latency_seconds,
         )
 
     @staticmethod

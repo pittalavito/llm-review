@@ -56,27 +56,9 @@ RAG_INDEX_KEYSPACE = RedisKeyspace(
     ),
 )
 
-OPEN_REVIEW_CACHE_KEYSPACE = RedisKeyspace(
-    name="open-review-cache",
-    value=(
-        "models.store.redis.OpenReviewCache as JSON — the OpenReview notes cached for "
-        "one paper. Suffix = paper filename stem. Re-fetched on a miss."
-    ),
-)
-
-OBSERVABILITY_TOKEN_KEYSPACE = RedisKeyspace(
-    name="observability-token",
-    value=(
-        "str — the observability token for one paper. Suffix = SHA-256 of the paper's relative path. "
-        "Used to authenticate the paper's OpenReview notes and RAG index."
-    ),
-    persistent=False,
-)
 
 ALL_KEYSPACES: tuple[RedisKeyspace, ...] = (
     RAG_INDEX_KEYSPACE,
-    OPEN_REVIEW_CACHE_KEYSPACE,
-    OBSERVABILITY_TOKEN_KEYSPACE,
 )
 
 

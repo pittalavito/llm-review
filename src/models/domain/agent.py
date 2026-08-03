@@ -64,9 +64,10 @@ class AgentResponse(BaseModel):
     was produced."""
     agent_role: AgentRole
     agent_index: int | None = None
-    
+    model: ChatModelName | None = None
+
     response_schema: SerializeAsAny[ChatModelResponseSchema]
-    
+
     system_prompt: str | None = None
     input_message: str | None = None
     context_used: str | None = None

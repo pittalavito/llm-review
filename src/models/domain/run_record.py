@@ -8,6 +8,7 @@ class AgentResponseRecord(BaseModel):
     round: int
     agent_role: AgentRole
     agent_index: int | None = None
+    model: str | None = None
     response_payload: dict
     input_message: str | None = None
     context_used: str | None = None
@@ -25,6 +26,7 @@ class AgentResponseRecord(BaseModel):
             round=round,
             agent_role=response.agent_role,
             agent_index=response.agent_index,
+            model=str(response.model) if response.model is not None else None,
             response_payload=response.response_schema.model_dump(),
             input_message=response.input_message,
             context_used=response.context_used,

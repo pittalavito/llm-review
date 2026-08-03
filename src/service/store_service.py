@@ -76,11 +76,6 @@ class StoreService:
         rows = self._runs_repository.get_rows(run_id)
         return DbAdapter.to_run_record(*rows) if rows is not None else None
 
-    def get_agent_records(self, run_id: str, agent_role: AgentRole | None = None, agent_index: int | None = None, round_index: int | None = None) -> list[AgentResponseRecord] | None:
-        role = str(agent_role) if agent_role is not None else None
-        pairs = self._runs_repository.get_agent_record_rows(run_id, role, agent_index, round_index)
-        return DbAdapter.to_agent_records(pairs) if pairs is not None else None
-
     def get_run_ids_for_paper(self, paper_id: str) -> list[str]:
         return self._runs_repository.list_run_ids_for_paper(paper_id)
 

@@ -75,23 +75,6 @@ class DbRunRepository(SqlRepository[GraphReviewTable]):
             traces = self._traces_for(session, agent_rows)
         return run_row, agent_rows, traces
 
-    def get_agent_record_rows(self, run_id: str, agent_role: str | None = None, agent_index: int | None = None, round_index: int | None = None) -> list[AgentRecordPair] | None:
-        """Agent rows + traces for a run, filtered in SQL. None if the run is
-        absent."""
-        with self._session() as session:
-            if session.get(GraphReviewTable, run_id) is None:
-                return None
-            statement = select(GraphReviewAgentTable).where(GraphReviewAgentTable.run_id == run_id)
-            if agent_role is not None:
-                statement = statement.where(GraphReviewAgentTable.agent_role == agent_role)
-            if agent_index is not None:
-                statement = statement.where(GraphReviewAgentTable.agent_index == agent_index)
-            if round_index is not None:
-                statement = statement.where(GraphReviewAgentTable.round == round_index)
-            rows = list(session.exec(statement.order_by(GraphReviewAgentTable.id)).all())
-            traces = self._traces_for(session, rows)
-        return [(row, traces.get(row.agent_trace_id)) for row in rows]
-
     def list_run_ids_for_paper(self, paper_id: str) -> list[str]:
         """Run ids for a paper, most recent first."""
         with self._session() as session:

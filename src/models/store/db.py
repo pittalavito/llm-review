@@ -38,9 +38,7 @@ class GraphReviewTable(SQLModel, table=True):
 
 class GraphReviewAgentTable(SQLModel, table=True):
     """One row per agent invocation (N per run): the full identity
-    (role/index/round) and the extracted analytics. ``id`` preserves the
-    original order; the verbatim trace lives in ``agent_trace`` (1:1 via
-    ``agent_trace_id``)."""
+    (role/index/round), extracted analytics, and the response payload + metadata."""
 
     __tablename__ = "graph_review_agent"  # type: ignore
     __table_args__ = (
@@ -57,11 +55,20 @@ class GraphReviewAgentTable(SQLModel, table=True):
     agent_role: str
     agent_index: int | None = None
     round: int
+    model: str | None = None
     rating: int | None = None
     confidence: int | None = None
     overall_score: int | None = None
     decision: str | None = None
+    #
     agent_trace_id: int | None = Field(default=None, sa_column=Column(ForeignKey("agent_trace.id", ondelete="SET NULL"), nullable=True))
+
+    response_payload: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    system_prompt: str | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None
+    latency_seconds: float | None = None
 
 
 class AgentTraceTable(SQLModel, table=True):
