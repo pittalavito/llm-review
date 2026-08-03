@@ -91,15 +91,15 @@ class ReviewerResponseSchema(ChatModelResponseSchema):
     reasons_for_acceptance: list[str] = Field(min_length=1, max_length=4)
     reasons_for_rejection: list[str] = Field(default_factory=list, max_length=4)
     suggestions: list[str] = Field(default_factory=list, max_length=4)
-    rating: int = ranges.field(ranges.RATING)
-    confidence: int = ranges.field(ranges.CONFIDENCE)
+    rating: int = Field(ge=ranges.RATING[0], le=ranges.RATING[1])
+    confidence: int = Field(ge=ranges.CONFIDENCE[0], le=ranges.CONFIDENCE[1])
 
 
 class MetaReviewResponseSchema(ChatModelResponseSchema):
     """Aggregates the three reviews into a summary and recommendation for the Area Chair."""
     summary: str = Field(min_length=1, max_length=600)
     key_points: list[str] = Field(min_length=1, max_length=5)
-    overall_score: int = ranges.field(ranges.SCORE)
+    overall_score: int = Field(ge=ranges.SCORE[0], le=ranges.SCORE[1])
     recommendation: ChatReviewDecision
 
 
@@ -108,7 +108,7 @@ class AreaChairResponseSchema(ChatModelResponseSchema):
     summary: str = Field(min_length=1, max_length=400)
     justification: str = Field(min_length=1, max_length=400)
     decision: ChatReviewDecision
-    confidence: int = ranges.field(ranges.CONFIDENCE)
+    confidence: int = Field(ge=ranges.CONFIDENCE[0], le=ranges.CONFIDENCE[1])
 
 
 class AuthorResponseSchema(ChatModelResponseSchema):
