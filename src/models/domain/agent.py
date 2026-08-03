@@ -31,6 +31,7 @@ class AgentRequestContext(BaseModel):
     retrieval_context_query: str | None = None    
     """The query used to retrieve the context for this agent. If it is not None, it contains the relevant query."""
     
+    @staticmethod
     def default_none_context() -> "AgentRequestContext":
         return AgentRequestContext(context_mode=ContextMode.NONE, retrieval_context_query=None)
     

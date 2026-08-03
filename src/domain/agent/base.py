@@ -98,19 +98,17 @@ class Agent(ABC):
         
     def run(self, input_message: str) -> AgentResponse:
         message = self._normalize_message(input_message)
+        start = perf_counter()
         try:
-            start = perf_counter()
-
             chat_response = self._invoke_chat(message)
-
         except Exception as exc:
             raise UpstreamError(f"LLM call failed for agent '{self.name}': {exc}") from exc
-        
-        latencyInSeconds = (perf_counter() - start)        
-        return self._to_response(message, chat_response, latencyInSeconds)
-    
+
+        latency_seconds = perf_counter() - start
+        return self._to_response(message, chat_response, latency_seconds)
+
     def _invoke_chat(self, message: str) -> ChatResponse:
-        return self.chat.invoke(self.system_prompt, message, self.context, self.response_schema, label=self.name)
+        return self.chat.invoke(self.system_prompt or "", message, self.context, self.response_schema, label=self.name)
 
     @staticmethod
     def _normalize_message(message: str) -> str:
@@ -120,6 +118,8 @@ class Agent(ABC):
         return normalized
     
     def _to_response(self, input_message: str, chat_response: ChatResponse, latency_seconds: float | None = None) -> AgentResponse:
+        if chat_response.response_schema is None:
+            raise UpstreamError(f"Agent '{self.name}' got no parsed payload from the chat layer: {chat_response.parsing_error}")
         return AgentResponse(
             agent_role=self.agent_role,
             agent_index=self.agent_index,
@@ -144,7 +144,7 @@ class ReviewerAgent(Agent):
         chat: Chat,
         index: int = 1,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_full_context(),
-        system_prompt: str = "",
+        system_prompt: str | None = "",
     ):
         super().__init__(
             chat=chat, 
@@ -163,7 +163,7 @@ class MetaReviewerAgent(Agent):
         self,
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
-        system_prompt: str = "",
+        system_prompt: str | None = "",
     ):
         super().__init__(
             chat=chat, 
@@ -182,7 +182,7 @@ class AreaChairAgent(Agent):
         self,
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
-        system_prompt: str = "",
+        system_prompt: str | None = "",
     ):
         super().__init__(
             chat=chat, 
@@ -201,7 +201,7 @@ class AuthorAgent(Agent):
         self,
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
-        system_prompt: str = "",
+        system_prompt: str | None = "",
     ):
         super().__init__(
             chat, 
@@ -222,7 +222,7 @@ class ChatAgent(Agent):
         self,
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
-        system_prompt: str = ""
+        system_prompt: str | None = ""
     ):
         super().__init__(
             chat=chat,

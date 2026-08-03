@@ -25,6 +25,7 @@ from models.domain.chat import (
     ChatFallbackRawResponseSchema,
     ChatModelName,
     ChatModelResponseSchema,
+    ChatReviewDecision,
     MetaReviewResponseSchema,
     ChatReviewerRebuttal,
     ReviewerResponseSchema,
@@ -95,25 +96,24 @@ class Factory:
             base_url=config.ollama_url,
             temperature=temperature,
             num_predict=config.ollama_num_predict,
-            keep_alive=config.ollama_keep_alive,
-            api_key=config.ollama_api_key,
+            keep_alive=config.ollama_keep_alive
         )
 
     @staticmethod
     def _build_openai(model: ChatModelName, temperature: float, config: Config) -> BaseChatModel:
-        if not config.openai_api_key:
+        if config.openai_api_key is None or not config.openai_api_key.get_secret_value():
             raise ValueError("OPENAI_API_KEY not configured.")
         return ChatOpenAI(model=model, api_key=config.openai_api_key, temperature=temperature)
 
     @staticmethod
     def _build_anthropic(model: ChatModelName, temperature: float, config: Config) -> BaseChatModel:
-        if not config.anthropic_api_key:
+        if config.anthropic_api_key is None or not config.anthropic_api_key.get_secret_value():
             raise ValueError("ANTHROPIC_API_KEY not configured.")
-        return ChatAnthropic(model=model, api_key=config.anthropic_api_key, temperature=temperature)
+        return ChatAnthropic(model_name=model, api_key=config.anthropic_api_key, temperature=temperature, timeout=None, stop=None)
 
     @staticmethod
     def _build_other_llm_provider(model: ChatModelName, temperature: float, config: Config) -> BaseChatModel:
-        if not config.other_llm_provider_api_key:
+        if config.other_llm_provider_api_key is None or not config.other_llm_provider_api_key.get_secret_value():
             raise ValueError("OTHER_LLM_PROVIDER_API_KEY not configured.")
         return ChatOpenAI(
             model=model,
@@ -166,6 +166,10 @@ class Invoke:
         structured = chat_model.with_structured_output(response_schema, include_raw=True)
         runnable = chat_message | structured
         chat_response = runnable.invoke(chat_variables)
+        # include_raw=True always yields a dict at runtime; the guard narrows
+        # the declared dict | BaseModel union for the type checker too.
+        if not isinstance(chat_response, dict):
+            raise ValidationError(f"Invalid chat response format: {chat_response}")
         normalized = Adapter.to_chat_response_dict(chat_response)
         if normalized.response_schema is None:
             raise ValidationError(f"Structured output parsing failed for '{label}': {normalized.parsing_error}")
@@ -173,9 +177,9 @@ class Invoke:
 
 
 class Chat:
-    """Chat facade bound to one chat model."""
+    """Chat facade bound to one chat model (None only for the mock subclass)."""
 
-    def __init__(self, chat_model: BaseChatModel, model_name: ChatModelName | None = None):
+    def __init__(self, chat_model: BaseChatModel | None, model_name: ChatModelName | None = None):
         self._chat_model = chat_model
         self._model_name = model_name
 
@@ -195,7 +199,9 @@ class Chat:
         
         if self._model_name == ChatModelName.MOCK:
             return MockChat().invoke(system_prompt, message, context, response_schema)
-        
+        if self._chat_model is None:
+            raise ValidationError("Chat has no model bound.")
+
         chat_message = Factory.create_chat_message(system_prompt)
         chat_variables = Factory.create_chat_variables(message, context)
         if response_schema is None:
@@ -277,12 +283,12 @@ _MOCK_INSTANCES: dict[type[ChatModelResponseSchema], ChatModelResponseSchema] = 
         summary="Solid foundations but revisions needed before acceptance.",
         key_points=["Methodology valid", "Presentation improvable", "Contribution interesting"],
         overall_score=6,
-        recommendation="minor_revision",
+        recommendation=ChatReviewDecision.MINOR_REVISION,
     ),
     AreaChairResponseSchema: AreaChairResponseSchema(
         summary="Reviewer concerns are moderate and addressable; minor revision required.",
         justification="Contribution is valid; concerns can be addressed with limited rework.",
-        decision="minor_revision",
+        decision=ChatReviewDecision.MINOR_REVISION,
         confidence=4,
     ),
     AuthorResponseSchema: AuthorResponseSchema(

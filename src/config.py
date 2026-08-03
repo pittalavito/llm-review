@@ -1,9 +1,10 @@
 """Application configuration, loaded from environment variables / .env."""
 import re
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-_instance: BaseSettings | None = None
+_instance: "Config | None" = None
 
 _SENSITIVE_KEY_MARKERS = ("password", "api_key", "secret", "token")
 _MASK = "********"
@@ -37,22 +38,25 @@ class Config(BaseSettings):
     redis_url: str
 
     # --- LLM providers ---
-    openai_api_key: str | None = None
-    anthropic_api_key: str | None = None
+    # API keys are SecretStr end-to-end: masked in any repr/dump by default,
+    # and the LangChain clients take the SecretStr as-is.
+    openai_api_key: SecretStr | None = None
+    anthropic_api_key: SecretStr | None = None
     ollama_url: str | None = None
-    ollama_api_key: str | None = None
+    ollama_api_key: SecretStr | None = None
     ollama_num_predict: int = 2048
     ollama_keep_alive: str = "10m"
     other_llm_provider_url: str | None = None
-    other_llm_provider_api_key: str | None = None
+    other_llm_provider_api_key: SecretStr | None = None
 
 
 def initialize_global_config() -> Config:
     """Initialize the global configuration instance."""
     global _instance
     if _instance is None:
-        _instance = Config()
-    return _instance    
+        # BaseSettings fills the required fields from env/.env at runtime.
+        _instance = Config()  # pyright: ignore[reportCallIssue]
+    return _instance
 
 
 def get_global_config() -> Config:
@@ -67,6 +71,8 @@ def get_config_with_secrets_masked() -> dict:
     config = get_global_config()
     result = {}
     for name, value in config.model_dump().items():
+        if isinstance(value, SecretStr):
+            value = value.get_secret_value()
         if value in (None, ""):
             result[name] = value
         elif any(marker in name for marker in _SENSITIVE_KEY_MARKERS):
