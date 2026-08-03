@@ -3,7 +3,7 @@ RagIndex/OpenReview deserialization and, above all, the OpenReview note parser
 (v1 flat content + v2 {"value": ...} wrapping) that produces the structured
 HumanReview / HumanMetaReview / decision. No Redis involved."""
 from models.domain.comparator import HumanMetaReview, HumanReview
-from models.domain.openreview import OpenReviewCache
+from models.domain.openreview import OpenReviewNotes
 from models.domain.retrieval import IndexInfo, RagIndex
 from models.store.redis import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
@@ -112,7 +112,7 @@ class TestParserHelpers:
 
 class TestHumanReviews:
     def test_parses_v1_flat_note(self):
-        cache = OpenReviewCache.from_notes([Utils.review_note_v1()])
+        cache = OpenReviewNotes.from_notes([Utils.review_note_v1()])
         reviews = Adapter.to_human_reviews(cache)
         assert len(reviews) == 1
         r = reviews[0]
@@ -123,14 +123,14 @@ class TestHumanReviews:
         assert r.confidence == 4
 
     def test_parses_v2_value_wrapped_note(self):
-        cache = OpenReviewCache.from_notes([Utils.review_note_v2()])
+        cache = OpenReviewNotes.from_notes([Utils.review_note_v2()])
         r = Adapter.to_human_reviews(cache)[0]
         assert r.reviewer_id == "Reviewer_xyz"
         assert r.summary == "S2" and r.full_text == "R2"
         assert r.rating == 8 and r.confidence == 5
 
     def test_ignores_non_review_notes(self):
-        cache = OpenReviewCache.from_notes([
+        cache = OpenReviewNotes.from_notes([
             {"id": "d", "invitation": "ICLR/-/Decision", "content": {"decision": "Accept"}},
             {"id": "m", "invitation": "ICLR/-/Meta_Review", "content": {"metareview": "x"}},
         ])
@@ -139,7 +139,7 @@ class TestHumanReviews:
 
 class TestHumanMetaReview:
     def test_parses_v1_meta_review(self):
-        cache = OpenReviewCache.from_notes([
+        cache = OpenReviewNotes.from_notes([
             {"id": "m1", "invitation": "ICLR/-/Meta_Review",
              "content": {"metareview": "Solid but revise.", "recommendation": "Accept"}},
         ])
@@ -150,25 +150,25 @@ class TestHumanMetaReview:
         assert meta.recommendation == "Accept"
 
     def test_none_when_absent(self):
-        cache = OpenReviewCache.from_notes([Utils.review_note_v1()])
+        cache = OpenReviewNotes.from_notes([Utils.review_note_v1()])
         assert Adapter.to_human_meta_review(cache) is None
 
 
 class TestDecision:
     def test_parses_decision_note(self):
-        cache = OpenReviewCache.from_notes([
+        cache = OpenReviewNotes.from_notes([
             {"id": "dec", "invitation": "ICLR/-/Decision", "content": {"decision": "Accept (Poster)"}},
         ])
         assert Adapter.to_open_review_decision(cache) == "Accept (Poster)"
 
     def test_v2_decision_value_wrapped(self):
-        cache = OpenReviewCache.from_notes([
+        cache = OpenReviewNotes.from_notes([
             {"id": "dec", "invitations": ["ICLR/-/Decision"], "content": {"decision": {"value": "Reject"}}},
         ])
         assert Adapter.to_open_review_decision(cache) == "Reject"
 
     def test_none_when_absent(self):
-        cache = OpenReviewCache.from_notes([Utils.review_note_v1()])
+        cache = OpenReviewNotes.from_notes([Utils.review_note_v1()])
         assert Adapter.to_open_review_decision(cache) is None
 
 
@@ -180,7 +180,7 @@ class TestFactory:
         assert len(record.sections) == 2
 
     def test_to_open_review_cache_record_roundtrips(self):
-        cache = OpenReviewCache.from_notes([Utils.review_note_v1()])
+        cache = OpenReviewNotes.from_notes([Utils.review_note_v1()])
         record = Factory.to_open_review_cache_record(cache)
         assert isinstance(record, StoreOpenReviewCache)
         assert len(record.notes) == 1

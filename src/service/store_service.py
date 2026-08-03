@@ -16,13 +16,16 @@ from domain.prompt.default import DEFAULT_PROMPT_SEEDS
 from domain.prompt.instruction_default import DEFAULT_INSTRUCTION_SEEDS
 
 from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbAuthorRepository, DbInstructionRepository, DbPaperRepository, DbPromptRepository, DbRunRepository
-from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository, RedisOpenReviewCacheRepository
+from domain.store.db.open_review_repository import DbOpenReviewRepository
+from domain.store.db.open_review_adapter import OpenReviewAdapter
+from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository
 from domain.store.files.store import FilePaperRepository
 
 from models.domain.agent import AgentRole
 from models.domain.comparator import HumanMetaReview, HumanReview
-from models.domain.openreview import OpenReviewCache
+from models.domain.openreview import OpenReviewNotes
 from models.domain.paper import Author, Paper
+from models.store.db import OpenReviewTable
 from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion
 from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
@@ -36,8 +39,8 @@ class StoreService:
         self._authors_repository = DbAuthorRepository()
         self._prompts_repository = DbPromptRepository()
         self._instructions_repository = DbInstructionRepository()
+        self._open_review_repository = DbOpenReviewRepository()
         self._rag_index_repository = RedisRagIndexRepository()
-        self._cache_repository = RedisOpenReviewCacheRepository()
         self._papers_files_repository = FilePaperRepository()
 
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
@@ -203,33 +206,34 @@ class StoreService:
         return RedisAdapter.to_full_paper_text(index) if index is not None else None
 
     # ------------------------------------------------------------------
-    # OpenReview cache (Redis) — the record is already the domain shape
+    # OpenReview data (SQL)
     # ------------------------------------------------------------------
 
-    def get_open_review_cache(self, key: str) -> OpenReviewCache | None:
-        record = self._cache_repository.load(key)
-        return RedisAdapter.to_open_review_cache(record) if record is not None else None
+    def save_open_review_data(self, paper_id: str, notes: OpenReviewNotes) -> None:
+        """Parse OpenReview cache and save structured review data to DB."""
+        records = OpenReviewAdapter.from_notes(notes, paper_id)
+        if records:
+            self._open_review_repository.create_batch(records)
 
-    def save_open_review_cache(self, key: str, cache: OpenReviewCache) -> None:
-        self._cache_repository.save(key, RedisFactory.to_open_review_cache_record(cache))
+    def get_open_review_data(self, paper_id: str) -> list:
+        """Get all parsed review records for a paper."""
+        return self._open_review_repository.list_by_paper(paper_id)
 
-    def get_human_reviews(self, key: str) -> list[HumanReview]:
-        cache = self.get_open_review_cache(key)
-        return RedisAdapter.to_human_reviews(cache) if cache is not None else []
+    def get_human_reviews(self, paper_id: str) -> list[HumanReview]:
+        """Get HumanReview objects from SQL for a paper."""
+        rows = self._open_review_repository.list_by_paper(paper_id)
+        return OpenReviewAdapter.to_human_reviews_from_rows(rows)
 
-    def get_human_meta_review(self, key: str) -> HumanMetaReview | None:
-        cache = self.get_open_review_cache(key)
-        return RedisAdapter.to_human_meta_review(cache) if cache is not None else None
-
-    def get_open_review_decision(self, key: str) -> str | None:
-        cache = self.get_open_review_cache(key)
-        return RedisAdapter.to_open_review_decision(cache) if cache is not None else None
+    def get_human_meta_review(self, paper_id: str) -> HumanMetaReview | None:
+        """Get HumanMetaReview from SQL for a paper."""
+        rows = self._open_review_repository.list_by_paper(paper_id)
+        return OpenReviewAdapter.to_human_meta_reviews_from_rows(rows)
 
     # ------------------------------------------------------------------
     # Paper files (local filesystem) — the record is already the domain shape
     # ------------------------------------------------------------------
     
-    def get_source_path_for_paper(self, paper_id: str) -> str | None:
+    def get_source_path_for_paper(self, paper_id: str):
         return self._papers_files_repository.resolve(paper_id)
     
     def signature(self, paper_id: str) -> RagFileSignature:

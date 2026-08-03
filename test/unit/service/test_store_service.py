@@ -8,7 +8,7 @@ import pytest
 
 import service.store_service as store_service_mod
 from models.domain.agent import AgentRole
-from models.domain.openreview import OpenReviewCache
+from models.domain.openreview import OpenReviewNotes
 from models.domain.paper import Author, Paper, PaperType
 from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion
 from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
@@ -433,7 +433,7 @@ class TestOpenReview:
         assert service.get_human_reviews("missing") == []
 
     def test_save_open_review_cache_builds_store_record(self, service):
-        service.save_open_review_cache("k", OpenReviewCache.from_notes([_review_note()]))
+        service.save_open_review_cache("k", OpenReviewNotes.from_notes([_review_note()]))
         assert isinstance(FakeCache.saved["k"], StoreOpenReviewCache)
         assert len(FakeCache.saved["k"].notes) == 1
 

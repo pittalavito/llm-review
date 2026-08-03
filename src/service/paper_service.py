@@ -1,6 +1,6 @@
 from core.error import ValidationError
 from domain.client.openreview import NotesAdapter
-from models.domain.openreview import OpenReviewCache
+from models.domain.openreview import OpenReviewNotes
 from models.domain.paper import Author, CreateOpenReviewPaperRequest, Paper, PaperType
 
 from service.store_service import StoreService
@@ -35,11 +35,6 @@ class PaperService:
         return self._store_service.get_paper_authors(paper_id)
 
     def create_from_openreview(self, request: CreateOpenReviewPaperRequest) -> Paper | None:
-        """Create a paper from an OpenReview forum: everything (metadata,
-        authors, decision, PDF bytes) arrives ready from the FE — here we only
-        detect the API version from the forum note, save row+file+authors and
-        cache the verbatim notes under the paper_id (for the comparator).
-        None when a paper with the same id already exists."""
         if not request.file_bytes.startswith(b"%PDF"):
             raise ValidationError(
                 "The uploaded file is not a valid PDF — likely the OpenReview "
@@ -52,6 +47,6 @@ class PaperService:
         saved = self._store_service.save_paper(paper, request.file_bytes, "pdf", authors=request.authors)
         if saved is None:
             return None
-
-        self._store_service.save_open_review_cache(saved.paper_id, OpenReviewCache.from_notes(request.notes))
+        notes = OpenReviewNotes.from_notes(request.notes)
+        self._store_service.save_open_review_data(saved.paper_id, notes)
         return saved

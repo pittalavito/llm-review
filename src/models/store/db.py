@@ -181,3 +181,38 @@ class PaperTable(SQLModel, table=True):
     openreview_api_version: str | None = None
     human_decision: str | None = None
     num_graph_review: int = 0
+
+
+class OpenReviewTable(SQLModel, table=True):
+    """Parsed OpenReview data extracted from loaded papers. One row per
+    review/meta-review/area-chair decision. Linked to paper via ``paper_id``."""
+
+    __tablename__ = "open_review"  # type: ignore
+    __table_args__ = (
+        CheckConstraint("reviewer_index IS NULL OR reviewer_index >= 1", name="ck_open_review_reviewer_index"),
+        CheckConstraint(ranges.sql_check_between("rating", ranges.RATING), name="ck_open_review_rating"),
+        CheckConstraint(ranges.sql_check_between("confidence", ranges.CONFIDENCE), name="ck_open_review_confidence"),
+        CheckConstraint(ranges.sql_check_between("overall_score", ranges.SCORE), name="ck_open_review_overall_score"),
+        Index("ix_open_review_paper", "paper_id"),
+    )
+
+    id: int | None = Field(default=None, primary_key=True)
+    paper_id: str = Field(sa_column=Column(ForeignKey("paper.paper_id", ondelete="CASCADE"), nullable=False, index=True))
+    note_id: str
+    reviewer_type: str
+    reviewer_id: str | None = None
+    reviewer_index: int | None = None
+
+    rating: int | None = None
+    confidence: int | None = None
+    overall_score: int | None = None
+    decision: str | None = None
+    recommendation: str | None = None
+
+    significance_and_novelty: str | None = None
+    review_text: str | None = None
+    summary: str | None = None
+    justification: str | None = None
+
+    created_at: str = Field(index=True)
+    updated_at: str

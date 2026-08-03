@@ -7,7 +7,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class OpenReviewCacheNote(BaseModel):
+class OpenReviewNote(BaseModel):
     """A single OpenReview note (one entry of a forum thread). Only the fields the
     pipeline reads are typed; everything else round-trips via extra="allow"."""
 
@@ -25,13 +25,13 @@ class OpenReviewCacheNote(BaseModel):
     content: dict[str, Any] = Field(default_factory=dict)
 
 
-class OpenReviewCache(BaseModel):
+class OpenReviewNotes(BaseModel):
     """Cache of one paper's OpenReview response: the list of its notes."""
 
-    notes: list[OpenReviewCacheNote] = Field(default_factory=list)
+    notes: list[OpenReviewNote] = Field(default_factory=list)
 
     @classmethod
-    def from_notes(cls, notes: list[dict]) -> "OpenReviewCache":
+    def from_notes(cls, notes: list) -> "OpenReviewNotes":
         return cls(notes=notes)
 
     def to_notes(self) -> list[dict]:
