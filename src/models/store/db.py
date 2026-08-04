@@ -130,6 +130,9 @@ class PromptInstructionTable(SQLModel, table=True):
     instruction: str
     description: str | None = None
     agent_role: str | None = None
+    run_id: str | None = None
+    """Anchor to the graph run the instruction was derived from (e.g. a
+    calibration written after comparing that run with OpenReview)."""
     created_at: str
     is_active: bool = True
 

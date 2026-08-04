@@ -26,6 +26,9 @@ MALICIOUS = "malicious"
 KNOWLEDGEABLE = "knowledgeable"
 UNKNOWLEDGEABLE = "unknowledgeable"
 
+ICLR = "iclr"
+NEURIPS = "neurips"
+
 # ── FOCUS ───────────────────────────────────────────────────────────────────
 
 FOCUS_SOUNDNESS = (
@@ -77,6 +80,25 @@ INTENTION_MALICIOUS = (
     "emphasize every flaw you can find in your assessment."
 )
 
+# ── VENUE ───────────────────────────────────────────────────────────────────
+
+VENUE_ICLR = (
+    "The paper is a submission to the International Conference on Learning "
+    "Representations (ICLR). Apply ICLR standards: the conference values "
+    "rigorous theory, strong empirical evaluation, and advances in "
+    "representation learning, deep learning, and reinforcement learning; it "
+    "runs an open review process, so reviews should be defensible point by "
+    "point in a public discussion with the authors."
+)
+
+VENUE_NEURIPS = (
+    "The paper is a submission to the Conference on Neural Information "
+    "Processing Systems (NeurIPS). Apply NeurIPS standards: judge the paper on "
+    "technical soundness, originality, significance and clarity, across the "
+    "whole breadth of machine learning; weigh the quality of the experimental "
+    "protocol and the honesty about limitations and societal impact."
+)
+
 # ── KNOWLEDGEABILITY ────────────────────────────────────────────────────────
 
 KNOWLEDGEABILITY_KNOWLEDGEABLE = (
@@ -94,7 +116,7 @@ KNOWLEDGEABILITY_UNKNOWLEDGEABLE = (
 
 # ── Seeds: (type, label, instruction, description) ──────────────────────────
 
-DEFAULT_INSTRUCTION_SEEDS: list[tuple[InstructionType, str, str, str, str]] = [
+DEFAULT_INSTRUCTION_SEEDS: list[tuple[InstructionType, str, str, str, str | None]] = [
     (
         InstructionType.FOCUS, SOUNDNESS, FOCUS_SOUNDNESS,
         "Reviewer focused on theoretical correctness, proofs and assumptions",
@@ -129,6 +151,16 @@ DEFAULT_INSTRUCTION_SEEDS: list[tuple[InstructionType, str, str, str, str]] = [
         InstructionType.INTENTION, MALICIOUS, INTENTION_MALICIOUS,
         "Adversarial disposition: hunts for reasons to reject",
         AgentRole.REVIEWER
+    ),
+    (
+        InstructionType.VENUE, ICLR, VENUE_ICLR,
+        "ICLR submission: theory, empirics, representation/deep/reinforcement learning",
+        None  # venue applies to every role (reviewer, meta, area chair)
+    ),
+    (
+        InstructionType.VENUE, NEURIPS, VENUE_NEURIPS,
+        "NeurIPS submission: soundness, originality, significance, clarity",
+        None  # venue applies to every role (reviewer, meta, area chair)
     ),
     (
         InstructionType.KNOWLEDGEABILITY, KNOWLEDGEABLE, KNOWLEDGEABILITY_KNOWLEDGEABLE,

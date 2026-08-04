@@ -201,7 +201,7 @@ export interface PromptVersion {
 }
 
 // models/domain/prompt.py :: InstructionType (StrEnum).
-export type InstructionType = 'intention' | 'knowledgeability' | 'commitment' | 'focus';
+export type InstructionType = 'intention' | 'knowledgeability' | 'commitment' | 'focus' | 'venue' | 'calibration';
 
 // models/domain/prompt.py :: PromptInstruction — (type, label) is the natural key.
 export interface PromptInstruction {
@@ -211,6 +211,7 @@ export interface PromptInstruction {
   instruction: string;
   description?: string | null;
   agent_role?: string | null;
+  run_id?: string | null;
   created_at: string;
   is_active: boolean;
 }
@@ -255,6 +256,7 @@ export interface CreateInstructionRequest {
   instruction: string;
   description?: string | null;
   agent_role?: string | null;
+  run_id?: string | null;
 }
 
 export interface PromptInstructionResponse {

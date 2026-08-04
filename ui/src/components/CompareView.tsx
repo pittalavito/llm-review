@@ -21,6 +21,11 @@ type Row = {
 
 const asNum = (v: unknown): number | null => (typeof v === 'number' ? v : null);
 
+const isEmpty = (v: unknown): boolean =>
+  v == null
+  || (typeof v === 'string' && v.trim() === '')
+  || (Array.isArray(v) && v.every(isEmpty));
+
 /** The comparable fields per role: numbers/enums first, texts after. */
 function rowsForRole(role: string, payload: Record<string, unknown>): Row[] {
   switch (role) {
@@ -86,7 +91,9 @@ export default function CompareView({ agent, humans }: { agent: AgentResponseRec
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const payload = agent.response_payload ?? {};
-  const rows = rowsForRole(agent.agent_role, payload);
+  // Drop the rows that are empty on both sides (agent and every human).
+  const rows = rowsForRole(agent.agent_role, payload)
+    .filter((row) => !isEmpty(row.agent) || humans.some((h) => !isEmpty(row.human(h))));
   const showMedia = humans.length > 1;
 
   const toggleRow = (key: string) => {

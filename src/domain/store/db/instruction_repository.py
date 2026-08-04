@@ -12,6 +12,7 @@ from sqlmodel import select
 
 from core.observability import LogPrefix, log_warning
 from domain.store.db.repository import SqlRepository
+from models.domain.prompt import InstructionType
 from models.store.db import PromptInstructionTable
 
 
@@ -36,7 +37,7 @@ class DbInstructionRepository(SqlRepository[PromptInstructionTable]):
         with self._session() as session:
             return list(session.exec(statement).all())
 
-    def create(self, type: str, label: str, instruction: str, description: str | None = None, agent_role: str | None = None) -> PromptInstructionTable | None:
+    def create(self, type: str, label: str, instruction: str, description: str | None = None, agent_role: str | None = None, run_id: str | None = None) -> PromptInstructionTable | None:
         """Register a new immutable instruction. Returns None if (type, label)
         already exists."""
         with self._session() as session:
@@ -55,6 +56,7 @@ class DbInstructionRepository(SqlRepository[PromptInstructionTable]):
                 instruction=instruction,
                 description=description,
                 agent_role=agent_role,
+                run_id=run_id,
                 created_at=datetime.now(timezone.utc).isoformat(),
             )
             session.add(row)
@@ -78,15 +80,15 @@ class DbInstructionRepository(SqlRepository[PromptInstructionTable]):
             session.refresh(row)
             return row
 
-    def seed_defaults(self, seeds: list[tuple[str, str, str, str, str]]) -> int:
+    def seed_defaults(self, seeds: list[tuple[InstructionType, str, str, str, str]]) -> int:
         """Insert the code-shipped instructions missing from the registry —
         idempotent upsert by (type, label), never overwrites existing rows.
         Returns the number inserted."""
         inserted = 0
         with self._session() as session:
             existing = {
-                (row.type, row.label)
-                for row in session.exec(
+                (row_type, row_label)
+                for row_type, row_label in session.exec(
                     select(PromptInstructionTable.type, PromptInstructionTable.label)
                 ).all()
             }

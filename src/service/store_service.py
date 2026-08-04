@@ -163,8 +163,8 @@ class StoreService:
         rows = self._instructions_repository.list(type_value, include_inactive)
         return DbAdapter.to_instructions(rows)  
 
-    def create_instruction(self, type: InstructionType, label: str, instruction: str, description: str | None = None, agent_role: str | None = None) -> PromptInstruction | None:
-        row = self._instructions_repository.create(str(type), label, instruction, description, agent_role)
+    def create_instruction(self, type: InstructionType, label: str, instruction: str, description: str | None = None, agent_role: str | None = None, run_id: str | None = None) -> PromptInstruction | None:
+        row = self._instructions_repository.create(str(type), label, instruction, description, agent_role, run_id)
         return DbAdapter.to_instruction(row) if row is not None else None
 
     def update_instruction_meta(self, instruction_id: int, description: str | None = None, is_active: bool | None = None) -> PromptInstruction | None:

@@ -22,6 +22,8 @@ class InstructionType(StrEnum):
     KNOWLEDGEABILITY = "knowledgeability"
     COMMITMENT = "commitment"
     FOCUS = "focus"
+    VENUE = "venue"
+    CALIBRATION = "calibration"
     
     
 class PromptInstruction(BaseModel):
@@ -36,5 +38,7 @@ class PromptInstruction(BaseModel):
     instruction: str
     description: str | None = None
     agent_role: str | None = None
+    run_id: str | None = None
+    """Anchor to the graph run the instruction was derived from."""
     created_at: str
     is_active: bool = True

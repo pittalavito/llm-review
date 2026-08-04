@@ -8,7 +8,7 @@ import type { InstructionType, PromptInstruction, PromptVersion } from '../api/t
 import ActionCard from '../components/ActionCard';
 import { useOptions } from '../components/useOptions';
 
-const INSTRUCTION_TYPES: InstructionType[] = ['commitment', 'focus', 'intention', 'knowledgeability'];
+const INSTRUCTION_TYPES: InstructionType[] = ['commitment', 'focus', 'intention', 'knowledgeability', 'venue', 'calibration'];
 
 /** Case-insensitive contains, safe on null/undefined. */
 function matches(text: string | null | undefined, query: string): boolean {

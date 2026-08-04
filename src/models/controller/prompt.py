@@ -56,12 +56,15 @@ class PromptPreviewResponse(BaseModel):
 
 
 class CreateInstructionRequest(BaseModel):
-    """Request to register a new immutable persona instruction."""
+    """Request to register a new immutable persona instruction. ``run_id``
+    anchors the instruction to the graph run it was derived from (e.g. a
+    calibration written after comparing that run with OpenReview)."""
     type: InstructionType
     label: str
     instruction: str
     description: str | None = None
     agent_role: str | None = None
+    run_id: str | None = None
 
 
 class UpdateInstructionRequest(BaseModel):

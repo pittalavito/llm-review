@@ -76,7 +76,7 @@ def list_instructions(type: InstructionType | None = None, include_inactive: boo
 def create_instruction(request: CreateInstructionRequest, service: PromptService = Depends(prompt_service)) -> PromptInstructionResponse:
     """Register a new immutable persona instruction; 409 when (type, label)
     already exists."""
-    instruction = service.create_instruction(request.type, request.label, request.instruction, request.description, request.agent_role)
+    instruction = service.create_instruction(request.type, request.label, request.instruction, request.description, request.agent_role, request.run_id)
     if instruction is None:
         raise HTTPException(status_code=409, detail="An instruction with this (type, label) already exists.")
     return PromptInstructionResponse.from_response(instruction)

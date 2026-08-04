@@ -7,7 +7,7 @@
  * verbatim trace (system prompt, input, context, tokens).
  */
 import { useState } from 'react';
-import { ApiError, getOpenReviewData } from '../api/client';
+import { ApiError, createInstruction, getOpenReviewData } from '../api/client';
 import type { AgentResponseRecord, GraphReviewRecord, OpenReviewItem } from '../api/types';
 import AgentTable, { ROLE_META } from './AgentTable';
 import CompareView from './CompareView';
@@ -245,6 +245,93 @@ const COMPARE_ROLE: Record<string, OpenReviewItem['reviewer_type'] | undefined> 
   area_chair: 'area_chair',
 };
 
+/** Inline form to register a `calibration` instruction written after eyeballing
+ * the compare table — anchored to the run via `run_id` and bound to the
+ * compared agent's role. */
+function CalibrationForm({ agentRole, runId }: { agentRole: string; runId: string }) {
+  const [open, setOpen] = useState(false);
+  const [label, setLabel] = useState('');
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [savedLabel, setSavedLabel] = useState<string | null>(null);
+
+  async function onSave() {
+    if (busy || !label.trim() || !text.trim()) return;
+    setBusy(true);
+    setError('');
+    try {
+      const saved = await createInstruction({
+        type: 'calibration',
+        label: label.trim(),
+        instruction: text.trim(),
+        description: `Calibration from run ${runId}`,
+        agent_role: agentRole,
+        run_id: runId,
+      });
+      setSavedLabel(saved.label);
+      setOpen(false);
+      setLabel('');
+      setText('');
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="rf-calibrate">
+      <button className="btn btn--ghost btn--sm" type="button" onClick={() => setOpen(!open)}>
+        {open ? '✕ Annulla' : '🎯 Calibra da questa review'}
+      </button>
+      {savedLabel && !open && (
+        <span className="rf-calibrate__saved">
+          Istruzione "calibration/{savedLabel}" salvata — selezionabile in "Configura review".
+        </span>
+      )}
+      {open && (
+        <div className="rf-calibrate__form">
+          <label className="paper-form__label" htmlFor="rf-calibrate-label">Label</label>
+          <input
+            className="paper-form__input"
+            id="rf-calibrate-label"
+            type="text"
+            placeholder="es. severita_rating_paper_x"
+            value={label}
+            disabled={busy}
+            onChange={(e) => setLabel(e.target.value)}
+          />
+          <label className="paper-form__label" htmlFor="rf-calibrate-text">Istruzione</label>
+          <textarea
+            className="paper-form__input rf-calibrate__textarea"
+            id="rf-calibrate-text"
+            rows={4}
+            placeholder="es. Your ratings tend to be 2 points above the human reviewers on borderline papers: weigh unresolved weaknesses more heavily…"
+            value={text}
+            disabled={busy}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <div className="rf-calibrate__actions">
+            <button
+              className="btn btn--primary btn--sm"
+              type="button"
+              disabled={busy || !label.trim() || !text.trim()}
+              onClick={onSave}
+            >
+              {busy ? 'Salvataggio…' : 'Salva istruzione'}
+            </button>
+            <span className="rf-calibrate__hint">
+              Ancorata a run <span className="paper-list__id">{runId}</span> · ruolo {agentRole}
+            </span>
+          </div>
+          {error && <p className="paper-form__error">{error}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function RunFlowView({ record, compareEnabled = false }: { record: GraphReviewRecord; compareEnabled?: boolean }) {
   const [compareAgent, setCompareAgent] = useState<AgentResponseRecord | null>(null);
   const [openReviews, setOpenReviews] = useState<OpenReviewItem[] | null>(null);
@@ -289,6 +376,7 @@ export default function RunFlowView({ record, compareEnabled = false }: { record
           <p className="paper-list__empty">Nessun dato OpenReview per questo ruolo.</p>
         )}
         {humans.length > 0 && <CompareView agent={compareAgent} humans={humans} />}
+        <CalibrationForm agentRole={compareAgent.agent_role} runId={record.run_id} />
       </div>
     );
   }

@@ -41,8 +41,8 @@ class PromptService:
     def list_instructions(self, type: InstructionType | None = None, include_inactive: bool = False) -> list[PromptInstruction]:
         return self._store_service.list_instructions(type=type, include_inactive=include_inactive)
 
-    def create_instruction(self, type: InstructionType, label: str, instruction: str, description: str | None = None, agent_role: str | None = None) -> PromptInstruction | None:
-        return self._store_service.create_instruction(type, label, instruction, description, agent_role)
+    def create_instruction(self, type: InstructionType, label: str, instruction: str, description: str | None = None, agent_role: str | None = None, run_id: str | None = None) -> PromptInstruction | None:
+        return self._store_service.create_instruction(type, label, instruction, description, agent_role, run_id)
 
     def update_instruction_meta(self, instruction_id: int, description: str | None = None, is_active: bool | None = None) -> PromptInstruction | None:
         return self._store_service.update_instruction_meta(instruction_id, description, is_active)
