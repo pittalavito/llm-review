@@ -3,7 +3,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 from core.container import paper_service, retrieval_service
 
-from models.controller.paper import CreateOpenReviewPaperRequest, CreatePaperRequest, CreatePaperResponse, PaperListResponse
+from models.controller.paper import CreateOpenReviewPaperRequest, CreatePaperRequest, CreatePaperResponse, OpenReviewDataResponse, PaperListResponse
 from models.domain.paper import PaperType
 
 from service.paper_service import PaperService
@@ -23,6 +23,13 @@ def list_papers(service: PaperService = Depends(paper_service)) -> PaperListResp
     """The paper catalog — DB rows only (no files-store or index data)."""
     papers = service.list_papers()
     return PaperListResponse.from_response(papers)
+
+
+@router.get("/{paper_id}/open-review")
+def get_open_review_data(paper_id: str, service: PaperService = Depends(paper_service)) -> OpenReviewDataResponse:
+    """The paper's parsed OpenReview data (human reviewers, meta review, area
+    chair decision) — the real-world counterpart used by the comparator."""
+    return OpenReviewDataResponse.from_rows(paper_id, service.get_open_review_data(paper_id))
 
 
 @router.post("/create-openreview")

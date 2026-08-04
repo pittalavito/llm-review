@@ -1,0 +1,174 @@
+/* AgentTable — the reusable per-round agent grid: sticky column header and
+   rows aligned on one shared grid template, role color as left stripe,
+   collapsible detail panel hanging under each row. */
+
+.agent-table {
+  /* Fixed widths everywhere but the two flexible columns, so header and row
+     grids (separate grid containers) resolve to identical tracks. */
+  --agent-table-cols: 28px minmax(150px, 1.2fr) minmax(110px, 0.8fr) 70px 90px 90px minmax(140px, 1fr) 130px;
+  min-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.agent-table__header,
+.agent-table__row {
+  display: grid;
+  grid-template-columns: var(--agent-table-cols);
+  gap: var(--s-3);
+  align-items: center;
+}
+
+.agent-table__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--c-surface);
+  padding: var(--s-2) var(--s-3);
+  /* Transparent borders mirror the row borders (1px frame + 4px role stripe)
+     so header cells sit exactly over the row cells. */
+  border: 1px solid transparent;
+  border-left: 4px solid transparent;
+  border-bottom: 2px solid var(--c-border);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-text-muted);
+}
+
+.agent-table__round-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--c-text-secondary);
+  border-bottom: 1px solid var(--c-border);
+  padding-bottom: var(--s-1);
+  margin-top: var(--s-3);
+}
+
+.agent-table__round {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.agent-table__row {
+  border: 1px solid var(--c-border);
+  border-left: 4px solid var(--c-accent-light);
+  border-radius: var(--r-md);
+  background: var(--c-surface-raised);
+  padding: var(--s-2) var(--s-3);
+}
+
+.agent-table__row--reviewer { border-left-color: var(--c-accent); }
+.agent-table__row--meta { border-left-color: var(--c-warning); }
+.agent-table__row--ac { border-left-color: var(--c-success); }
+.agent-table__row--author { border-left-color: var(--c-accent-light); }
+
+.agent-table__row--final {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-success) 35%, transparent);
+}
+
+.agent-table__cell {
+  min-width: 0;
+  font-size: var(--text-sm);
+}
+
+.agent-table__title {
+  font-weight: 700;
+  font-size: var(--text-base);
+}
+
+/* Model id: mono, muted, truncated with the full name in the tooltip. */
+.agent-table__cell-model {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--c-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Numeric columns centered under their header. */
+.agent-table__cell-rating,
+.agent-table__cell-confidence,
+.agent-table__cell-tokens {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-text-secondary);
+}
+
+.agent-table__header .agent-table__cell-rating,
+.agent-table__header .agent-table__cell-confidence,
+.agent-table__header .agent-table__cell-tokens {
+  color: var(--c-text-muted);
+}
+
+.agent-table__cell-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
+/* Esito badges stay quiet in the table: neutral chip, muted text, the
+   semantic color only as a small leading dot. No solid fills. */
+.agent-table__cell-badges .run-flow__badge {
+  background: transparent;
+  border-color: var(--c-border);
+  color: var(--c-text-secondary);
+  font-weight: 500;
+}
+
+.agent-table__cell-badges .run-flow__badge--accept::before,
+.agent-table__cell-badges .run-flow__badge--revise::before,
+.agent-table__cell-badges .run-flow__badge--reject::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.agent-table__cell-badges .run-flow__badge--accept::before { background: var(--c-success); }
+.agent-table__cell-badges .run-flow__badge--revise::before { background: var(--c-warning); }
+.agent-table__cell-badges .run-flow__badge--reject::before { background: var(--c-error); }
+
+.agent-table__cell-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.agent-table__cell-actions .btn {
+  white-space: nowrap;
+}
+
+.agent-table__toggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  font-size: var(--text-sm);
+  color: var(--c-text-muted);
+  line-height: 1;
+}
+
+.agent-table__toggle:hover {
+  color: var(--c-text-primary);
+}
+
+/* Expanded detail: an indented card hanging under its row. */
+.agent-table__row-detail {
+  margin: calc(-1 * var(--s-2)) 0 0 calc(28px + var(--s-3));
+  border: 1px solid var(--c-border);
+  border-top: none;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  background: var(--c-surface-raised);
+  padding: var(--s-3) var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}

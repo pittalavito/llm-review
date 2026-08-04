@@ -1,21 +1,16 @@
 /**
- * RunFlowView — the full flow of one review-graph run, as a timeline per
- * round: reviewer cards → meta review → area chair (→ author rebuttal when the
- * committee asked for a revision). The last area-chair card carries the final
- * decision. Every card renders its structured payload field-by-field (schema
- * keys from src/models/domain/chat.py) with a graceful raw-JSON fallback for
+ * RunFlowView — the full flow of one review-graph run, rendered with the
+ * reusable AgentTable (one row per agent invocation, grouped by round). Each
+ * row expands into the structured payload field-by-field (schema keys from
+ * src/models/domain/chat.py) with a graceful raw-JSON fallback for
  * unknown/mock payloads, plus a collapsed "Dettagli tecnici" block with the
  * verbatim trace (system prompt, input, context, tokens).
  */
-import { Fragment } from 'react';
-import type { AgentResponseRecord, GraphReviewRecord } from '../api/types';
-
-const ROLE_META: Record<string, { icon: string; label: string; modifier: string }> = {
-  reviewer: { icon: '🔬', label: 'Reviewer', modifier: 'reviewer' },
-  meta_reviewer: { icon: '📋', label: 'Meta Reviewer', modifier: 'meta' },
-  area_chair: { icon: '🪑', label: 'Area Chair', modifier: 'ac' },
-  author_agent: { icon: '✍️', label: 'Author', modifier: 'author' },
-};
+import { useState } from 'react';
+import { ApiError, getOpenReviewData } from '../api/client';
+import type { AgentResponseRecord, GraphReviewRecord, OpenReviewItem } from '../api/types';
+import AgentTable, { ROLE_META } from './AgentTable';
+import CompareView from './CompareView';
 
 const DECISION_VARIANT: Record<string, string> = {
   accept: 'accept',
@@ -160,22 +155,17 @@ function PayloadBody({ role, payload }: { role: string; payload: Record<string, 
   }
 }
 
-/** The badges next to the card title, per role. */
-function CardBadges({ record, isFinal }: { record: AgentResponseRecord; isFinal: boolean }) {
+/** The esito badges of one row: decision/recommendation and overall score. */
+function CardBadges({ record }: { record: AgentResponseRecord }) {
   const payload = record.response_payload ?? {};
-  const rating = num(payload, 'rating');
-  const confidence = num(payload, 'confidence');
   const score = num(payload, 'overall_score');
   const recommendation = text(payload, 'recommendation');
   const decision = text(payload, 'decision');
   return (
     <span className="run-flow__badges">
-      {isFinal && <Badge variant="final">Decisione finale</Badge>}
       {decision && <Badge variant={DECISION_VARIANT[decision] ?? 'score'}>{decision}</Badge>}
       {recommendation && <Badge variant={DECISION_VARIANT[recommendation] ?? 'score'}>{recommendation}</Badge>}
-      {rating !== null && <Badge variant="score">rating {rating}</Badge>}
       {score !== null && <Badge variant="score">score {score}</Badge>}
-      {confidence !== null && <Badge>confidence {confidence}</Badge>}
     </span>
   );
 }
@@ -213,33 +203,6 @@ function TechnicalDetails({ record }: { record: AgentResponseRecord }) {
   );
 }
 
-function AgentCard({ record, isFinal }: { record: AgentResponseRecord; isFinal: boolean }) {
-  const meta = ROLE_META[record.agent_role] ?? { icon: '❓', label: record.agent_role, modifier: 'reviewer' };
-  const title = record.agent_role === 'reviewer' && record.agent_index != null
-    ? `${meta.label} ${record.agent_index}`
-    : meta.label;
-  return (
-    <section className={`run-flow__card run-flow__card--${meta.modifier}${isFinal ? ' run-flow__card--final' : ''}`}>
-      <header className="run-flow__card-header">
-        <span className="run-flow__card-title">{meta.icon} {title}</span>
-        <CardBadges record={record} isFinal={isFinal} />
-      </header>
-      <PayloadBody role={record.agent_role} payload={record.response_payload ?? {}} />
-      <TechnicalDetails record={record} />
-    </section>
-  );
-}
-
-/** Rounds in insertion order (the BE persists chronologically), keyed by the
- * stored round number — 0-based today, normalized for display via minRound. */
-function groupRounds(records: AgentResponseRecord[]): [number, AgentResponseRecord[]][] {
-  const rounds = new Map<number, AgentResponseRecord[]>();
-  for (const record of records) {
-    rounds.set(record.round, [...(rounds.get(record.round) ?? []), record]);
-  }
-  return [...rounds.entries()].sort(([a], [b]) => a - b);
-}
-
 /** Legacy runs without agent_records: render the aggregate payloads flat. */
 function LegacyFlow({ record }: { record: GraphReviewRecord }) {
   return (
@@ -275,30 +238,86 @@ function LegacyFlow({ record }: { record: GraphReviewRecord }) {
   );
 }
 
-export default function RunFlowView({ record }: { record: GraphReviewRecord }) {
+/** The OpenReview role matching one agent role (author has no counterpart). */
+const COMPARE_ROLE: Record<string, OpenReviewItem['reviewer_type'] | undefined> = {
+  reviewer: 'reviewer',
+  meta_reviewer: 'meta_reviewer',
+  area_chair: 'area_chair',
+};
+
+export default function RunFlowView({ record, compareEnabled = false }: { record: GraphReviewRecord; compareEnabled?: boolean }) {
+  const [compareAgent, setCompareAgent] = useState<AgentResponseRecord | null>(null);
+  const [openReviews, setOpenReviews] = useState<OpenReviewItem[] | null>(null);
+  const [openReviewsError, setOpenReviewsError] = useState('');
+
   const records = record.agent_records ?? [];
   if (records.length === 0) return <LegacyFlow record={record} />;
 
-  const rounds = groupRounds(records);
-  const minRound = rounds[0][0];
   const lastAreaChair = [...records].reverse().find((r) => r.agent_role === 'area_chair') ?? null;
+
+  const handleCompare = (agent: AgentResponseRecord) => {
+    setCompareAgent(agent);
+    if (openReviews === null) {
+      setOpenReviewsError('');
+      getOpenReviewData(record.paper_id)
+        .then(setOpenReviews)
+        .catch((err) => setOpenReviewsError(err instanceof ApiError ? err.message : String(err)));
+    }
+  };
+
+  // ── Compare view: field-by-field table — agent column vs the real
+  // OpenReview counterpart(s), numeric mean included. ──
+  if (compareAgent !== null) {
+    const agentMeta = ROLE_META[compareAgent.agent_role] ?? { icon: '❓', label: compareAgent.agent_role, modifier: 'reviewer' };
+    const agentTitle = compareAgent.agent_role === 'reviewer' && compareAgent.agent_index != null
+      ? `${agentMeta.label} ${compareAgent.agent_index}`
+      : agentMeta.label;
+    const counterpartRole = COMPARE_ROLE[compareAgent.agent_role];
+    const humans = (openReviews ?? []).filter((r) => r.reviewer_type === counterpartRole);
+
+    return (
+      <div className="run-flow">
+        <div className="rf-compare__back">
+          <button className="btn btn--ghost btn--sm" type="button" onClick={() => setCompareAgent(null)}>
+            ← Torna alla run
+          </button>
+          <span className="rf-compare__title">{agentMeta.icon} {agentTitle} vs OpenReview</span>
+        </div>
+        {openReviewsError && <p className="paper-form__error">{openReviewsError}</p>}
+        {!openReviewsError && openReviews === null && <p className="paper-list__empty">Caricamento…</p>}
+        {openReviews !== null && humans.length === 0 && (
+          <p className="paper-list__empty">Nessun dato OpenReview per questo ruolo.</p>
+        )}
+        {humans.length > 0 && <CompareView agent={compareAgent} humans={humans} />}
+      </div>
+    );
+  }
 
   return (
     <div className="run-flow">
-      {rounds.map(([round, roundRecords]) => (
-        <Fragment key={round}>
-          <h4 className="run-flow__round-title">Round {round - minRound + 1}</h4>
-          <div className="run-flow__round">
-            {roundRecords.map((agentRecord, i) => (
-              <AgentCard
-                key={`${agentRecord.agent_role}-${agentRecord.agent_index ?? 0}-${round}-${i}`}
-                record={agentRecord}
-                isFinal={agentRecord === lastAreaChair}
-              />
-            ))}
-          </div>
-        </Fragment>
-      ))}
+      <AgentTable
+        records={records}
+        isFinal={(r) => r === lastAreaChair}
+        renderBadges={(r) => <CardBadges record={r} />}
+        renderActions={compareEnabled ? (r) => (
+          COMPARE_ROLE[r.agent_role] ? (
+            <button
+              className="btn btn--ghost btn--sm"
+              type="button"
+              title="Confronta con OpenReview"
+              onClick={() => handleCompare(r)}
+            >
+              🔄 Confronta
+            </button>
+          ) : null
+        ) : undefined}
+        renderDetail={(r) => (
+          <>
+            <PayloadBody role={r.agent_role} payload={r.response_payload ?? {}} />
+            <TechnicalDetails record={r} />
+          </>
+        )}
+      />
     </div>
   );
 }

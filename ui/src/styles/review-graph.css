@@ -21,10 +21,11 @@
 }
 
 .modal--full {
-  max-width: min(1240px, 96vw);
-  width: 96vw;
-  height: 92vh;
-  max-height: 92vh;
+  /* Almost the whole viewport: no fixed cap, a thin rim of overlay left visible. */
+  max-width: 97vw;
+  width: 97vw;
+  height: 95vh;
+  max-height: 95vh;
   display: flex;
   flex-direction: column;
 }

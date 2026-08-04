@@ -15,6 +15,7 @@ import './styles/agent-config.css';
 import './styles/input-messages.css';
 import './styles/prompts.css';
 import './styles/run-flow.css';
+import './styles/agent-table.css';
 
 import AppLayout from './layout/AppLayout';
 import Admin from './sections/Admin';

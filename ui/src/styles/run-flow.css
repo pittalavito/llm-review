@@ -162,3 +162,112 @@
   font-size: var(--text-sm);
   color: var(--c-text-secondary);
 }
+
+/* The table layout lives in agent-table.css (reusable AgentTable component);
+   the modal scroller just needs to allow horizontal overflow. */
+.run-flow__scroll {
+  overflow-x: auto;
+}
+
+/* ── Compare view: field-by-field table, agent vs OpenReview humans ── */
+.rf-compare__back {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.rf-compare__title {
+  font-weight: 700;
+  font-size: var(--text-base);
+}
+
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--text-sm);
+}
+
+.cmp-table th,
+.cmp-table td {
+  border: 1px solid var(--c-border);
+  padding: var(--s-2) var(--s-3);
+  vertical-align: top;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.cmp-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--c-surface);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-text-muted);
+}
+
+/* First column: field names, slightly narrower. */
+.cmp-table__field {
+  width: 170px;
+  font-weight: 600;
+  color: var(--c-text-secondary);
+}
+
+/* Agent column: subtle accent tint so the eye finds it in every row. */
+.cmp-table__agent {
+  background: color-mix(in srgb, var(--c-accent) 6%, transparent);
+}
+
+.cmp-table__num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.cmp-table__media {
+  width: 80px;
+  color: var(--c-text-secondary);
+}
+
+.cmp-table__delta {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--c-text-muted);
+}
+
+.cmp-table__empty {
+  color: var(--c-text-muted);
+}
+
+.cmp-table__list {
+  margin: 0;
+  padding-left: var(--s-4);
+}
+
+/* Long texts clamp to a few lines; the row toggle expands both sides. */
+.cmp-table__clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cmp-table__toggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--c-text-secondary);
+  text-align: left;
+}
+
+.cmp-table__toggle:hover {
+  color: var(--c-text-primary);
+}
+

@@ -34,6 +34,10 @@ class PaperService:
         """The paper's authors with their positions, ordered by position."""
         return self._store_service.get_paper_authors(paper_id)
 
+    def get_open_review_data(self, paper_id: str) -> list:
+        """The paper's parsed OpenReview rows (reviewers, meta, area chair)."""
+        return self._store_service.get_open_review_data(paper_id)
+
     def create_from_openreview(self, request: CreateOpenReviewPaperRequest) -> Paper | None:
         if not request.file_bytes.startswith(b"%PDF"):
             raise ValidationError(

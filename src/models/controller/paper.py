@@ -59,3 +59,31 @@ class PaperListResponse(BaseModel):
     def from_response(cls, papers: list[Paper]) -> "PaperListResponse":
         """Construct a PaperListResponse from a list of Paper."""
         return cls(papers=papers)
+
+
+class OpenReviewItem(BaseModel):
+    """One parsed OpenReview note (reviewer / meta_reviewer / area_chair) as
+    stored in the ``open_review`` table."""
+    note_id: str
+    reviewer_type: str
+    reviewer_id: str | None = None
+    reviewer_index: int | None = None
+    rating: int | None = None
+    confidence: int | None = None
+    overall_score: int | None = None
+    decision: str | None = None
+    recommendation: str | None = None
+    significance_and_novelty: str | None = None
+    review_text: str | None = None
+    summary: str | None = None
+    justification: str | None = None
+
+
+class OpenReviewDataResponse(BaseModel):
+    """Response with the paper's parsed OpenReview rows, in insertion order."""
+    paper_id: str
+    reviews: list[OpenReviewItem]
+
+    @classmethod
+    def from_rows(cls, paper_id: str, rows: list) -> "OpenReviewDataResponse":
+        return cls(paper_id=paper_id, reviews=[OpenReviewItem.model_validate(row.model_dump()) for row in rows])

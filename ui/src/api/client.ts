@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreateInstructionRequest, CreateOpenReviewPaperRequest, CreatePaperRequest, CreatePaperResponse, CreatePromptRequest, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptInstructionResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, PromptVersionResponse, RagStrategy, UpdateInstructionRequest, UpdatePromptRequest } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreateInstructionRequest, CreateOpenReviewPaperRequest, CreatePaperRequest, CreatePaperResponse, CreatePromptRequest, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, OpenReviewDataResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptInstructionResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, PromptVersionResponse, RagStrategy, UpdateInstructionRequest, UpdatePromptRequest } from './types';
 
 export class ApiError extends Error {}
 
@@ -83,6 +83,11 @@ export const createPaper = (request: CreatePaperRequest) =>
  * the PDF from the uri inside the notes (unwrapped from CreatePaperResponse). */
 export const createOpenreviewPaper = (request: CreateOpenReviewPaperRequest) =>
   post<CreatePaperResponse>('/paper/create-openreview', request).then((r) => r.paper);
+
+/** The paper's parsed OpenReview data (human reviewers, meta, area chair) —
+ * the real-world counterpart used by the comparator (unwrapped). */
+export const getOpenReviewData = (paperId: string) =>
+  get<OpenReviewDataResponse>(`/paper/${encodeURIComponent(paperId)}/open-review`).then((r) => r.reviews);
 
 export const listRetrievalStrategies = () => get<RagStrategy[]>('/retrieval/strategy-types');
 

@@ -568,6 +568,7 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
 
 function RunHistoryModal({ onClose }: { onClose: () => void }) {
   const [runs, setRuns] = useState<GraphReviewSummary[] | null>(null);
+  const [papers, setPapers] = useState<Paper[]>([]);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
@@ -579,8 +580,15 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
     listGraphRuns()
       .then((rows) => { if (alive) setRuns(rows); })
       .catch((err) => { if (alive) setError(err instanceof ApiError ? err.message : String(err)); });
+    // Same catalog call used by "Configura review": paper_id -> paper_name.
+    listPapers()
+      .then((rows) => { if (alive) setPapers(rows); })
+      .catch(() => { /* names stay as ids */ });
     return () => { alive = false; };
   }, []);
+
+  const paperName = (paperId: string | null | undefined): string =>
+    (paperId && papers.find((p) => p.paper_id === paperId)?.paper_name) || paperId || '—';
 
   // Drill-in: fetch the full record when a run is selected.
   useEffect(() => {
@@ -609,6 +617,12 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
   const selectedSummary = selectedRunId === null
     ? null
     : runs?.find((run) => run.run_id === selectedRunId) ?? null;
+
+  // The run's paper from the catalog: name and type for the detail header.
+  const selectedPaperId = detail?.paper_id ?? selectedSummary?.paper_id ?? null;
+  const selectedPaper = selectedPaperId
+    ? papers.find((p) => p.paper_id === selectedPaperId) ?? null
+    : null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -670,7 +684,7 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
                       >
                         <td className="rg-history__toggle">▸</td>
                         <td>{run.timestamp}</td>
-                        <td className="paper-list__id">{run.paper_id}</td>
+                        <td title={run.paper_id}>{paperName(run.paper_id)}</td>
                         <td>{run.decision || '—'}</td>
                         <td>{run.total_rounds}{run.max_rounds != null ? ` / ${run.max_rounds}` : ''}</td>
                         <td>{run.meta_overall_score ?? '—'}</td>
@@ -697,7 +711,8 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
             <div className="prompts__fields run-flow__summary">
               <Field label="run_id" value={selectedRunId} />
               <Field label="timestamp" value={detail?.timestamp ?? selectedSummary?.timestamp ?? '—'} />
-              <Field label="paper" value={detail?.paper_id ?? selectedSummary?.paper_id ?? '—'} />
+              <Field label="paper" value={selectedPaper?.paper_name ?? selectedPaperId ?? '—'} />
+              <Field label="tipo" value={selectedPaper?.paper_type ?? '—'} />
               <Field label="decision" value={detail?.decision ?? selectedSummary?.decision ?? '—'} />
               <Field label="round" value={String(detail?.total_rounds ?? selectedSummary?.total_rounds ?? '—')} />
               <Field label="descrizione" value={detail?.description || selectedSummary?.description || '—'} />
@@ -707,7 +722,7 @@ function RunHistoryModal({ onClose }: { onClose: () => void }) {
             {!detailError && detail === null && <p className="paper-list__empty">Caricamento…</p>}
             {detail !== null && (
               <div className="run-flow__scroll">
-                <RunFlowView record={detail} />
+                <RunFlowView record={detail} compareEnabled={selectedPaper?.paper_type?.toLowerCase() === 'open_review'} />
               </div>
             )}
           </>

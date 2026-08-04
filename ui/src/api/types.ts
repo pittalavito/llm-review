@@ -43,6 +43,30 @@ export interface Paper {
   num_graph_review?: number;
 }
 
+// models/controller/paper.py :: OpenReviewItem — one parsed OpenReview note
+// (human reviewer / meta review / area chair decision) from the open_review table.
+export interface OpenReviewItem {
+  note_id: string;
+  reviewer_type: 'reviewer' | 'meta_reviewer' | 'area_chair';
+  reviewer_id?: string | null;
+  reviewer_index?: number | null;
+  rating?: number | null;
+  confidence?: number | null;
+  overall_score?: number | null;
+  decision?: string | null;
+  recommendation?: string | null;
+  significance_and_novelty?: string | null;
+  review_text?: string | null;
+  summary?: string | null;
+  justification?: string | null;
+}
+
+// models/controller/paper.py :: OpenReviewDataResponse.
+export interface OpenReviewDataResponse {
+  paper_id: string;
+  reviews: OpenReviewItem[];
+}
+
 // models/domain/paper.py :: Author — position is the 1-based slot in the
 // paper's author list.
 export interface Author {
@@ -313,6 +337,7 @@ export interface AgentResponseRecord {
   round: number;
   agent_role: AgentRole;
   agent_index?: number | null;
+  model?: string | null;
   response_payload: Record<string, unknown>;
   input_message?: string | null;
   context_used?: string | null;
