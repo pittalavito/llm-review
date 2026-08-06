@@ -14,7 +14,6 @@ from models.domain.prompt import InstructionType, PromptInstruction, PromptVersi
 from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 from models.store.db import (
-    AgentTraceTable,
     AuthorTable,
     GraphReviewAgentTable,
     GraphReviewTable,
@@ -23,7 +22,7 @@ from models.store.db import (
     PromptVersionTable,
     SystemPromptPresetTable,
 )
-from models.store.redis import RagIndex as StoreRagIndex
+from models.store.redis import AgentTraceRecord, RagIndex as StoreRagIndex
 from domain.store.db.open_review_adapter import OpenReviewAdapter
 from service.store_service import StoreService
 
@@ -87,8 +86,8 @@ class FakeRuns:
     def __init__(self):
         pass
 
-    def save_rows(self, run_row, agent_pairs):
-        FakeRuns.saved = {"run_row": run_row, "agent_pairs": agent_pairs}
+    def save_rows(self, run_row, agent_rows):
+        FakeRuns.saved = {"run_row": run_row, "agent_rows": agent_rows}
         return "RID-123"
 
     def list_summaries(self):
@@ -98,9 +97,8 @@ class FakeRuns:
         if run_id == "missing":
             return None
         run_row = GraphReviewTable(run_id=run_id, timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2, graph_config={"max_rounds": 3})
-        agent_row = GraphReviewAgentTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, rating=6, agent_trace_id=11, response_payload={"rating": 6})
-        trace = AgentTraceTable(id=11, run_id=run_id, input_message="m", response_payload={"rating": 6})
-        return (run_row, [agent_row], {11: trace})
+        agent_row = GraphReviewAgentTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, rating=6, trace_index=0, response_payload={"rating": 6})
+        return (run_row, [agent_row])
 
     @staticmethod
     def build_run_id(paper_id):
@@ -108,6 +106,22 @@ class FakeRuns:
 
     def list_run_ids_for_paper(self, paper_id):
         return ["R1", "R2"] if paper_id == "other_p_pdf" else []
+
+
+class FakeAgentTraces:
+    """Stand-in for RedisAgentTraceRepository."""
+    saved: dict = {}
+
+    def __init__(self):
+        pass
+
+    def save_traces(self, run_id, traces):
+        FakeAgentTraces.saved = {"run_id": run_id, "traces": traces}
+
+    def load_traces(self, run_id):
+        if run_id == "no-bundle":
+            return None
+        return [AgentTraceRecord(input_message="m", context_used="ctx", response_payload={"rating": 6})]
 
 
 class FakePapers:
@@ -216,6 +230,7 @@ class FakeInstructions:
 
 class FakePresets:
     """Stand-in for DbPresetRepository."""
+    seeded: list = []
 
     def __init__(self):
         pass
@@ -244,6 +259,10 @@ class FakePresets:
 
     def delete(self, preset_id):
         return preset_id != 999
+
+    def seed_defaults(self, seeds):
+        FakePresets.seeded = seeds
+        return len(seeds)
 
 
 class FakeRagIndex:
@@ -315,6 +334,7 @@ def service(monkeypatch) -> StoreService:
     monkeypatch.setattr(store_service_mod, "DbInstructionRepository", FakeInstructions)
     monkeypatch.setattr(store_service_mod, "DbPresetRepository", FakePresets)
     monkeypatch.setattr(store_service_mod, "RedisRagIndexRepository", FakeRagIndex)
+    monkeypatch.setattr(store_service_mod, "RedisAgentTraceRepository", FakeAgentTraces)
     monkeypatch.setattr(store_service_mod, "DbOpenReviewRepository", FakeOpenReviewDb)
     monkeypatch.setattr(store_service_mod, "FilePaperRepository", FakeFiles)
     return StoreService()
@@ -336,10 +356,15 @@ class TestRuns:
         assert isinstance(run_row, GraphReviewTable)
         assert run_row.max_rounds == 3 and run_row.meta_overall_score == 7  # Factory extracted these
         assert run_row.graph_config == {"max_rounds": 3}
-        assert len(FakeRuns.saved["agent_pairs"]) == 1
-        agent_row, trace_row = FakeRuns.saved["agent_pairs"][0]
+        assert len(FakeRuns.saved["agent_rows"]) == 1
+        agent_row = FakeRuns.saved["agent_rows"][0]
         assert isinstance(agent_row, GraphReviewAgentTable)
-        assert isinstance(trace_row, AgentTraceTable)
+        assert agent_row.trace_index == 0
+        # the verbatim trace went to the Redis bundle, under the saved run_id
+        assert FakeAgentTraces.saved["run_id"] == "RID-123"
+        traces = FakeAgentTraces.saved["traces"]
+        assert len(traces) == 1 and isinstance(traces[0], AgentTraceRecord)
+        assert traces[0].input_message == "m"
 
     def test_list_runs_maps_rows_to_summaries(self, service):
         summaries = service.list_runs()
@@ -356,7 +381,13 @@ class TestRuns:
         assert record.graph_config == {"max_rounds": 3}
         assert record.agent_records[0].agent_role is AgentRole.REVIEWER and record.agent_records[0].agent_index == 1
         assert record.agent_records[0].response_payload == {"rating": 6}
-        assert record.agent_records[0].input_message == "m"  # from the trace
+        assert record.agent_records[0].input_message == "m"  # from the Redis trace
+        assert record.agent_records[0].context_used == "ctx"
+
+    def test_get_run_degrades_without_trace_bundle(self, service):
+        record = service.get_run("no-bundle")
+        assert record.reviews_response == [{"rating": 6}]  # facts rows still serve the payload
+        assert record.agent_records[0].input_message is None  # verbatim fields gone with the bundle
 
     def test_build_run_id_delegates_to_repository(self, service):
         assert service.build_run_id("other_p_pdf") == "built:other_p_pdf"
@@ -587,6 +618,17 @@ class TestPresets:
     def test_delete_preset_delegates_to_repository(self, service):
         assert service.delete_preset(1) is True
         assert service.delete_preset(999) is False
+
+    def test_seed_presets_resolves_instruction_refs_to_ids(self, service):
+        seeds = [(
+            "reviewer", "default", "base_v1",
+            [(InstructionType.INTENTION, "l"), (InstructionType.FOCUS, "missing")],
+            "desc",
+        )]
+        assert service.seed_presets(seeds) == 1
+        agent_role, name, base_version, instruction_ids, description = FakePresets.seeded[0]
+        assert (agent_role, name, base_version, description) == ("reviewer", "default", "base_v1", "desc")
+        assert instruction_ids == [1]  # (intention, l) resolved; unknown ref dropped
 
 
 class TestFiles:

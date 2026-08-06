@@ -14,11 +14,12 @@ from core.observability import observed, LogPrefix
 
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
 from domain.prompt.instruction_default import DEFAULT_INSTRUCTION_SEEDS
+from domain.prompt.preset_default import DEFAULT_PRESET_SEEDS, PresetSeed
 
 from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbAuthorRepository, DbInstructionRepository, DbPaperRepository, DbPresetRepository, DbPromptRepository, DbRunRepository
 from domain.store.db.open_review_repository import DbOpenReviewRepository
 from domain.store.db.open_review_adapter import OpenReviewAdapter
-from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository
+from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisAgentTraceRepository, RedisRagIndexRepository
 from domain.store.files.store import FilePaperRepository
 
 from models.domain.comparator import HumanMetaReview, HumanReview
@@ -40,10 +41,12 @@ class StoreService:
         self._presets_repository = DbPresetRepository()
         self._open_review_repository = DbOpenReviewRepository()
         self._rag_index_repository = RedisRagIndexRepository()
+        self._agent_traces_repository = RedisAgentTraceRepository()
         self._papers_files_repository = FilePaperRepository()
 
         self.seed_prompts(DEFAULT_PROMPT_SEEDS)
         self.seed_instructions(DEFAULT_INSTRUCTION_SEEDS)
+        self.seed_presets(DEFAULT_PRESET_SEEDS)
     
     def save_paper(self, paper: Paper, data: bytes, file_format: str, authors: list[Author] | None = None) -> Paper | None:
         """Create the catalog row (paper_id generated as uid + ``file_format``
@@ -66,14 +69,26 @@ class StoreService:
         return DbRunRepository.build_run_id(paper_id)
 
     def save_run(self, record: GraphReviewRecord) -> str:
-        return self._runs_repository.save_rows(*DbFactory.to_run_rows(record))
+        """Persist one run: facts rows in SQL, the verbatim traces as one Redis
+        bundle (contexts deduplicated by hash), linked via ``trace_index``."""
+        run_row, agent_rows = DbFactory.to_run_rows(record)
+        run_id = self._runs_repository.save_rows(run_row, agent_rows)
+        self._agent_traces_repository.save_traces(run_id, RedisFactory.to_agent_trace_records(record.agent_records))
+        return run_id
 
     def list_runs(self) -> list[GraphReviewSummary]:
         return DbAdapter.to_run_summaries(self._runs_repository.list_summaries())
 
     def get_run(self, run_id: str) -> GraphReviewRecord | None:
+        """Rebuild one run from the SQL rows plus the Redis trace bundle; a
+        missing bundle degrades gracefully (verbatim fields come back None)."""
         rows = self._runs_repository.get_rows(run_id)
-        return DbAdapter.to_run_record(*rows) if rows is not None else None
+        if rows is None:
+            return None
+        run_row, agent_rows = rows
+        traces = self._agent_traces_repository.load_traces(run_id) or []
+        traces_by_index = dict(enumerate(traces))
+        return DbAdapter.to_run_record(run_row, agent_rows, traces_by_index)
 
     def get_run_ids_for_paper(self, paper_id: str) -> list[str]:
         return self._runs_repository.list_run_ids_for_paper(paper_id)
@@ -197,6 +212,25 @@ class StoreService:
 
     def delete_preset(self, preset_id: int) -> bool:
         return self._presets_repository.delete(preset_id)
+
+    def seed_presets(self, seeds: list[PresetSeed]) -> int:
+        """Insert the code-shipped presets missing from the registry. The seeds
+        declare instructions by natural key (type, label) — ids are only known
+        at runtime — so they are resolved here against the instruction
+        registry; unknown refs are skipped (the seed still lands without them)."""
+        ids_by_key = {
+            (instr.type, instr.label): instr.id
+            for instr in self.list_instructions(include_inactive=True)
+        }
+        resolved = [
+            (
+                str(agent_role), name, base_prompt_version,
+                [ids_by_key[ref] for ref in instruction_refs if ref in ids_by_key],
+                description,
+            )
+            for agent_role, name, base_prompt_version, instruction_refs, description in seeds
+        ]
+        return self._presets_repository.seed_defaults(resolved)
 
     # ------------------------------------------------------------------
     # RAG index (Redis) — the record is already the domain shape

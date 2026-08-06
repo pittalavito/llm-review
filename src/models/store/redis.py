@@ -1,5 +1,6 @@
 """Typed value models for the Redis keyspaces: the RAG index (keyspace
-rag-index) and the cached OpenReview response (keyspace open-review-cache)."""
+rag-index), the cached OpenReview response (keyspace open-review-cache) and
+the agent traces (keyspaces agent-trace / agent-context)."""
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -43,6 +44,32 @@ class RagIndex(BaseModel):
     settings: RagIndexConfig
     sections: list[RagSectionEntry] = Field(default_factory=list)
     chunks: list[RagChunk] = Field(default_factory=list)
+
+
+class AgentTraceRecord(BaseModel):
+    """The verbatim trace of one agent invocation. The context text is NOT
+    stored inline: ``context_hash`` points into the shared agent-context
+    keyspace (one blob per SHA-256, so identical contexts are stored once);
+    the repository resolves it into ``context_used`` at read time and strips
+    it before writing."""
+
+    input_message: str | None = None
+    system_prompt: str | None = None
+    context_hash: str | None = None
+    context_used: str | None = None
+    response_payload: dict[str, Any] = Field(default_factory=dict)
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None
+    latency_seconds: float | None = None
+
+
+class AgentTraceBundle(BaseModel):
+    """Every agent trace of one run, in invocation order (suffix = run_id).
+    ``graph_review_agent.trace_index`` is the position in ``traces``."""
+
+    run_id: str
+    traces: list[AgentTraceRecord] = Field(default_factory=list)
 
 
 class OpenReviewCacheNote(BaseModel):

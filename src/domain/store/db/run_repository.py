@@ -1,7 +1,7 @@
-"""Run persistence at the row level: facts in graph_review / graph_review_agent,
-the verbatim trace of each invocation once in agent_trace (1:1 via
-agent_trace_id). The repository only reads and writes ``*Table`` rows —
-building them from / into GraphReviewRecord is the StoreService's job.
+"""Run persistence at the row level: facts in graph_review / graph_review_agent.
+The verbatim traces live in Redis (keyspace agent-trace, one bundle per run,
+referenced by ``trace_index`` on the agent rows) — persisting and reading them
+is the StoreService's job, like building rows from / into GraphReviewRecord.
 Error-agnostic: reads return None when the run is absent.
 """
 from __future__ import annotations
@@ -12,10 +12,9 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from domain.store.db.repository import SqlRepository
-from models.store.db import AgentTraceTable, GraphReviewAgentTable, GraphReviewTable, PaperTable
+from models.store.db import GraphReviewAgentTable, GraphReviewTable, PaperTable
 
-AgentRecordPair = tuple[GraphReviewAgentTable, AgentTraceTable]
-RunRows = tuple[GraphReviewTable, list[GraphReviewAgentTable], dict[int, AgentTraceTable | None]]
+RunRows = tuple[GraphReviewTable, list[GraphReviewAgentTable]]
 
 
 class DbRunRepository(SqlRepository[GraphReviewTable]):
@@ -30,10 +29,9 @@ class DbRunRepository(SqlRepository[GraphReviewTable]):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S")
         return f"{ts}_{paper_id}"
 
-    def save_rows(self, run_row: GraphReviewTable, agent_pairs: list[AgentRecordPair]) -> str:
+    def save_rows(self, run_row: GraphReviewTable, agent_rows: list[GraphReviewAgentTable]) -> str:
         """Persist the pre-built rows for one run. Saving an existing run_id
-        replaces it (the FK cascade removes the old children). Each trace is
-        flushed first so its id can be linked on the agent row."""
+        replaces it (the FK cascade removes the old agent rows)."""
         run_id = run_row.run_id
         with self._session() as session:
             existing = session.get(GraphReviewTable, run_row.run_id)
@@ -44,10 +42,7 @@ class DbRunRepository(SqlRepository[GraphReviewTable]):
             session.add(run_row)
             session.flush()
 
-            for agent_row, trace_row in agent_pairs:
-                session.add(trace_row)
-                session.flush()  # need trace_row.id for the agent row FK
-                agent_row.agent_trace_id = trace_row.id
+            for agent_row in agent_rows:
                 session.add(agent_row)
 
             self._refresh_paper_num_graph_review(session, run_row.paper_id)
@@ -61,8 +56,8 @@ class DbRunRepository(SqlRepository[GraphReviewTable]):
             return list(session.exec(statement).all())
 
     def get_rows(self, run_id: str) -> RunRows | None:
-        """The run row, its agent rows and their traces (keyed by trace id).
-        None if the run is absent."""
+        """The run row and its agent rows, in insertion order. None if the run
+        is absent."""
         with self._session() as session:
             run_row = session.get(GraphReviewTable, run_id)
             if run_row is None:
@@ -72,8 +67,7 @@ class DbRunRepository(SqlRepository[GraphReviewTable]):
                 .where(GraphReviewAgentTable.run_id == run_id)
                 .order_by(GraphReviewAgentTable.id)
             ).all())
-            traces = self._traces_for(session, agent_rows)
-        return run_row, agent_rows, traces
+        return run_row, agent_rows
 
     def list_run_ids_for_paper(self, paper_id: str) -> list[str]:
         """Run ids for a paper, most recent first."""
@@ -83,15 +77,6 @@ class DbRunRepository(SqlRepository[GraphReviewTable]):
                 .where(GraphReviewTable.paper_id == paper_id)
                 .order_by(GraphReviewTable.run_id.desc())
             ).all())
-
-    @staticmethod
-    def _traces_for(session: Session, agent_rows: list[GraphReviewAgentTable]) -> dict[int, AgentTraceTable | None]:
-        """The traces referenced by the given agent rows, keyed by trace id."""
-        return {
-            row.agent_trace_id: session.get(AgentTraceTable, row.agent_trace_id)
-            for row in agent_rows
-            if row.agent_trace_id is not None
-        }
 
     @staticmethod
     def _refresh_paper_num_graph_review(session: Session, paper_id: str) -> None:

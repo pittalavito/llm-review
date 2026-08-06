@@ -57,8 +57,29 @@ RAG_INDEX_KEYSPACE = RedisKeyspace(
 )
 
 
+AGENT_TRACE_KEYSPACE = RedisKeyspace(
+    name="agent-trace",
+    value=(
+        "models.store.redis.AgentTraceBundle as JSON — every agent trace of one "
+        "run, in invocation order. Suffix = run_id. The context texts live in "
+        "the agent-context keyspace, referenced by hash."
+    ),
+)
+
+
+AGENT_CONTEXT_KEYSPACE = RedisKeyspace(
+    name="agent-context",
+    value=(
+        "Raw context text handed to an agent. Suffix = SHA-256 of the text, so "
+        "identical contexts are stored once and shared across traces and runs."
+    ),
+)
+
+
 ALL_KEYSPACES: tuple[RedisKeyspace, ...] = (
     RAG_INDEX_KEYSPACE,
+    AGENT_TRACE_KEYSPACE,
+    AGENT_CONTEXT_KEYSPACE,
 )
 
 

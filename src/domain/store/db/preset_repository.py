@@ -56,6 +56,36 @@ class DbPresetRepository(SqlRepository[SystemPromptPresetTable]):
             session.refresh(row)
             return row
 
+    def seed_defaults(self, seeds: list[tuple[str, str, str, list[int], str]]) -> int:
+        """Insert the code-shipped presets missing from the registry —
+        idempotent upsert by (agent_role, name), never overwrites existing
+        rows. ``instruction_ids`` are already resolved by the caller (the
+        seeds declare instructions by natural key). Returns the number
+        inserted."""
+        inserted = 0
+        with self._session() as session:
+            existing = {
+                (row_role, row_name)
+                for row_role, row_name in session.exec(
+                    select(SystemPromptPresetTable.agent_role, SystemPromptPresetTable.name)
+                ).all()
+            }
+            now = datetime.now(timezone.utc).isoformat()
+            for agent_role, name, base_prompt_version, instruction_ids, description in seeds:
+                if (agent_role, name) in existing:
+                    continue
+                session.add(SystemPromptPresetTable(
+                    agent_role=agent_role,
+                    name=name,
+                    base_prompt_version=base_prompt_version,
+                    instruction_ids=list(instruction_ids),
+                    description=description,
+                    created_at=now,
+                ))
+                inserted += 1
+            session.commit()
+        return inserted
+
     def update(self, preset_id: int, name: str | None = None, description: str | None = None, base_prompt_version: str | None = None, instruction_ids: list[int] | None = None, is_active: bool | None = None) -> SystemPromptPresetTable | None:
         """Update any field — presets are mutable selections. Returns None on a
         miss and on a rename colliding with an existing (agent_role, name)."""

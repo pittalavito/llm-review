@@ -1,12 +1,12 @@
 """SQLModel table definitions.
 
 Analytical facts live in typed, constrained, indexed columns (queryable via
-SQL); the verbatim LLM traces live once in ``agent_trace`` — the single source
-of truth for payloads: the run-level responses are DERIVED from it at read
-time, never stored twice. Enum-like columns are plain strings with NO db-level
-CHECK on the allowed values: the vocabulary is enforced by the Pydantic
-StrEnums only, so adding an enum member never requires touching an existing
-database. Numeric ranges keep their CHECKs.
+SQL); the verbatim LLM traces live once in Redis (keyspace agent-trace, one
+bundle per run, referenced by ``graph_review_agent.trace_index``) — the single
+source of truth for the verbatim fields. Enum-like columns are plain strings
+with NO db-level CHECK on the allowed values: the vocabulary is enforced by
+the Pydantic StrEnums only, so adding an enum member never requires touching
+an existing database. Numeric ranges keep their CHECKs.
 """
 from sqlalchemy import JSON, CheckConstraint, Column, ForeignKey, Index, UniqueConstraint
 from sqlmodel import Field, SQLModel
@@ -40,7 +40,7 @@ class GraphReviewAgentTable(SQLModel, table=True):
     """One row per agent invocation (N per run): the full identity
     (role/index/round), extracted analytics, and the response payload + metadata.
     The system prompt is NOT stored here — only the ``prompt_preset_id`` that
-    produced it; the verbatim string lives once in ``agent_trace``."""
+    produced it; the verbatim string lives in the run's Redis trace bundle."""
 
     __tablename__ = "graph_review_agent"  # type: ignore
     __table_args__ = (
@@ -63,7 +63,9 @@ class GraphReviewAgentTable(SQLModel, table=True):
     overall_score: int | None = None
     decision: str | None = None
     #
-    agent_trace_id: int | None = Field(default=None, sa_column=Column(ForeignKey("agent_trace.id", ondelete="SET NULL"), nullable=True))
+    trace_index: int | None = None
+    """Position of this invocation's verbatim trace in the run's Redis
+    AgentTraceBundle (keyspace agent-trace, suffix = run_id)."""
 
     response_payload: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
     prompt_preset_id: int | None = None
@@ -71,30 +73,6 @@ class GraphReviewAgentTable(SQLModel, table=True):
     output_tokens: int | None = None
     total_tokens: int | None = None
     latency_seconds: float | None = None
-
-
-class AgentTraceTable(SQLModel, table=True):
-    """The verbatim trace of one agent invocation — single source of truth for
-    the LLM payloads. Identity (role/index/round) lives on the referencing
-    ``graph_review_agent`` row; ``run_id`` is kept here only so deleting a run
-    cascades away its traces."""
-
-    __tablename__ = "agent_trace"  # type: ignore
-
-    id: int | None = Field(default=None, primary_key=True)
-    run_id: str = Field(sa_column=Column(ForeignKey("graph_review.run_id", ondelete="CASCADE"), nullable=False))
-
-    input_message: str | None = None
-    system_prompt: str | None = None
-    context_used: str | None = None
-    response_payload: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
-
-    input_tokens: int | None = None
-    output_tokens: int | None = None
-    total_tokens: int | None = None
-
-    latency_seconds: float | None = None
-    """Not populated yet — reserved for timing the agent invocation."""
 
 
 class PromptVersionTable(SQLModel, table=True):

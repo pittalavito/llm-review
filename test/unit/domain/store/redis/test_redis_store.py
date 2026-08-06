@@ -1,9 +1,13 @@
 """Unit tests for the Redis store seams (domain/store/redis/store.py): the
-RagIndex deserialization, doc-id computation and the full-paper-text join.
-The OpenReview note parsing moved to the SQL side — see
+RagIndex deserialization, doc-id computation, the full-paper-text join and the
+agent-trace record building + context hashing. The OpenReview note parsing
+moved to the SQL side — see
 test/unit/domain/store/db/test_open_review_adapter.py. No Redis involved."""
+from models.domain.agent import AgentRole
 from models.domain.retrieval import IndexInfo, RagIndex
-from models.store.redis import RagIndex as StoreRagIndex
+from models.domain.run_record import AgentResponseRecord
+from models.store.redis import AgentTraceRecord, RagIndex as StoreRagIndex
+from domain.store.redis.agent_trace_repository import RedisAgentTraceRepository
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
 from domain.store.redis.store import Adapter, Factory
 
@@ -67,3 +71,27 @@ class TestFactory:
         assert isinstance(record, StoreRagIndex)
         assert record.doc_id == "d1"
         assert len(record.sections) == 2
+
+    def test_to_agent_trace_record_keeps_the_verbatim_fields(self):
+        agent_record = AgentResponseRecord(
+            agent_role=AgentRole.REVIEWER, agent_index=1, round=0,
+            input_message="m", context_used="ctx", system_prompt="sp",
+            response_payload={"rating": 6},
+            input_tokens=100, output_tokens=50, total_tokens=150,
+        )
+        trace = Factory.to_agent_trace_record(agent_record)
+        assert isinstance(trace, AgentTraceRecord)
+        assert (trace.input_message, trace.context_used, trace.system_prompt) == ("m", "ctx", "sp")
+        assert trace.context_hash is None  # the repository hashes at save time
+        assert trace.response_payload == {"rating": 6}
+        assert (trace.input_tokens, trace.output_tokens, trace.total_tokens) == (100, 50, 150)
+
+
+class TestContextHash:
+    def test_same_text_same_hash(self):
+        assert (RedisAgentTraceRepository.compute_context_hash("full paper text")
+                == RedisAgentTraceRepository.compute_context_hash("full paper text"))
+
+    def test_different_text_different_hash(self):
+        assert (RedisAgentTraceRepository.compute_context_hash("paper A")
+                != RedisAgentTraceRepository.compute_context_hash("paper B"))

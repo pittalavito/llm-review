@@ -1,13 +1,13 @@
 """Unit tests for the DB store seams (domain/store/db/store.py): the pure
 row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 (domain models -> rows, writes), including the derivation of the run-level
-responses from the agent traces. No database involved."""
+responses. The verbatim traces are Redis AgentTraceRecord values, keyed by
+``trace_index``. No database involved."""
 from models.domain.agent import AgentRole
 from models.domain.paper import Author, Paper, PaperType
 from models.domain.prompt import PromptVersion, SystemPromptPreset
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord
 from models.store.db import (
-    AgentTraceTable,
     AuthorTable,
     GraphReviewAgentTable,
     GraphReviewTable,
@@ -15,7 +15,9 @@ from models.store.db import (
     PromptVersionTable,
     SystemPromptPresetTable,
 )
+from models.store.redis import AgentTraceRecord
 from domain.store.db.store import Adapter, Factory
+from domain.store.redis.store import Factory as RedisFactory
 
 
 class Utils:
@@ -124,16 +126,16 @@ class TestAdapter:
             decision="accept", total_rounds=1, graph_config={"max_rounds": 3},
         )
         rows = [
-            GraphReviewAgentTable(id=1, run_id="R1", agent_role="reviewer", agent_index=1, round=0, agent_trace_id=11, response_payload={"rating": 6}),
-            GraphReviewAgentTable(id=2, run_id="R1", agent_role="reviewer", agent_index=2, round=0, agent_trace_id=12, response_payload={"rating": 5}),
-            GraphReviewAgentTable(id=3, run_id="R1", agent_role="meta_reviewer", round=1, agent_trace_id=13, response_payload={"overall_score": 7}),
-            GraphReviewAgentTable(id=4, run_id="R1", agent_role="area_chair", round=0, agent_trace_id=14, response_payload={"decision": "accept"}),
+            GraphReviewAgentTable(id=1, run_id="R1", agent_role="reviewer", agent_index=1, round=0, trace_index=0, response_payload={"rating": 6}),
+            GraphReviewAgentTable(id=2, run_id="R1", agent_role="reviewer", agent_index=2, round=0, trace_index=1, response_payload={"rating": 5}),
+            GraphReviewAgentTable(id=3, run_id="R1", agent_role="meta_reviewer", round=1, trace_index=2, response_payload={"overall_score": 7}),
+            GraphReviewAgentTable(id=4, run_id="R1", agent_role="area_chair", round=0, trace_index=3, response_payload={"decision": "accept"}),
         ]
         traces = {
-            11: AgentTraceTable(id=11, run_id="R1", input_message="m1", response_payload={"rating": 6}),
-            12: AgentTraceTable(id=12, run_id="R1", input_message="m2", response_payload={"rating": 5}),
-            13: AgentTraceTable(id=13, run_id="R1", response_payload={"overall_score": 7}),
-            14: AgentTraceTable(id=14, run_id="R1", response_payload={"decision": "accept"}),
+            0: AgentTraceRecord(input_message="m1", response_payload={"rating": 6}),
+            1: AgentTraceRecord(input_message="m2", response_payload={"rating": 5}),
+            2: AgentTraceRecord(response_payload={"overall_score": 7}),
+            3: AgentTraceRecord(response_payload={"decision": "accept"}),
         }
         record = Adapter.to_run_record(run_row, rows, traces)
         # derived, in insertion order — one entry per reviewer invocation
@@ -148,12 +150,12 @@ class TestAdapter:
     def test_to_run_record_singleton_roles_take_the_last_round(self):
         run_row = GraphReviewTable(run_id="R1", timestamp="t", paper_id="p", decision=None, total_rounds=2)
         rows = [
-            GraphReviewAgentTable(id=1, run_id="R1", agent_role="meta_reviewer", round=1, agent_trace_id=21, response_payload={"overall_score": 5}),
-            GraphReviewAgentTable(id=2, run_id="R1", agent_role="meta_reviewer", round=2, agent_trace_id=22, response_payload={"overall_score": 8}),
+            GraphReviewAgentTable(id=1, run_id="R1", agent_role="meta_reviewer", round=1, trace_index=0, response_payload={"overall_score": 5}),
+            GraphReviewAgentTable(id=2, run_id="R1", agent_role="meta_reviewer", round=2, trace_index=1, response_payload={"overall_score": 8}),
         ]
         traces = {
-            21: AgentTraceTable(id=21, run_id="R1", response_payload={"overall_score": 5}),
-            22: AgentTraceTable(id=22, run_id="R1", response_payload={"overall_score": 8}),
+            0: AgentTraceRecord(response_payload={"overall_score": 5}),
+            1: AgentTraceRecord(response_payload={"overall_score": 8}),
         }
         record = Adapter.to_run_record(run_row, rows, traces)
         assert record.meta_review_response == {"overall_score": 8}  # last round wins
@@ -174,11 +176,12 @@ class TestAdapter:
         assert agent_record.system_prompt is None
 
     def test_agent_record_round_trip_is_lossless(self):
-        # write side -> rows -> read side: identity from the agent row, trace verbatim
+        # write side -> row + redis trace -> read side: identity from the agent
+        # row, verbatim fields from the trace record
         original = Utils.agent_record()
-        row = Factory.to_agent_record_row("RID", original)
+        row = Factory.to_agent_record_row("RID", original, trace_index=0)
         row.id = 1
-        trace = Factory.to_agent_trace_row("RID", original)
+        trace = RedisFactory.to_agent_trace_record(original)
         restored = Adapter.to_agent_record(row, trace)
         assert restored == original
 
@@ -223,11 +226,11 @@ class TestFactory:
         assert Factory.to_run_row(record).meta_overall_score is None
 
     def test_to_agent_record_row_extracts_analytics_only(self):
-        row = Factory.to_agent_record_row("RID", Utils.agent_record())
+        row = Factory.to_agent_record_row("RID", Utils.agent_record(), trace_index=3)
         assert row.agent_role == "reviewer" and row.agent_index == 1
         assert (row.rating, row.confidence) == (6, 4)
         assert row.decision == "minor_revision"  # falls back to recommendation
-        assert row.agent_trace_id is None  # linked by the repository at save time
+        assert row.trace_index == 3  # position in the run's Redis bundle
         assert row.prompt_preset_id == 2  # the prompt itself lives only in the trace
         assert not hasattr(row, "system_prompt")
 
@@ -235,20 +238,21 @@ class TestFactory:
         agent_record = Utils.agent_record(payload={"decision": "accept", "recommendation": "minor_revision"})
         assert Factory.to_agent_record_row("RID", agent_record).decision == "accept"
 
-    def test_to_agent_trace_row_is_verbatim(self):
-        trace = Factory.to_agent_trace_row("RID", Utils.agent_record())
-        assert trace.run_id == "RID"
+    def test_to_agent_trace_record_is_verbatim(self):
+        trace = RedisFactory.to_agent_trace_record(Utils.agent_record())
         assert trace.input_message == "m"
         assert trace.system_prompt == "You are reviewer 1."
+        assert trace.context_used == "c"  # swapped for its hash by the repository at save time
+        assert trace.context_hash is None
         assert trace.response_payload["rating"] == 6
         assert (trace.input_tokens, trace.output_tokens, trace.total_tokens) == (100, 50, 150)
         assert trace.latency_seconds is None  # reserved, not populated yet
 
     def test_to_run_rows_bundles_everything_for_save(self):
-        run_row, pairs = Factory.to_run_rows(Utils.run_record())
+        run_row, agent_rows = Factory.to_run_rows(Utils.run_record())
         assert isinstance(run_row, GraphReviewTable) and run_row.run_id == "RID"
-        assert len(pairs) == 1
-        agent_row, trace_row = pairs[0]
+        assert len(agent_rows) == 1
+        agent_row = agent_rows[0]
         assert isinstance(agent_row, GraphReviewAgentTable)
-        assert isinstance(trace_row, AgentTraceTable)
-        assert agent_row.run_id == "RID" and trace_row.run_id == "RID"
+        assert agent_row.run_id == "RID"
+        assert agent_row.trace_index == 0  # position in the run's Redis bundle
