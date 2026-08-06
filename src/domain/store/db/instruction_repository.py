@@ -27,6 +27,17 @@ class DbInstructionRepository(SqlRepository[PromptInstructionTable]):
                 select(PromptInstructionTable).where(PromptInstructionTable.label.in_(labels))
             ).all())
 
+    def list_by_ids(self, ids: list[int]) -> list[PromptInstructionTable]:
+        """Rows for the given ids, in (type, label) registry order. No
+        is_active filter: preset resolution must stay deterministic at runtime
+        — the UI only offers active instructions at selection time."""
+        with self._session() as session:
+            return list(session.exec(
+                select(PromptInstructionTable)
+                .where(PromptInstructionTable.id.in_(ids))
+                .order_by(PromptInstructionTable.type, PromptInstructionTable.label)
+            ).all())
+
     def list(self, type: str | None = None, include_inactive: bool = False) -> list[PromptInstructionTable]:
         statement = select(PromptInstructionTable)
         if type is not None:

@@ -40,11 +40,6 @@ class AgentRequestContext(BaseModel):
         return AgentRequestContext(context_mode=ContextMode.FULL_CONTEXT, retrieval_context_query=None)
 
 
-class AgentSystemPromptRequest(BaseModel):
-    base_prompt_version: str | None = None
-    instruction_labels: list[str]
-
-
 class CreateAgentRequest(BaseModel):
     """Request to create an agent with a specific role, model, temperature, and optional system prompt."""
     paper_id: str | None = None    
@@ -54,8 +49,10 @@ class CreateAgentRequest(BaseModel):
     agent_role: AgentRole
     agent_index: int | None = None
         
+    prompt_preset_id: int
+
     context: AgentRequestContext = AgentRequestContext.default_none_context()
-    system_prompt_request: AgentSystemPromptRequest | None = None
+    
     retrieval_context_query: str | None = None    
 
 
@@ -69,6 +66,7 @@ class AgentResponse(BaseModel):
     response_schema: SerializeAsAny[ChatModelResponseSchema]
 
     system_prompt: str | None = None
+    prompt_preset_id: int | None = None
     input_message: str | None = None
     context_used: str | None = None
     

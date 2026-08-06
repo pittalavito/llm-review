@@ -5,8 +5,8 @@
  * graph below (click a node to open its editor), and the reusable
  * AgentConfigPanel on the side for the selected agent. Every reviewer has its
  * own AgentConfig; the config persists in localStorage. "Lancia review" maps
- * it onto the BE contract (per-reviewer configs, prompt composed on the BE
- * from system_prompt_request) and drives POST /graph/compile + /graph/invoke. */
+ * it onto the BE contract (per-reviewer configs, prompt resolved on the BE
+ * from each agent's prompt_preset_id) and drives POST /graph/compile + /graph/invoke. */
 import { useEffect, useState } from 'react';
 import { ApiError, compileGraph, getGraphConfig, getGraphRun, invokeGraph, listGraphRuns, listPapers } from '../api/client';
 import type {
@@ -49,17 +49,20 @@ function defaultAgent(contextMode: ContextMode = 'none'): AgentConfig {
   return {
     model: 'mock',
     temperature: 0.4,
-    system_prompt_request: null,
+    prompt_preset_id: null,
     input_message: null,
     request_context: { context_mode: contextMode, retrieval_context_query: null },
   };
 }
 
-/** Drop the legacy JSON system_prompt from stored configs and default the
- * composed-prompt request, so pre-migration localStorage keeps loading. */
-function sanitizeAgent(agent: AgentConfig & { system_prompt?: unknown }): AgentConfig {
-  const { system_prompt: _legacy, ...rest } = agent;
-  return { ...defaultAgent(), ...rest, system_prompt_request: rest.system_prompt_request ?? null };
+/** Drop the legacy prompt fields from stored configs (JSON system_prompt and
+ * the pre-preset system_prompt_request), keeping the preset id when one was
+ * selected — so older localStorage keeps loading. */
+function sanitizeAgent(agent: AgentConfig & { system_prompt?: unknown; system_prompt_request?: { preset_id?: unknown } | null }): AgentConfig {
+  const { system_prompt: _legacy, system_prompt_request: legacyRequest, ...rest } = agent;
+  const legacyPresetId = typeof legacyRequest?.preset_id === 'number' ? legacyRequest.preset_id : null;
+  const presetId = typeof rest.prompt_preset_id === 'number' ? rest.prompt_preset_id : legacyPresetId;
+  return { ...defaultAgent(), ...rest, prompt_preset_id: presetId };
 }
 
 /** BE default (mock everywhere), with the reviewers reading the whole paper. */
@@ -113,13 +116,17 @@ function saveGraphConfig(config: GraphConfig): void {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(config)); } catch { /* ignore */ }
 }
 
-/** FE AgentConfig -> BE AgentConfig: the prompt travels as the composed-request
- * (base version + instruction labels); the BE builds the actual string. */
+/** FE AgentConfig -> BE AgentConfig: the prompt travels as the preset id; the
+ * BE resolves the preset and builds the actual string. The BE requires an id,
+ * so an unselected preset blocks the launch with a clear message. */
 function toBackendAgent(agent: AgentConfig): BackendAgentConfig {
+  if (agent.prompt_preset_id === null) {
+    throw new Error('Ogni agente deve avere un preset di system prompt selezionato in "Configura review".');
+  }
   return {
     model: agent.model,
     temperature: agent.temperature,
-    system_prompt_request: agent.system_prompt_request ?? null,
+    prompt_preset_id: agent.prompt_preset_id,
     request_context: agent.request_context,
   };
 }
@@ -141,12 +148,14 @@ function toBackendRequest(config: GraphConfig, description: string): CreateGraph
   };
 }
 
-/** BE AgentConfig -> FE AgentConfig (input_message is FE-only, reset to null). */
+/** BE AgentConfig -> FE AgentConfig (input_message is FE-only, reset to null).
+ * The BE's default config uses 0 as a placeholder preset id — map it to the
+ * FE's "not chosen yet" null. */
 function fromBackendAgent(agent: BackendAgentConfig): AgentConfig {
   return {
     model: agent.model,
     temperature: agent.temperature,
-    system_prompt_request: agent.system_prompt_request ?? null,
+    prompt_preset_id: agent.prompt_preset_id > 0 ? agent.prompt_preset_id : null,
     input_message: null,
     request_context: agent.request_context,
   };
@@ -468,17 +477,15 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
     config.author.model,
   ];
 
-  /** "Reviewer 2: v1 +focus_novelty" — one row per agent with a composed prompt. */
+  /** "Reviewer 2: preset #4" — one row per agent with a selected preset. */
   const promptSummary = [
-    ...config.reviewers.map((r, i) => [`Reviewer ${i + 1}`, r.system_prompt_request] as const),
-    ['Meta Reviewer', config.meta_reviewer.system_prompt_request] as const,
-    ['Area Chair', config.area_chair.system_prompt_request] as const,
-    ['Author', config.author.system_prompt_request] as const,
+    ...config.reviewers.map((r, i) => [`Reviewer ${i + 1}`, r.prompt_preset_id] as const),
+    ['Meta Reviewer', config.meta_reviewer.prompt_preset_id] as const,
+    ['Area Chair', config.area_chair.prompt_preset_id] as const,
+    ['Author', config.author.prompt_preset_id] as const,
   ]
-    .filter(([, req]) => req?.base_prompt_version)
-    .map(([label, req]) =>
-      `${label}: ${req!.base_prompt_version}` +
-      (req!.instruction_labels.length ? ` +${req!.instruction_labels.join(' +')}` : ''));
+    .filter(([, presetId]) => presetId !== null)
+    .map(([label, presetId]) => `${label}: preset #${presetId}`);
 
   /** Invoke only: the graph must already be compiled from "Configura review". */
   async function onLaunch() {

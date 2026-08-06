@@ -4,15 +4,14 @@
 from pydantic import BaseModel, Field
 
 from models.domain.chat import ChatModelName
-from models.domain.agent import AgentRequestContext, AgentSystemPromptRequest
+from models.domain.agent import AgentRequestContext
 
 
 class AgentConfig(BaseModel):
     """LLM settings for one agent role."""
     model: ChatModelName
-    temperature: float = Field(default=0.4, ge=0.0, le=2.0)
-
-    system_prompt_request: AgentSystemPromptRequest | None = None
+    temperature: float = Field(default=0.4, ge=0.0, le=2.0)    
+    prompt_preset_id: int
     request_context: AgentRequestContext = AgentRequestContext.default_none_context()
 
 
@@ -34,7 +33,7 @@ class GraphReviewConfig(BaseModel):
     def default_config(num_reviewers: int = 1, max_rounds: int = 1) -> "GraphReviewConfig":
         """A mock-backed default (every role on the mock model) for smoke runs/tests."""
         def cfg() -> AgentConfig:
-            return AgentConfig(model=ChatModelName.MOCK, temperature=0.4)
+            return AgentConfig(model=ChatModelName.MOCK, temperature=0.4, prompt_preset_id=0)
         return GraphReviewConfig(
             reviewers=[cfg() for _ in range(num_reviewers)],
             meta_reviewer=cfg(),

@@ -1,7 +1,7 @@
 """Request/response models for the /prompts endpoints."""
 from pydantic import BaseModel
 
-from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion
+from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion, SystemPromptPreset
 
 
 class CreatePromptRequest(BaseModel):
@@ -39,10 +39,11 @@ class PromptVersionListResponse(BaseModel):
 
 
 class PromptPreviewRequest(BaseModel):
-    """Request to compose the system prompt an agent would receive."""
+    """Request to compose the system prompt an agent would receive — either
+    from a saved preset (``preset_id`` wins) or from an explicit (base version,
+    instruction labels) selection."""
     agent_role: str
-    base_prompt_version: str
-    instruction_labels: list[str] = []
+    preset_id: int 
 
 
 class PromptPreviewResponse(BaseModel):
@@ -91,3 +92,43 @@ class PromptInstructionListResponse(BaseModel):
     def from_response(cls, instructions: list[PromptInstruction]) -> "PromptInstructionListResponse":
         """Construct a PromptInstructionListResponse from a list of PromptInstruction."""
         return cls(instructions=instructions)
+
+
+class CreatePresetRequest(BaseModel):
+    """Request to register a new system-prompt preset: a named per-role bundle
+    of (base prompt version + instruction ids)."""
+    agent_role: str
+    name: str
+    base_prompt_version: str
+    instruction_ids: list[int] = []
+    description: str | None = None
+
+
+class UpdatePresetRequest(BaseModel):
+    """Presets are mutable selections: every field may change (partial update,
+    None means 'leave as is')."""
+    name: str | None = None
+    description: str | None = None
+    base_prompt_version: str | None = None
+    instruction_ids: list[int] | None = None
+    is_active: bool | None = None
+
+
+class PresetResponse(BaseModel):
+    """Response containing one system-prompt preset."""
+    preset: SystemPromptPreset
+
+    @classmethod
+    def from_response(cls, preset: SystemPromptPreset) -> "PresetResponse":
+        """Construct a PresetResponse from a SystemPromptPreset."""
+        return cls(preset=preset)
+
+
+class PresetListResponse(BaseModel):
+    """Response containing system-prompt presets from the registry."""
+    presets: list[SystemPromptPreset]
+
+    @classmethod
+    def from_response(cls, presets: list[SystemPromptPreset]) -> "PresetListResponse":
+        """Construct a PresetListResponse from a list of SystemPromptPreset."""
+        return cls(presets=presets)

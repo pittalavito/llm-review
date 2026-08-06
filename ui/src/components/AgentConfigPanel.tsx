@@ -7,13 +7,15 @@
  * patches via onChange. Remount it (React key) when the edited agent switches,
  * so the local preview state resets with it.
  *
- * The system prompt is composed on the BE (base version + instruction labels):
- * here the user picks a registered base prompt for the role, checks the persona
- * instructions, and can preview the exact composed string via /prompts/preview.
+ * The system prompt is preset-only: the agent carries a prompt_preset_id and
+ * the user picks a saved preset of the role (base version + instructions
+ * bundled, managed in the Prompt section), previewing the exact composed
+ * string via /prompts/presets/preview — the bundle's content never shows up
+ * as editable controls in this panel.
  */
 import { useEffect, useState } from 'react';
-import { listInstructions, listModels, listPromptsByRole } from '../api/client';
-import type { AgentConfig, AgentSystemPromptRequest, ContextMode, PromptInstruction, PromptVersion } from '../api/types';
+import { listInstructions, listModels, listPresets, listPromptsByRole } from '../api/client';
+import type { AgentConfig, ContextMode, PromptInstruction, PromptVersion, SystemPromptPreset } from '../api/types';
 import PromptPreviewModal from './PromptPreviewModal';
 import TemperatureSlider from './TemperatureSlider';
 import { useOptions } from './useOptions';
@@ -41,60 +43,47 @@ function relevantInstructions(all: PromptInstruction[], agentRole: string): Prom
   return all.filter((i) => i.is_active && (!i.agent_role || i.agent_role === agentRole));
 }
 
-/** Group instructions by axis type, untyped ones under "other". */
-function groupByType(instructions: PromptInstruction[]): [string, PromptInstruction[]][] {
-  const groups = new Map<string, PromptInstruction[]>();
-  for (const instr of instructions) {
-    const key = instr.type ?? 'other';
-    groups.set(key, [...(groups.get(key) ?? []), instr]);
-  }
-  return [...groups.entries()];
-}
-
 export default function AgentConfigPanel({
   title, hint, agentRole, agent, onChange, idPrefix = 'acp', showInputMessage = true,
 }: AgentConfigPanelProps) {
   const { options: models, error: modelsError } = useOptions(listModels);
   const [versions, setVersions] = useState<PromptVersion[]>([]);
   const [instructions, setInstructions] = useState<PromptInstruction[]>([]);
+  const [presets, setPresets] = useState<SystemPromptPreset[]>([]);
   const [registryError, setRegistryError] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    Promise.all([listPromptsByRole(agentRole), listInstructions()])
-      .then(([promptRows, instructionRows]) => {
+    Promise.all([listPromptsByRole(agentRole), listInstructions(), listPresets(agentRole)])
+      .then(([promptRows, instructionRows, presetRows]) => {
         if (!alive) return;
         setVersions(promptRows.filter((p) => p.is_active));
         setInstructions(relevantInstructions(instructionRows, agentRole));
+        setPresets(presetRows.filter((p) => p.is_active));
       })
       .catch(() => { if (alive) setRegistryError(true); });
     return () => { alive = false; };
   }, [agentRole]);
 
-  const promptRequest: AgentSystemPromptRequest | null = agent.system_prompt_request ?? null;
-  const baseVersion = promptRequest?.base_prompt_version ?? '';
-  const selectedLabels = promptRequest?.instruction_labels ?? [];
+  const presetId = agent.prompt_preset_id ?? null;
+  const selectedPreset = presets.find((p) => p.id === presetId) ?? null;
 
-  function updatePromptRequest(patch: Partial<AgentSystemPromptRequest>) {
-    const next: AgentSystemPromptRequest = {
-      base_prompt_version: promptRequest?.base_prompt_version ?? null,
-      instruction_labels: promptRequest?.instruction_labels ?? [],
-      ...patch,
-    };
-    onChange({ system_prompt_request: next.base_prompt_version === null ? null : next });
+  /** Preset-only selection: base version and instructions are bundled inside
+   * the preset (managed in the Prompt section). The BE requires a preset per
+   * agent — null is a FE-only "not chosen yet" state, validated at launch. */
+  function selectPreset(value: string) {
+    onChange({ prompt_preset_id: value === '' ? null : Number(value) });
   }
 
-  function toggleInstruction(label: string) {
-    const labels = selectedLabels.includes(label)
-      ? selectedLabels.filter((l) => l !== label)
-      : [...selectedLabels, label];
-    updatePromptRequest({ instruction_labels: labels });
-  }
-
-  const selectedVersion = versions.find((v) => v.version_label === baseVersion) ?? null;
+  // Registry data feeds the preview modal only — no manual controls here.
+  const selectedVersion = selectedPreset
+    ? versions.find((v) => v.version_label === selectedPreset.base_prompt_version) ?? null
+    : null;
   /** Registry order — the BE composes the instructions in this order. */
-  const selectedInstructions = instructions.filter((i) => selectedLabels.includes(i.label));
+  const selectedInstructions = selectedPreset
+    ? instructions.filter((i) => selectedPreset.instruction_ids.includes(i.id))
+    : [];
 
   function updateContextMode(mode: ContextMode) {
     onChange({
@@ -168,20 +157,24 @@ export default function AgentConfigPanel({
         </>
       )}
 
-      {/* ── System prompt composer: base version + persona instructions ── */}
-      <label className="paper-form__label" htmlFor={`${idPrefix}-prompt-version`}>
-        Prompt base <span className="acp__hint">(registry del ruolo)</span>
+      {/* ── System prompt: pick a saved preset; the bundle's content is
+           visible only through the preview. ── */}
+      <label className="paper-form__label" htmlFor={`${idPrefix}-preset`}>
+        Preset <span className="acp__hint">(bundle salvati del ruolo)</span>
       </label>
       <select
         className="paper-form__select"
-        id={`${idPrefix}-prompt-version`}
-        value={baseVersion}
-        onChange={(e) => updatePromptRequest({ base_prompt_version: e.target.value || null })}
+        id={`${idPrefix}-preset`}
+        value={presetId ?? ''}
+        onChange={(e) => selectPreset(e.target.value)}
       >
-        <option value="">— nessun prompt —</option>
-        {versions.map((v) => (
-          <option key={v.id} value={v.version_label}>
-            {v.version_label}{v.description ? ` — ${v.description}` : ''}
+        <option value="">— seleziona un preset —</option>
+        {presetId !== null && !selectedPreset && (
+          <option value={presetId}>preset id {presetId} (non trovato)</option>
+        )}
+        {presets.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}{p.description ? ` — ${p.description}` : ''}
           </option>
         ))}
       </select>
@@ -189,48 +182,28 @@ export default function AgentConfigPanel({
         <p className="acp__prompt-error">Registry dei prompt non raggiungibile.</p>
       )}
 
-      {baseVersion && instructions.length > 0 && (
-        <fieldset className="acp__instructions">
-          <legend className="paper-form__label">Instructions (persona)</legend>
-          {groupByType(instructions).map(([type, group]) => (
-            <div key={type} className="acp__instructions-group">
-              <span className="acp__instructions-type">{type}</span>
-              {group.map((instr) => (
-                <label key={instr.label} className="acp__instructions-item">
-                  <input
-                    type="checkbox"
-                    checked={selectedLabels.includes(instr.label)}
-                    onChange={() => toggleInstruction(instr.label)}
-                  />
-                  <span title={instr.instruction}>{instr.label}</span>
-                </label>
-              ))}
-            </div>
-          ))}
-        </fieldset>
-      )}
-
       <div className="acp__preview">
         <button
           className="btn btn--ghost btn--sm"
           type="button"
           disabled={!selectedVersion}
-          title={selectedVersion ? undefined : 'Seleziona un prompt base per vedere l\'anteprima.'}
+          title={selectedVersion ? undefined : 'Seleziona un preset per vedere l\'anteprima.'}
           onClick={() => setPreviewOpen(true)}
         >
           👁 Anteprima prompt
         </button>
         {!selectedVersion && (
-          <span className="acp__hint">seleziona un prompt base</span>
+          <span className="acp__hint">seleziona un preset</span>
         )}
       </div>
 
-      {previewOpen && selectedVersion && (
+      {previewOpen && selectedVersion && selectedPreset && (
         <PromptPreviewModal
           agentTitle={title}
           agentRole={agentRole}
           version={selectedVersion}
           instructions={selectedInstructions}
+          presetId={selectedPreset.id}
           onClose={() => setPreviewOpen(false)}
         />
       )}

@@ -15,20 +15,18 @@ from core.observability import observed, LogPrefix
 from domain.prompt.default import DEFAULT_PROMPT_SEEDS
 from domain.prompt.instruction_default import DEFAULT_INSTRUCTION_SEEDS
 
-from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbAuthorRepository, DbInstructionRepository, DbPaperRepository, DbPromptRepository, DbRunRepository
+from domain.store.db.store import Adapter as DbAdapter, Factory as DbFactory, DbAuthorRepository, DbInstructionRepository, DbPaperRepository, DbPresetRepository, DbPromptRepository, DbRunRepository
 from domain.store.db.open_review_repository import DbOpenReviewRepository
 from domain.store.db.open_review_adapter import OpenReviewAdapter
 from domain.store.redis.store import Adapter as RedisAdapter, Factory as RedisFactory, RedisRagIndexRepository
 from domain.store.files.store import FilePaperRepository
 
-from models.domain.agent import AgentRole
 from models.domain.comparator import HumanMetaReview, HumanReview
 from models.domain.openreview import OpenReviewNotes
 from models.domain.paper import Author, Paper
-from models.store.db import OpenReviewTable
-from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion
+from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion, SystemPromptPreset
 from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
-from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
+from models.domain.run_record import GraphReviewRecord, GraphReviewSummary
 
 class StoreService:
 
@@ -39,6 +37,7 @@ class StoreService:
         self._authors_repository = DbAuthorRepository()
         self._prompts_repository = DbPromptRepository()
         self._instructions_repository = DbInstructionRepository()
+        self._presets_repository = DbPresetRepository()
         self._open_review_repository = DbOpenReviewRepository()
         self._rag_index_repository = RedisRagIndexRepository()
         self._papers_files_repository = FilePaperRepository()
@@ -173,6 +172,31 @@ class StoreService:
 
     def seed_instructions(self, seeds: list[tuple[InstructionType, str, str, str, str]]) -> int:
         return self._instructions_repository.seed_defaults(seeds)
+
+    def get_instructions_by_ids(self, ids: list[int]) -> list[PromptInstruction]:
+        return DbAdapter.to_instructions(self._instructions_repository.list_by_ids(ids))
+
+    # ------------------------------------------------------------------
+    # System prompt presets (named per-role bundles)
+    # ------------------------------------------------------------------
+
+    def list_presets(self, agent_role: str | None = None, include_inactive: bool = False) -> list[SystemPromptPreset]:
+        return DbAdapter.to_presets(self._presets_repository.list(agent_role, include_inactive))
+
+    def get_preset(self, preset_id: int) -> SystemPromptPreset | None:
+        row = self._presets_repository.get(preset_id)
+        return DbAdapter.to_preset(row) if row is not None else None
+
+    def create_preset(self, agent_role: str, name: str, base_prompt_version: str, instruction_ids: list[int] | None = None, description: str | None = None) -> SystemPromptPreset | None:
+        row = self._presets_repository.create(agent_role, name, base_prompt_version, instruction_ids, description)
+        return DbAdapter.to_preset(row) if row is not None else None
+
+    def update_preset(self, preset_id: int, name: str | None = None, description: str | None = None, base_prompt_version: str | None = None, instruction_ids: list[int] | None = None, is_active: bool | None = None) -> SystemPromptPreset | None:
+        row = self._presets_repository.update(preset_id, name, description, base_prompt_version, instruction_ids, is_active)
+        return DbAdapter.to_preset(row) if row is not None else None
+
+    def delete_preset(self, preset_id: int) -> bool:
+        return self._presets_repository.delete(preset_id)
 
     # ------------------------------------------------------------------
     # RAG index (Redis) — the record is already the domain shape

@@ -158,19 +158,15 @@ export interface AgentRequestContext {
   retrieval_context_query?: string | null;
 }
 
-// models/domain/agent.py :: AgentSystemPromptRequest — the prompt is composed
-// on the BE from a registered base version plus persona instruction labels.
-export interface AgentSystemPromptRequest {
-  base_prompt_version: string | null;
-  instruction_labels: string[];
-}
-
 // models/domain/graph.py :: AgentConfig — LLM settings for one agent role.
+// The system prompt is preset-only: prompt_preset_id references a saved
+// SystemPromptPreset, resolved server-side at compile time. The BE requires an
+// id; the FE keeps null while unselected and validates before launching.
 // input_message is FE-only for now: the BE model has no such field yet.
 export interface AgentConfig {
   model: string;
   temperature: number;
-  system_prompt_request?: AgentSystemPromptRequest | null;
+  prompt_preset_id: number | null;
   input_message?: string | null;
   request_context: AgentRequestContext;
 }
@@ -263,15 +259,57 @@ export interface PromptInstructionResponse {
   instruction: PromptInstruction;
 }
 
-// models/controller/prompt.py :: PromptPreviewRequest / PromptPreviewResponse.
+// models/controller/prompt.py :: PromptPreviewRequest / PromptPreviewResponse —
+// preview is preset-only: POST /prompts/presets/preview composes the exact
+// string the agent would receive from the saved preset.
 export interface PromptPreviewRequest {
   agent_role: string;
-  base_prompt_version: string;
-  instruction_labels: string[];
+  preset_id: number;
 }
 
 export interface PromptPreviewResponse {
   prompt: string;
+}
+
+// models/domain/prompt.py :: SystemPromptPreset — a named, per-role bundle of
+// (base prompt version + instruction ids). Mutable: it is a selection, not
+// hash-tracked content; (agent_role, name) is the natural key.
+export interface SystemPromptPreset {
+  id: number;
+  agent_role: string;
+  name: string;
+  description?: string | null;
+  base_prompt_version: string;
+  instruction_ids: number[];
+  created_at: string;
+  updated_at?: string | null;
+  is_active: boolean;
+}
+
+// models/controller/prompt.py :: CreatePresetRequest / UpdatePresetRequest /
+// PresetResponse / PresetListResponse.
+export interface CreatePresetRequest {
+  agent_role: string;
+  name: string;
+  base_prompt_version: string;
+  instruction_ids?: number[];
+  description?: string | null;
+}
+
+export interface UpdatePresetRequest {
+  name?: string | null;
+  description?: string | null;
+  base_prompt_version?: string | null;
+  instruction_ids?: number[] | null;
+  is_active?: boolean | null;
+}
+
+export interface PresetResponse {
+  preset: SystemPromptPreset;
+}
+
+export interface PresetListResponse {
+  presets: SystemPromptPreset[];
 }
 
 // models/domain/run_record.py :: GraphReviewSummary — lightweight run-history
@@ -289,15 +327,15 @@ export interface GraphReviewSummary {
 
 // ---------------------------------------------------------------------------
 // Backend contract for compile/invoke — mirrors models/domain/graph.py:
-// per-reviewer AgentConfig list, prompt composed on the BE from
-// system_prompt_request. The FE GraphConfig maps onto this when launching.
+// per-reviewer AgentConfig list, prompt resolved on the BE from the agent's
+// prompt_preset_id (required). The FE GraphConfig maps onto this when launching.
 // ---------------------------------------------------------------------------
 
 // models/domain/graph.py :: AgentConfig (BE side).
 export interface BackendAgentConfig {
   model: string;
   temperature: number;
-  system_prompt_request: AgentSystemPromptRequest | null;
+  prompt_preset_id: number;
   request_context: AgentRequestContext;
 }
 
@@ -335,6 +373,8 @@ export interface GraphReviewSummaryResponse {
 
 // models/domain/run_record.py :: AgentResponseRecord — one agent invocation:
 // identity (role/index/round), the structured payload and the verbatim trace.
+// system_prompt is served from the agent trace; the agent row itself only
+// stores the prompt_preset_id that produced it.
 export interface AgentResponseRecord {
   round: number;
   agent_role: AgentRole;
@@ -344,6 +384,7 @@ export interface AgentResponseRecord {
   input_message?: string | null;
   context_used?: string | null;
   system_prompt?: string | null;
+  prompt_preset_id?: number | null;
   input_tokens?: number | null;
   output_tokens?: number | null;
   total_tokens?: number | null;

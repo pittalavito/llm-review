@@ -16,6 +16,7 @@ class AgentResponseRecord(BaseModel):
     output_tokens: int | None = None
     total_tokens: int | None = None
     system_prompt: str | None = None
+    prompt_preset_id: int | None = None
     latency_seconds: float | None = None
 
     @classmethod
@@ -34,6 +35,7 @@ class AgentResponseRecord(BaseModel):
             output_tokens=response.output_tokens,
             total_tokens=response.total_tokens,
             system_prompt=response.system_prompt,
+            prompt_preset_id=response.prompt_preset_id,
             latency_seconds=response.latency_seconds
         )
 

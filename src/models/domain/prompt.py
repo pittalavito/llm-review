@@ -42,3 +42,21 @@ class PromptInstruction(BaseModel):
     """Anchor to the graph run the instruction was derived from."""
     created_at: str
     is_active: bool = True
+
+
+class SystemPromptPreset(BaseModel):
+    """Domain model for a named per-role system-prompt preset: a bundle of
+    (base prompt version label + instruction ids). ``(agent_role, name)`` is
+    the natural key. Unlike versions/instructions a preset is a mutable
+    selection. The persistence shape lives in
+    models.store.db.SystemPromptPresetTable."""
+
+    id: int
+    agent_role: str
+    name: str
+    description: str | None = None
+    base_prompt_version: str
+    instruction_ids: list[int] = []
+    created_at: str
+    updated_at: str | None = None
+    is_active: bool = True

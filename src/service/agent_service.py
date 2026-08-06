@@ -17,16 +17,10 @@ class AgentService:
     def build_agent(self, request: CreateAgentRequest) -> Agent:
         """Create a new agent for the given role and chat client."""
         chat = self._chat_service.build_chat(model=request.model, temperature=request.temperature)
-
-        if request.system_prompt_request is not None:
-            promt_request = request.system_prompt_request
-            system_prompt = self._prompt_service.build_system_prompt(
-                agent_role=request.agent_role, 
-                promt_label=promt_request.base_prompt_version,
-                instruction_labels=promt_request.instruction_labels
-            )
-        else:
-            system_prompt = None
+        system_prompt = self._prompt_service.build_system_prompt_from_preset_id(agent_role=request.agent_role, preset_id=request.prompt_preset_id)
+    
+        if system_prompt is None:
+            raise ValueError(f"No system prompt could be built for agent role '{request.agent_role}' and preset id '{request.prompt_preset_id}'.")        
             
         agent = AgentFactory.create_agent(request=request, chat=chat, system_prompt=system_prompt)
 

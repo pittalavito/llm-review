@@ -3,8 +3,8 @@
  * pattern: truncated rows, click a row to open an accordion panel right below
  * it with every field expanded (one row open at a time). CRUD lands later. */
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { ApiError, createInstruction, createPrompt, listInstructions, listPrompts, listRoles, updateInstruction, updatePrompt } from '../api/client';
-import type { InstructionType, PromptInstruction, PromptVersion } from '../api/types';
+import { ApiError, createInstruction, createPreset, createPrompt, deletePreset, listInstructions, listPresets, listPrompts, listPromptsByRole, listRoles, updateInstruction, updatePreset, updatePrompt } from '../api/client';
+import type { InstructionType, PromptInstruction, PromptVersion, SystemPromptPreset } from '../api/types';
 import ActionCard from '../components/ActionCard';
 import { useOptions } from '../components/useOptions';
 
@@ -720,11 +720,534 @@ function CreateInstructionModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+/** Checkbox groups of instructions by axis type, selected by id — shared by
+ * the preset editor and creator. Untyped instructions land under "other". */
+function InstructionIdPicker({ instructions, selectedIds, onToggle }: {
+  instructions: PromptInstruction[];
+  selectedIds: number[];
+  onToggle: (id: number) => void;
+}) {
+  const groups = useMemo(() => {
+    const map = new Map<string, PromptInstruction[]>();
+    for (const instr of instructions) {
+      const key = instr.type ?? 'other';
+      map.set(key, [...(map.get(key) ?? []), instr]);
+    }
+    return [...map.entries()];
+  }, [instructions]);
+
+  if (instructions.length === 0) return null;
+  return (
+    <fieldset className="acp__instructions">
+      <legend className="paper-form__label">Instructions (persona)</legend>
+      {groups.map(([type, group]) => (
+        <div key={type} className="acp__instructions-group">
+          <span className="acp__instructions-type">{type}</span>
+          {group.map((instr) => (
+            <label key={instr.id} className="acp__instructions-item">
+              <input
+                type="checkbox"
+                checked={selectedIds.includes(instr.id)}
+                onChange={() => onToggle(instr.id)}
+              />
+              <span title={instr.instruction}>
+                {instr.label}{instr.is_active ? '' : ' (disattivata)'}
+              </span>
+            </label>
+          ))}
+        </div>
+      ))}
+    </fieldset>
+  );
+}
+
+/** Full inline editor for a preset — unlike versions/instructions a preset is a
+ * mutable selection, so every field (name, description, base version,
+ * instruction ids, active) can change; "Elimina" removes it for good. */
+function PresetEditor({ preset, versions, instructions, onSaved, onDeleted }: {
+  preset: SystemPromptPreset;
+  /** Prompt versions of the preset's role (inactive included, so a stale
+   * reference stays visible and fixable). */
+  versions: PromptVersion[];
+  /** Instructions offered for this role, plus any already referenced by id. */
+  instructions: PromptInstruction[];
+  onSaved: (updated: SystemPromptPreset) => void;
+  onDeleted: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftDescription, setDraftDescription] = useState('');
+  const [draftBaseVersion, setDraftBaseVersion] = useState('');
+  const [draftIds, setDraftIds] = useState<number[]>([]);
+  const [draftActive, setDraftActive] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  function startEdit() {
+    setDraftName(preset.name);
+    setDraftDescription(preset.description ?? '');
+    setDraftBaseVersion(preset.base_prompt_version);
+    setDraftIds([...preset.instruction_ids]);
+    setDraftActive(preset.is_active);
+    setError('');
+    setEditing(true);
+  }
+
+  async function save() {
+    setBusy(true);
+    setError('');
+    try {
+      const updated = await updatePreset(preset.id, {
+        name: draftName.trim(),
+        description: draftDescription.trim() || null,
+        base_prompt_version: draftBaseVersion,
+        instruction_ids: draftIds,
+        is_active: draftActive,
+      });
+      onSaved(updated);
+      setEditing(false);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove() {
+    if (!window.confirm(`Eliminare il preset "${preset.name}"?`)) return;
+    setBusy(true);
+    setError('');
+    try {
+      await deletePreset(preset.id);
+      onDeleted();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : String(err));
+      setBusy(false);
+    }
+  }
+
+  if (!editing) {
+    return (
+      <div className="prompts__edit-actions">
+        <button className="btn btn--ghost btn--sm" type="button" disabled={busy} onClick={startEdit}>
+          ✎ Modifica
+        </button>
+        <button className="btn btn--ghost btn--sm" type="button" disabled={busy} onClick={remove}>
+          🗑 Elimina
+        </button>
+        <span className="prompts__edit-hint">i preset sono modificabili: nome, prompt base e instructions</span>
+        {error && <p className="paper-form__error">{error}</p>}
+      </div>
+    );
+  }
+
+  const canSave = draftName.trim() !== '' && draftBaseVersion !== '' && !busy;
+
+  return (
+    <div className="prompts__edit">
+      <label className="paper-form__label" htmlFor="preset-name">Nome</label>
+      <input
+        className="paper-form__input"
+        id="preset-name"
+        type="text"
+        value={draftName}
+        disabled={busy}
+        onChange={(e) => setDraftName(e.target.value)}
+      />
+      <label className="paper-form__label" htmlFor="preset-description">Descrizione</label>
+      <input
+        className="paper-form__input"
+        id="preset-description"
+        type="text"
+        value={draftDescription}
+        disabled={busy}
+        onChange={(e) => setDraftDescription(e.target.value)}
+      />
+      <label className="paper-form__label" htmlFor="preset-base">Prompt base</label>
+      <select
+        className="paper-form__select"
+        id="preset-base"
+        value={draftBaseVersion}
+        disabled={busy}
+        onChange={(e) => setDraftBaseVersion(e.target.value)}
+      >
+        {!versions.some((v) => v.version_label === draftBaseVersion) && draftBaseVersion !== '' && (
+          <option value={draftBaseVersion}>{draftBaseVersion} (non nel registry)</option>
+        )}
+        {versions.map((v) => (
+          <option key={v.id} value={v.version_label}>
+            {v.version_label}{v.is_active ? '' : ' (disattivata)'}{v.description ? ` — ${v.description}` : ''}
+          </option>
+        ))}
+      </select>
+      <InstructionIdPicker
+        instructions={instructions}
+        selectedIds={draftIds}
+        onToggle={(id) => setDraftIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))}
+      />
+      <label className="prompts__filter">
+        <input
+          type="checkbox"
+          checked={draftActive}
+          disabled={busy}
+          onChange={(e) => setDraftActive(e.target.checked)}
+        />
+        attivo
+      </label>
+      <div className="prompts__edit-actions">
+        <button className="btn btn--primary btn--sm" type="button" disabled={!canSave} onClick={save}>
+          {busy ? 'Salvataggio…' : 'Salva'}
+        </button>
+        <button className="btn btn--ghost btn--sm" type="button" disabled={busy} onClick={() => setEditing(false)}>
+          Annulla
+        </button>
+      </div>
+      {error && <p className="paper-form__error">{error}</p>}
+    </div>
+  );
+}
+
+function AllPresetsModal({ onClose }: { onClose: () => void }) {
+  const [includeInactive, setIncludeInactive] = useState(false);
+  const [presets, setPresets] = useState<SystemPromptPreset[] | null>(null);
+  const [error, setError] = useState('');
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [roleFilter, setRoleFilter] = useState('');
+  const [search, setSearch] = useState('');
+  // Registries for resolving instruction ids and offering the edit selects;
+  // loaded once, inactive rows included so stale references stay readable.
+  const [allPrompts, setAllPrompts] = useState<PromptVersion[]>([]);
+  const [allInstructions, setAllInstructions] = useState<PromptInstruction[]>([]);
+
+  useEscToClose(onClose);
+
+  useEffect(() => {
+    let alive = true;
+    setPresets(null);
+    setError('');
+    setExpandedId(null);
+    listPresets(undefined, includeInactive)
+      .then((rows) => { if (alive) setPresets(rows); })
+      .catch((err) => { if (alive) setError(err instanceof ApiError ? err.message : String(err)); });
+    return () => { alive = false; };
+  }, [includeInactive]);
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all([listPrompts(true), listInstructions(true)])
+      .then(([promptRows, instructionRows]) => {
+        if (!alive) return;
+        setAllPrompts(promptRows);
+        setAllInstructions(instructionRows);
+      })
+      .catch(() => { /* editors degrade — the table still renders */ });
+    return () => { alive = false; };
+  }, []);
+
+  const roles = useMemo(
+    () => [...new Set((presets ?? []).map((p) => p.agent_role))].sort(),
+    [presets],
+  );
+
+  const visible = useMemo(() => {
+    if (presets === null) return null;
+    const query = search.trim().toLowerCase();
+    return presets.filter((p) =>
+      (roleFilter === '' || p.agent_role === roleFilter)
+      && (query === ''
+        || matches(p.name, query)
+        || matches(p.description, query)
+        || matches(p.base_prompt_version, query)),
+    );
+  }, [presets, roleFilter, search]);
+
+  function instructionLabel(id: number): string {
+    const instr = allInstructions.find((i) => i.id === id);
+    return instr ? `[${instr.type ?? '—'}] ${instr.label}` : `id ${id} (sconosciuta)`;
+  }
+
+  /** Instructions the editor offers for a preset: active + global-or-role
+   * bound, plus whatever the preset already references by id. */
+  function editorInstructions(preset: SystemPromptPreset): PromptInstruction[] {
+    return allInstructions.filter((i) =>
+      preset.instruction_ids.includes(i.id)
+      || (i.is_active && (!i.agent_role || i.agent_role === preset.agent_role)));
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal modal--full"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="all-presets-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal__header">
+          <h3 className="modal__title" id="all-presets-title">Tutti i preset</h3>
+          <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="prompts__filters">
+          <select
+            className="paper-form__select prompts__filters-select"
+            aria-label="Filtra per ruolo"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+          >
+            <option value="">tutti i ruoli</option>
+            {roles.map((role) => <option key={role} value={role}>{role}</option>)}
+          </select>
+          <input
+            className="paper-form__input prompts__filters-search"
+            type="search"
+            placeholder="cerca in nome, descrizione, prompt base…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <label className="prompts__filter">
+            <input
+              type="checkbox"
+              checked={includeInactive}
+              onChange={(e) => setIncludeInactive(e.target.checked)}
+            />
+            includi disattivati
+          </label>
+        </div>
+
+        {error && <p className="paper-form__error">{error}</p>}
+        {!error && visible === null && <p className="paper-list__empty">Caricamento…</p>}
+        {visible !== null && visible.length === 0 && (
+          <p className="paper-list__empty">Nessun preset corrisponde ai filtri.</p>
+        )}
+        {visible !== null && visible.length > 0 && (
+          <div className="paper-list__scroll">
+            <table className="paper-list">
+              <thead>
+                <tr>
+                  <th>ruolo</th>
+                  <th>nome</th>
+                  <th>prompt base</th>
+                  <th>instructions</th>
+                  <th>attivo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((p) => (
+                  <Fragment key={p.id}>
+                    <tr
+                      className={'prompts__row' + (expandedId === p.id ? ' prompts__row--open' : '')}
+                      onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
+                    >
+                      <td className="paper-list__id">{p.agent_role}</td>
+                      <td className="paper-list__id">{p.name}</td>
+                      <td>{p.base_prompt_version}</td>
+                      <td>{p.instruction_ids.length}</td>
+                      <td>{p.is_active ? '✓' : '—'}</td>
+                    </tr>
+                    {expandedId === p.id && (
+                      <tr className="prompts__expand">
+                        <td colSpan={5}>
+                          <div className="prompts__fields">
+                            <Field label="ruolo" value={p.agent_role} />
+                            <Field label="nome" value={p.name} />
+                            <Field label="prompt base" value={p.base_prompt_version} />
+                            <Field label="attivo" value={p.is_active ? 'sì' : 'no'} />
+                            <Field label="creato" value={p.created_at} />
+                            <Field label="aggiornato" value={p.updated_at || '—'} />
+                            <Field label="descrizione" value={p.description || '—'} />
+                          </div>
+                          <span className="prompts__field-label">instructions</span>
+                          <pre className="prompts__text">
+                            {p.instruction_ids.length === 0
+                              ? '— nessuna —'
+                              : p.instruction_ids.map(instructionLabel).join('\n')}
+                          </pre>
+                          <PresetEditor
+                            preset={p}
+                            versions={allPrompts.filter((v) => v.agent_role === p.agent_role)}
+                            instructions={editorInstructions(p)}
+                            onSaved={(updated) => {
+                              setPresets((prev) => prev?.map((row) => (row.id === p.id ? updated : row)) ?? prev);
+                            }}
+                            onDeleted={() => {
+                              setPresets((prev) => prev?.filter((row) => row.id !== p.id) ?? prev);
+                              setExpandedId(null);
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CreatePresetModal({ onClose }: { onClose: () => void }) {
+  const { options: roles, error: rolesError } = useOptions(listRoles);
+  const [agentRole, setAgentRole] = useState('');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [baseVersion, setBaseVersion] = useState('');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [versions, setVersions] = useState<PromptVersion[]>([]);
+  const [instructions, setInstructions] = useState<PromptInstruction[]>([]);
+  const [registryError, setRegistryError] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [created, setCreated] = useState('');
+
+  useEscToClose(onClose);
+
+  // The offered base versions and instructions follow the chosen role, exactly
+  // like the per-node composer in AgentConfigPanel (active, global or role-bound).
+  useEffect(() => {
+    if (agentRole === '') {
+      setVersions([]);
+      setInstructions([]);
+      return;
+    }
+    let alive = true;
+    setRegistryError(false);
+    Promise.all([listPromptsByRole(agentRole), listInstructions()])
+      .then(([promptRows, instructionRows]) => {
+        if (!alive) return;
+        setVersions(promptRows.filter((v) => v.is_active));
+        setInstructions(instructionRows.filter((i) => i.is_active && (!i.agent_role || i.agent_role === agentRole)));
+      })
+      .catch(() => { if (alive) setRegistryError(true); });
+    return () => { alive = false; };
+  }, [agentRole]);
+
+  function changeRole(role: string) {
+    setAgentRole(role);
+    setBaseVersion('');
+    setSelectedIds([]);
+    setCreated('');
+    setError('');
+  }
+
+  const canSubmit = agentRole !== '' && name.trim() !== '' && baseVersion !== '' && !busy;
+
+  async function onCreate() {
+    setError('');
+    setCreated('');
+    setBusy(true);
+    try {
+      const preset = await createPreset({
+        agent_role: agentRole,
+        name: name.trim(),
+        base_prompt_version: baseVersion,
+        instruction_ids: selectedIds,
+        description: description.trim() || null,
+      });
+      setCreated(`Preset creato: ${preset.agent_role} / ${preset.name}`);
+      setName('');
+      setDescription('');
+      setSelectedIds([]);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal modal--wide"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-preset-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal__header">
+          <h3 className="modal__title" id="create-preset-title">Crea preset</h3>
+          <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="prompts__create-form">
+        <label className="paper-form__label" htmlFor="cps-role">Ruolo</label>
+        <select
+          className="paper-form__select"
+          id="cps-role"
+          value={agentRole}
+          onChange={(e) => changeRole(e.target.value)}
+        >
+          <option value="">— seleziona un ruolo —</option>
+          {rolesError && <option value="">errore caricamento ruoli</option>}
+          {roles.map((role) => <option key={role} value={role}>{role}</option>)}
+        </select>
+
+        <label className="paper-form__label" htmlFor="cps-name">Nome</label>
+        <input
+          className="paper-form__input"
+          id="cps-name"
+          type="text"
+          placeholder="es. reviewer-severo, empirico-neurips"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <label className="paper-form__label" htmlFor="cps-description">Descrizione (opzionale)</label>
+        <input
+          className="paper-form__input"
+          id="cps-description"
+          type="text"
+          placeholder="a cosa serve questo preset"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
+        <label className="paper-form__label" htmlFor="cps-base">Prompt base</label>
+        <select
+          className="paper-form__select"
+          id="cps-base"
+          value={baseVersion}
+          disabled={agentRole === ''}
+          onChange={(e) => setBaseVersion(e.target.value)}
+        >
+          <option value="">{agentRole === '' ? '— seleziona prima un ruolo —' : '— seleziona una versione —'}</option>
+          {versions.map((v) => (
+            <option key={v.id} value={v.version_label}>
+              {v.version_label}{v.description ? ` — ${v.description}` : ''}
+            </option>
+          ))}
+        </select>
+        {registryError && <p className="paper-form__error">Registry dei prompt non raggiungibile.</p>}
+
+        <InstructionIdPicker
+          instructions={instructions}
+          selectedIds={selectedIds}
+          onToggle={(id) => setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))}
+        />
+        </div>
+
+        <div className="prompts__create-actions">
+          <button className="btn btn--primary" type="button" disabled={!canSubmit} onClick={onCreate}>
+            {busy ? 'Creazione…' : 'Crea'}
+          </button>
+          {created && <span className="prompts__ok">{created}</span>}
+        </div>
+        {error && <p className="paper-form__error">{error}</p>}
+      </div>
+    </div>
+  );
+}
+
 export default function Prompts() {
   const [promptsOpen, setPromptsOpen] = useState(false);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
+  const [presetsOpen, setPresetsOpen] = useState(false);
   const [createPromptOpen, setCreatePromptOpen] = useState(false);
   const [createInstructionOpen, setCreateInstructionOpen] = useState(false);
+  const [createPresetOpen, setCreatePresetOpen] = useState(false);
 
   return (
     <div className="section-wrap">
@@ -782,10 +1305,36 @@ export default function Prompts() {
         onAction={() => setCreateInstructionOpen(true)}
       />
 
+      <ActionCard
+        title="Tutti i preset"
+        description={
+          <>
+            I preset di system prompt: bundle nominati per ruolo di prompt base
+            + instructions, selezionabili per gli agenti del grafo.
+          </>
+        }
+        actionLabel="Apri"
+        onAction={() => setPresetsOpen(true)}
+      />
+
+      <ActionCard
+        title="Crea preset"
+        description={
+          <>
+            Salva una combinazione di prompt base e instructions con un nome,
+            da riusare nella configurazione del grafo di review.
+          </>
+        }
+        actionLabel="Crea"
+        onAction={() => setCreatePresetOpen(true)}
+      />
+
       {promptsOpen && <AllPromptsModal onClose={() => setPromptsOpen(false)} />}
       {instructionsOpen && <AllInstructionsModal onClose={() => setInstructionsOpen(false)} />}
+      {presetsOpen && <AllPresetsModal onClose={() => setPresetsOpen(false)} />}
       {createPromptOpen && <CreatePromptModal onClose={() => setCreatePromptOpen(false)} />}
       {createInstructionOpen && <CreateInstructionModal onClose={() => setCreateInstructionOpen(false)} />}
+      {createPresetOpen && <CreatePresetModal onClose={() => setCreatePresetOpen(false)} />}
     </div>
   );
 }

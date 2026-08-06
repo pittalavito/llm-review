@@ -11,12 +11,13 @@ from uuid import uuid4
 from domain.store.db.author_repository import DbAuthorRepository
 from domain.store.db.instruction_repository import DbInstructionRepository
 from domain.store.db.paper_repository import DbPaperRepository
+from domain.store.db.preset_repository import DbPresetRepository
 from domain.store.db.prompt_repository import DbPromptRepository
 from domain.store.db.run_repository import AgentRecordPair, DbRunRepository
 
 from models.domain.agent import AgentRole
 from models.domain.paper import Author, Paper, PaperType
-from models.domain.prompt import PromptInstruction, PromptVersion
+from models.domain.prompt import PromptInstruction, PromptVersion, SystemPromptPreset
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 
 from models.store.db import (
@@ -27,10 +28,11 @@ from models.store.db import (
     PaperTable,
     PromptInstructionTable,
     PromptVersionTable,
+    SystemPromptPresetTable,
 )
 
 
-__all__ = ["DbAuthorRepository", "DbInstructionRepository", "DbPaperRepository", "DbPromptRepository", "DbRunRepository", "Adapter", "Factory"]
+__all__ = ["DbAuthorRepository", "DbInstructionRepository", "DbPaperRepository", "DbPresetRepository", "DbPromptRepository", "DbRunRepository", "Adapter", "Factory"]
 
 
 class Adapter:
@@ -74,6 +76,11 @@ class Adapter:
     def to_instruction(row: PromptInstructionTable) -> PromptInstruction:
         """``PromptInstructionTable`` row -> ``PromptInstruction`` (field-for-field)."""
         return PromptInstruction.model_validate(row.model_dump())
+
+    @staticmethod
+    def to_preset(row: SystemPromptPresetTable) -> SystemPromptPreset:
+        """``SystemPromptPresetTable`` row -> ``SystemPromptPreset`` (field-for-field)."""
+        return SystemPromptPreset.model_validate(row.model_dump())
 
     @staticmethod
     def to_run_summary(row: GraphReviewTable) -> GraphReviewSummary:
@@ -123,8 +130,10 @@ class Adapter:
 
     @staticmethod
     def to_agent_record(row: GraphReviewAgentTable, trace: AgentTraceTable | None = None) -> AgentResponseRecord:
-        """``graph_review_agent`` row -> ``AgentResponseRecord``: all data now
-        lives in the agent row itself (response_payload, system_prompt, tokens)."""
+        """``graph_review_agent`` row -> ``AgentResponseRecord``: facts and
+        payload from the agent row; the verbatim fields (input message, context,
+        system prompt) come from the trace — the agent row only keeps the
+        ``prompt_preset_id`` that produced the prompt."""
         return AgentResponseRecord(
             agent_role=AgentRole(row.agent_role),
             agent_index=row.agent_index,
@@ -133,7 +142,8 @@ class Adapter:
             input_message=trace.input_message if trace else None,
             context_used=trace.context_used if trace else None,
             response_payload=row.response_payload or {},
-            system_prompt=row.system_prompt,
+            system_prompt=trace.system_prompt if trace else None,
+            prompt_preset_id=row.prompt_preset_id,
             input_tokens=row.input_tokens,
             output_tokens=row.output_tokens,
             total_tokens=row.total_tokens,
@@ -162,6 +172,10 @@ class Adapter:
     @staticmethod
     def to_instructions(rows: list[PromptInstructionTable]) -> list[PromptInstruction]:
         return [Adapter.to_instruction(row) for row in rows]
+
+    @staticmethod
+    def to_presets(rows: list[SystemPromptPresetTable]) -> list[SystemPromptPreset]:
+        return [Adapter.to_preset(row) for row in rows]
 
     @staticmethod
     def to_run_summaries(rows: list[GraphReviewTable]) -> list[GraphReviewSummary]:
@@ -239,7 +253,9 @@ class Factory:
     @staticmethod
     def to_agent_record_row(run_id: str, agent_record: AgentResponseRecord) -> GraphReviewAgentTable:
         """Build one ``graph_review_agent`` facts row (rating/confidence/
-        overall_score/decision extracted from the payload) + response + metadata."""
+        overall_score/decision extracted from the payload) + response + metadata.
+        The system prompt itself is not persisted here — only its
+        ``prompt_preset_id``; the verbatim string lives in the trace row."""
         payload = agent_record.response_payload
         return GraphReviewAgentTable(
             run_id=run_id,
@@ -252,7 +268,7 @@ class Factory:
             overall_score=payload.get("overall_score"),
             decision=payload.get("decision") or payload.get("recommendation"),
             response_payload=payload,
-            system_prompt=agent_record.system_prompt,
+            prompt_preset_id=agent_record.prompt_preset_id,
             input_tokens=agent_record.input_tokens,
             output_tokens=agent_record.output_tokens,
             total_tokens=agent_record.total_tokens,

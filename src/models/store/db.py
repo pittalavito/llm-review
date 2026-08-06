@@ -38,7 +38,9 @@ class GraphReviewTable(SQLModel, table=True):
 
 class GraphReviewAgentTable(SQLModel, table=True):
     """One row per agent invocation (N per run): the full identity
-    (role/index/round), extracted analytics, and the response payload + metadata."""
+    (role/index/round), extracted analytics, and the response payload + metadata.
+    The system prompt is NOT stored here — only the ``prompt_preset_id`` that
+    produced it; the verbatim string lives once in ``agent_trace``."""
 
     __tablename__ = "graph_review_agent"  # type: ignore
     __table_args__ = (
@@ -64,7 +66,7 @@ class GraphReviewAgentTable(SQLModel, table=True):
     agent_trace_id: int | None = Field(default=None, sa_column=Column(ForeignKey("agent_trace.id", ondelete="SET NULL"), nullable=True))
 
     response_payload: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
-    system_prompt: str | None = None
+    prompt_preset_id: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None
@@ -134,6 +136,32 @@ class PromptInstructionTable(SQLModel, table=True):
     """Anchor to the graph run the instruction was derived from (e.g. a
     calibration written after comparing that run with OpenReview)."""
     created_at: str
+    is_active: bool = True
+
+
+class SystemPromptPresetTable(SQLModel, table=True):
+    """Named per-role bundle of (base prompt version + instruction ids) an
+    agent node can select in the graph configurator. Unlike versions and
+    instructions a preset is a SELECTION, not hash-tracked content, so it is
+    fully mutable; reproducibility is preserved by the composed prompt stored
+    per run. References are natural keys / plain ids on purpose (no FKs, like
+    the rest of the prompt-registry family): dangling refs are handled at
+    resolution time."""
+
+    __tablename__ = "system_prompt_preset"  # type: ignore
+    __table_args__ = (
+        UniqueConstraint("agent_role", "name", name="uq_system_prompt_preset_role_name"),
+    )
+
+    id: int | None = Field(default=None, primary_key=True)
+    agent_role: str
+    name: str
+    description: str | None = None
+    base_prompt_version: str
+    """``version_label`` in the role's prompt_version registry."""
+    instruction_ids: list = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
+    created_at: str
+    updated_at: str | None = None
     is_active: bool = True
 
 

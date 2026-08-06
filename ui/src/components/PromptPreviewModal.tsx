@@ -4,9 +4,10 @@
  *
  * The visual blocks (base template + one card per persona instruction, with
  * the axis label) are rendered from the registry data the panel already has;
- * the flat composed string is fetched from POST /prompts/preview so the
- * "Copia" button copies EXACTLY what the agent will receive. Max ~80vh, the
- * text scrolls inside its own box — the page never scrolls.
+ * the flat composed string is fetched from POST /prompts/presets/preview —
+ * the exact resolution path the run uses — so the "Copia" button copies
+ * EXACTLY what the agent will receive. Max ~80vh, the text scrolls inside
+ * its own box — the page never scrolls.
  */
 import { useEffect, useState } from 'react';
 import { ApiError, previewPrompt } from '../api/client';
@@ -19,11 +20,13 @@ interface PromptPreviewModalProps {
   version: PromptVersion;
   /** The selected instructions, in registry order (the BE composes in this order). */
   instructions: PromptInstruction[];
+  /** The saved preset to preview — drives the composed-string fetch. */
+  presetId: number;
   onClose: () => void;
 }
 
 export default function PromptPreviewModal({
-  agentTitle, agentRole, version, instructions, onClose,
+  agentTitle, agentRole, version, instructions, presetId, onClose,
 }: PromptPreviewModalProps) {
   const [composed, setComposed] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -45,15 +48,11 @@ export default function PromptPreviewModal({
   // The exact composed string, for the copy button.
   useEffect(() => {
     let alive = true;
-    previewPrompt({
-      agent_role: agentRole,
-      base_prompt_version: version.version_label,
-      instruction_labels: instructions.map((i) => i.label),
-    })
+    previewPrompt({ agent_role: agentRole, preset_id: presetId })
       .then((text) => { if (alive) setComposed(text); })
       .catch((err) => { if (alive) setError(err instanceof ApiError ? err.message : String(err)); });
     return () => { alive = false; };
-  }, [agentRole, version.version_label, instructions]);
+  }, [agentRole, presetId]);
 
   async function onCopy() {
     if (composed === null) return;

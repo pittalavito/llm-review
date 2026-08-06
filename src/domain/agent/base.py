@@ -17,19 +17,20 @@ class Factory:
         ag_role = request.agent_role
         ag_id = request.agent_index
         req_context = request.context
-        
+        preset_id = request.prompt_preset_id
+
         if ag_role == AgentRole.REVIEWER:
             if ag_id is None:
                 raise ValueError("Reviewer agent requires an index.")
-            return ReviewerAgent(chat=chat, index=ag_id, system_prompt=system_prompt, context_mode=req_context)
+            return ReviewerAgent(chat=chat, index=ag_id, system_prompt=system_prompt, context_mode=req_context, prompt_preset_id=preset_id)
         elif ag_role == AgentRole.META_REVIEWER:
-            return MetaReviewerAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context)
+            return MetaReviewerAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context, prompt_preset_id=preset_id)
         elif ag_role == AgentRole.AREA_CHAIR:
-            return AreaChairAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context)
+            return AreaChairAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context, prompt_preset_id=preset_id)
         elif ag_role == AgentRole.AUTHOR_AGENT:
-            return AuthorAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context)
+            return AuthorAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context, prompt_preset_id=preset_id)
         elif ag_role == AgentRole.CHAT_AGENT:
-            return ChatAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context)
+            return ChatAgent(chat=chat, system_prompt=system_prompt, context_mode=req_context, prompt_preset_id=preset_id)
         else:
             raise ValueError(f"Unknown agent role: {ag_role}")
 
@@ -45,7 +46,7 @@ class Factory:
                 temperature=reviewer_config.temperature,
                 agent_role=AgentRole.REVIEWER,
                 agent_index=index,
-                system_prompt_request=reviewer_config.system_prompt_request,
+                prompt_preset_id=reviewer_config.prompt_preset_id,
                 paper_id=request.paper_id,
                 context=reviewer_config.request_context
             ))
@@ -60,7 +61,7 @@ class Factory:
                 temperature=agent_config.temperature,
                 agent_role=role,
                 agent_index=None,
-                system_prompt_request=agent_config.system_prompt_request,
+                prompt_preset_id=agent_config.prompt_preset_id,
                 paper_id=request.paper_id,
                 context=agent_config.request_context
             ))
@@ -78,12 +79,14 @@ class Agent(ABC):
         request_context: AgentRequestContext | None = None,
         system_prompt: str | None = "",
         response_schema: type[ChatModelResponseSchema] | None = None,
+        prompt_preset_id: int | None = None,
     ):
         self.chat: Chat = chat
         self.agent_role: AgentRole = agent_role
         self.agent_index: int | None = agent_index
         self.agent_context: AgentRequestContext | None = request_context
         self.system_prompt: str | None = system_prompt
+        self.prompt_preset_id: int | None = prompt_preset_id
         self.response_schema: type[ChatModelResponseSchema] | None = response_schema
         self.context: str | None = None
     
@@ -128,6 +131,7 @@ class Agent(ABC):
             model=self.chat.model_name,
             response_schema=chat_response.response_schema,
             system_prompt=self.system_prompt,
+            prompt_preset_id=self.prompt_preset_id,
             input_message=input_message,
             context_used=self.context,
             input_tokens=chat_response.input_tokens,
@@ -148,14 +152,16 @@ class ReviewerAgent(Agent):
         index: int = 1,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_full_context(),
         system_prompt: str | None = "",
+        prompt_preset_id: int | None = None,
     ):
         super().__init__(
-            chat=chat, 
-            agent_role=AgentRole.REVIEWER, 
-            agent_index=index, 
+            chat=chat,
+            agent_role=AgentRole.REVIEWER,
+            agent_index=index,
             system_prompt=system_prompt,
             request_context=context_mode,
-            response_schema=ReviewerResponseSchema
+            response_schema=ReviewerResponseSchema,
+            prompt_preset_id=prompt_preset_id
         )
 
 
@@ -167,14 +173,16 @@ class MetaReviewerAgent(Agent):
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
         system_prompt: str | None = "",
+        prompt_preset_id: int | None = None,
     ):
         super().__init__(
-            chat=chat, 
-            agent_role=AgentRole.META_REVIEWER, 
-            agent_index=None, 
+            chat=chat,
+            agent_role=AgentRole.META_REVIEWER,
+            agent_index=None,
             system_prompt=system_prompt,
             request_context=context_mode,
-            response_schema=MetaReviewResponseSchema
+            response_schema=MetaReviewResponseSchema,
+            prompt_preset_id=prompt_preset_id
         )
 
 
@@ -186,14 +194,16 @@ class AreaChairAgent(Agent):
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
         system_prompt: str | None = "",
+        prompt_preset_id: int | None = None,
     ):
         super().__init__(
-            chat=chat, 
-            agent_role=AgentRole.AREA_CHAIR, 
-            agent_index=None, 
-            system_prompt=system_prompt, 
+            chat=chat,
+            agent_role=AgentRole.AREA_CHAIR,
+            agent_index=None,
+            system_prompt=system_prompt,
             request_context=context_mode,
-            response_schema=AreaChairResponseSchema
+            response_schema=AreaChairResponseSchema,
+            prompt_preset_id=prompt_preset_id
         )
 
 
@@ -205,14 +215,16 @@ class AuthorAgent(Agent):
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
         system_prompt: str | None = "",
+        prompt_preset_id: int | None = None,
     ):
         super().__init__(
-            chat, 
-            AgentRole.AUTHOR_AGENT, 
+            chat,
+            AgentRole.AUTHOR_AGENT,
             agent_index=None,
-            system_prompt=system_prompt, 
+            system_prompt=system_prompt,
             request_context=context_mode,
-            response_schema=AuthorResponseSchema
+            response_schema=AuthorResponseSchema,
+            prompt_preset_id=prompt_preset_id
         )
 
 
@@ -225,7 +237,8 @@ class ChatAgent(Agent):
         self,
         chat: Chat,
         context_mode: AgentRequestContext | None = AgentRequestContext.default_none_context(),
-        system_prompt: str | None = ""
+        system_prompt: str | None = "",
+        prompt_preset_id: int | None = None
     ):
         super().__init__(
             chat=chat,
@@ -233,5 +246,6 @@ class ChatAgent(Agent):
             agent_index=None,
             system_prompt=system_prompt,
             request_context=context_mode,
-            response_schema=None
+            response_schema=None,
+            prompt_preset_id=prompt_preset_id
         )

@@ -4,7 +4,7 @@ row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 responses from the agent traces. No database involved."""
 from models.domain.agent import AgentRole
 from models.domain.paper import Author, Paper, PaperType
-from models.domain.prompt import PromptVersion
+from models.domain.prompt import PromptVersion, SystemPromptPreset
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord
 from models.store.db import (
     AgentTraceTable,
@@ -13,6 +13,7 @@ from models.store.db import (
     GraphReviewTable,
     PaperTable,
     PromptVersionTable,
+    SystemPromptPresetTable,
 )
 from domain.store.db.store import Adapter, Factory
 
@@ -54,6 +55,7 @@ class Utils:
             response_payload=payload or {"rating": 6, "confidence": 4, "recommendation": "minor_revision"},
             input_tokens=100, output_tokens=50, total_tokens=150,
             system_prompt="You are reviewer 1.",
+            prompt_preset_id=2,
         )
 
 
@@ -94,6 +96,18 @@ class TestAdapter:
         assert isinstance(prompt, PromptVersion)
         assert (prompt.id, prompt.agent_role, prompt.version_label, prompt.template_hash) == (1, "reviewer", "v1", "h")
 
+    def test_to_preset_is_field_for_field(self):
+        row = SystemPromptPresetTable(
+            id=4, agent_role="reviewer", name="severo", description="d",
+            base_prompt_version="v1", instruction_ids=[3, 7],
+            created_at="2026-01-01", updated_at="2026-02-01", is_active=True,
+        )
+        preset = Adapter.to_preset(row)
+        assert isinstance(preset, SystemPromptPreset)
+        assert (preset.id, preset.agent_role, preset.name, preset.base_prompt_version) == (4, "reviewer", "severo", "v1")
+        assert preset.instruction_ids == [3, 7]
+        assert (preset.created_at, preset.updated_at, preset.is_active) == ("2026-01-01", "2026-02-01", True)
+
     def test_to_run_summary_keeps_facts_and_analytics(self):
         row = GraphReviewTable(
             run_id="R1", timestamp="t", paper_id="other_p_pdf", description="d",
@@ -104,20 +118,20 @@ class TestAdapter:
         assert summary.description == "d"
         assert (summary.max_rounds, summary.meta_overall_score) == (3, 7)
 
-    def test_to_run_record_derives_responses_from_traces(self):
+    def test_to_run_record_derives_responses_from_agent_rows(self):
         run_row = GraphReviewTable(
             run_id="R1", timestamp="t", paper_id="other_p_pdf", description="d",
             decision="accept", total_rounds=1, graph_config={"max_rounds": 3},
         )
         rows = [
-            GraphReviewAgentTable(id=1, run_id="R1", agent_role="reviewer", agent_index=1, round=0, agent_trace_id=11),
-            GraphReviewAgentTable(id=2, run_id="R1", agent_role="reviewer", agent_index=2, round=0, agent_trace_id=12),
-            GraphReviewAgentTable(id=3, run_id="R1", agent_role="meta_reviewer", round=1, agent_trace_id=13),
-            GraphReviewAgentTable(id=4, run_id="R1", agent_role="area_chair", round=0, agent_trace_id=14),
+            GraphReviewAgentTable(id=1, run_id="R1", agent_role="reviewer", agent_index=1, round=0, agent_trace_id=11, response_payload={"rating": 6}),
+            GraphReviewAgentTable(id=2, run_id="R1", agent_role="reviewer", agent_index=2, round=0, agent_trace_id=12, response_payload={"rating": 5}),
+            GraphReviewAgentTable(id=3, run_id="R1", agent_role="meta_reviewer", round=1, agent_trace_id=13, response_payload={"overall_score": 7}),
+            GraphReviewAgentTable(id=4, run_id="R1", agent_role="area_chair", round=0, agent_trace_id=14, response_payload={"decision": "accept"}),
         ]
         traces = {
-            11: AgentTraceTable(id=11, run_id="R1", response_payload={"rating": 6}),
-            12: AgentTraceTable(id=12, run_id="R1", response_payload={"rating": 5}),
+            11: AgentTraceTable(id=11, run_id="R1", input_message="m1", response_payload={"rating": 6}),
+            12: AgentTraceTable(id=12, run_id="R1", input_message="m2", response_payload={"rating": 5}),
             13: AgentTraceTable(id=13, run_id="R1", response_payload={"overall_score": 7}),
             14: AgentTraceTable(id=14, run_id="R1", response_payload={"decision": "accept"}),
         }
@@ -129,12 +143,13 @@ class TestAdapter:
         assert record.author_response is None  # role never ran
         assert record.graph_config == {"max_rounds": 3}
         assert len(record.agent_records) == 4
+        assert record.agent_records[0].input_message == "m1"  # trace still feeds the verbatim fields
 
     def test_to_run_record_singleton_roles_take_the_last_round(self):
         run_row = GraphReviewTable(run_id="R1", timestamp="t", paper_id="p", decision=None, total_rounds=2)
         rows = [
-            GraphReviewAgentTable(id=1, run_id="R1", agent_role="meta_reviewer", round=1, agent_trace_id=21),
-            GraphReviewAgentTable(id=2, run_id="R1", agent_role="meta_reviewer", round=2, agent_trace_id=22),
+            GraphReviewAgentTable(id=1, run_id="R1", agent_role="meta_reviewer", round=1, agent_trace_id=21, response_payload={"overall_score": 5}),
+            GraphReviewAgentTable(id=2, run_id="R1", agent_role="meta_reviewer", round=2, agent_trace_id=22, response_payload={"overall_score": 8}),
         ]
         traces = {
             21: AgentTraceTable(id=21, run_id="R1", response_payload={"overall_score": 5}),
@@ -213,6 +228,8 @@ class TestFactory:
         assert (row.rating, row.confidence) == (6, 4)
         assert row.decision == "minor_revision"  # falls back to recommendation
         assert row.agent_trace_id is None  # linked by the repository at save time
+        assert row.prompt_preset_id == 2  # the prompt itself lives only in the trace
+        assert not hasattr(row, "system_prompt")
 
     def test_to_agent_record_row_prefers_decision_over_recommendation(self):
         agent_record = Utils.agent_record(payload={"decision": "accept", "recommendation": "minor_revision"})

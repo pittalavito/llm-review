@@ -3,7 +3,7 @@
  * Endpoints are already namespaced (/chat, /agent), so there is no base prefix;
  * in dev they are proxied to the backend on :8081 (see vite.config.ts).
  */
-import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreateInstructionRequest, CreateOpenReviewPaperRequest, CreatePaperRequest, CreatePaperResponse, CreatePromptRequest, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, OpenReviewDataResponse, PaperListResponse, PaperType, PromptInstruction, PromptInstructionListResponse, PromptInstructionResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, PromptVersionResponse, RagStrategy, UpdateInstructionRequest, UpdatePromptRequest } from './types';
+import type { AgentRole, AppConfig, ChatModelName, ChatResponse, CreateGraphReviewRequest, CreateInstructionRequest, CreateOpenReviewPaperRequest, CreatePaperRequest, CreatePaperResponse, CreatePresetRequest, CreatePromptRequest, GraphReviewConfigResponse, GraphReviewRecordResponse, GraphReviewSummaryResponse, IndexPaperAccepted, IndexPaperRequest, IndexStatusResponse, OpenReviewDataResponse, PaperListResponse, PaperType, PresetListResponse, PresetResponse, PromptInstruction, PromptInstructionListResponse, PromptInstructionResponse, PromptPreviewRequest, PromptPreviewResponse, PromptVersion, PromptVersionListResponse, PromptVersionResponse, RagStrategy, SystemPromptPreset, UpdateInstructionRequest, UpdatePresetRequest, UpdatePromptRequest } from './types';
 
 export class ApiError extends Error {}
 
@@ -46,6 +46,12 @@ async function put<T>(path: string, body: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+  await throwForResponse(res);
+  return res.json() as Promise<T>;
+}
+
+async function del<T>(path: string): Promise<T> {
+  const res = await fetch(path, { method: 'DELETE' });
   await throwForResponse(res);
   return res.json() as Promise<T>;
 }
@@ -117,10 +123,10 @@ export const listPromptsByRole = (agentRole: string) =>
 export const listInstructions = (includeInactive = false) =>
   get<PromptInstructionListResponse>(`/prompts/instructions/list?include_inactive=${includeInactive}`).then((r) => r.instructions as PromptInstruction[]);
 
-/** The composed system prompt (base template + instructions) an agent would
- * receive — the exact string the BE will use (unwrapped). */
+/** The composed system prompt an agent would receive from a saved preset —
+ * the exact string the BE will use (unwrapped). */
 export const previewPrompt = (request: PromptPreviewRequest) =>
-  post<PromptPreviewResponse>('/prompts/preview', request).then((r) => r.prompt);
+  post<PromptPreviewResponse>('/prompts/presets/preview', request).then((r) => r.prompt);
 
 /** Register a new immutable prompt version (409 when (role, version) exists). */
 export const createPrompt = (request: CreatePromptRequest) =>
@@ -139,6 +145,33 @@ export const updatePrompt = (versionId: number, request: UpdatePromptRequest) =>
  * text never changes (unwrapped). */
 export const updateInstruction = (instructionId: number, request: UpdateInstructionRequest) =>
   put<PromptInstructionResponse>(`/prompts/instructions/${instructionId}`, request).then((r) => r.instruction);
+
+// ---------------------------------------------------------------------------
+// System prompt presets — named per-role bundles (base version + instruction ids)
+// ---------------------------------------------------------------------------
+
+/** The preset registry, optionally filtered by role (unwrapped). */
+export const listPresets = (agentRole?: string, includeInactive = false) => {
+  const params = new URLSearchParams({ include_inactive: String(includeInactive) });
+  if (agentRole) params.set('agent_role', agentRole);
+  return get<PresetListResponse>(`/prompts/presets/list?${params}`).then((r) => r.presets as SystemPromptPreset[]);
+};
+
+/** One preset by id — 404 when missing (unwrapped). */
+export const getPreset = (presetId: number) =>
+  get<PresetResponse>(`/prompts/presets/${presetId}`).then((r) => r.preset);
+
+/** Create a preset (409 when (role, name) exists, 400 on unknown base version). */
+export const createPreset = (request: CreatePresetRequest) =>
+  post<PresetResponse>('/prompts/presets/create', request).then((r) => r.preset);
+
+/** Update a preset — presets are fully mutable, all fields optional (unwrapped). */
+export const updatePreset = (presetId: number, request: UpdatePresetRequest) =>
+  put<PresetResponse>(`/prompts/presets/${presetId}`, request).then((r) => r.preset);
+
+/** Delete a preset — 404 when missing (unwrapped: the deleted preset). */
+export const deletePreset = (presetId: number) =>
+  del<PresetResponse>(`/prompts/presets/${presetId}`).then((r) => r.preset);
 
 // ---------------------------------------------------------------------------
 // Review graph

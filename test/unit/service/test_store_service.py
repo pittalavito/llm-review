@@ -10,7 +10,7 @@ import service.store_service as store_service_mod
 from models.domain.agent import AgentRole
 from models.domain.openreview import OpenReviewNotes
 from models.domain.paper import Author, Paper, PaperType
-from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion
+from models.domain.prompt import InstructionType, PromptInstruction, PromptVersion, SystemPromptPreset
 from models.domain.retrieval import IndexInfo, RagFileSignature, RagIndex
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
 from models.store.db import (
@@ -21,8 +21,10 @@ from models.store.db import (
     PaperTable,
     PromptInstructionTable,
     PromptVersionTable,
+    SystemPromptPresetTable,
 )
-from models.store.redis import OpenReviewCache as StoreOpenReviewCache, RagIndex as StoreRagIndex
+from models.store.redis import RagIndex as StoreRagIndex
+from domain.store.db.open_review_adapter import OpenReviewAdapter
 from service.store_service import StoreService
 
 
@@ -96,23 +98,13 @@ class FakeRuns:
         if run_id == "missing":
             return None
         run_row = GraphReviewTable(run_id=run_id, timestamp="t", paper_id="other_p_pdf", decision="accept", total_rounds=2, graph_config={"max_rounds": 3})
-        agent_row = GraphReviewAgentTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, rating=6, agent_trace_id=11)
+        agent_row = GraphReviewAgentTable(id=1, run_id=run_id, agent_role="reviewer", agent_index=1, round=0, rating=6, agent_trace_id=11, response_payload={"rating": 6})
         trace = AgentTraceTable(id=11, run_id=run_id, input_message="m", response_payload={"rating": 6})
         return (run_row, [agent_row], {11: trace})
 
     @staticmethod
     def build_run_id(paper_id):
         return "built:" + paper_id
-
-    def get_agent_record_rows(self, run_id, agent_role=None, agent_index=None, round_index=None):
-        if run_id == "missing":
-            return None
-        agent_row = GraphReviewAgentTable(
-            id=2, run_id=run_id, agent_role=agent_role or "reviewer",
-            agent_index=agent_index or 1, round=round_index or 0, rating=6, agent_trace_id=12,
-        )
-        trace = AgentTraceTable(id=12, run_id=run_id, input_message="m2", response_payload={"rating": 6})
-        return [(agent_row, trace)]
 
     def list_run_ids_for_paper(self, paper_id):
         return ["R1", "R2"] if paper_id == "other_p_pdf" else []
@@ -202,13 +194,16 @@ class FakeInstructions:
     def list_by_labels(self, labels):
         return [PromptInstructionTable(id=1, type="intention", label=labels[0] if labels else "l", instruction="i", created_at="t")]
 
+    def list_by_ids(self, ids):
+        return [PromptInstructionTable(id=ids[0], type="intention", label="l", instruction="i", created_at="t")] if ids else []
+
     def list(self, type=None, include_inactive=False):
         return [PromptInstructionTable(id=1, type=type or "intention", label="l", instruction="i", created_at="t")]
 
-    def create(self, type, label, instruction, description=None, agent_role=None):
+    def create(self, type, label, instruction, description=None, agent_role=None, run_id=None):
         if label == "dup":
             return None
-        return PromptInstructionTable(id=2, type=type, label=label, instruction=instruction, description=description, agent_role=agent_role, created_at="t")
+        return PromptInstructionTable(id=2, type=type, label=label, instruction=instruction, description=description, agent_role=agent_role, run_id=run_id, created_at="t")
 
     def update_meta(self, instruction_id, description=None, is_active=None):
         if instruction_id == 999:
@@ -217,6 +212,38 @@ class FakeInstructions:
 
     def seed_defaults(self, seeds) -> int:
         return 0
+
+
+class FakePresets:
+    """Stand-in for DbPresetRepository."""
+
+    def __init__(self):
+        pass
+
+    def list(self, agent_role=None, include_inactive=False):
+        return [SystemPromptPresetTable(id=1, agent_role=agent_role or "reviewer", name="severo", base_prompt_version="v1", instruction_ids=[3, 7], created_at="t")]
+
+    def get(self, preset_id):
+        return None if preset_id == 999 else SystemPromptPresetTable(id=preset_id, agent_role="reviewer", name="severo", base_prompt_version="v1", instruction_ids=[3], created_at="t")
+
+    def create(self, agent_role, name, base_prompt_version, instruction_ids=None, description=None):
+        if name == "dup":
+            return None
+        return SystemPromptPresetTable(id=2, agent_role=agent_role, name=name, base_prompt_version=base_prompt_version, instruction_ids=list(instruction_ids or []), description=description, created_at="t")
+
+    def update(self, preset_id, name=None, description=None, base_prompt_version=None, instruction_ids=None, is_active=None):
+        if preset_id == 999 or name == "dup":
+            return None
+        return SystemPromptPresetTable(
+            id=preset_id, agent_role="reviewer", name=name or "severo",
+            base_prompt_version=base_prompt_version or "v1",
+            instruction_ids=list(instruction_ids) if instruction_ids is not None else [3],
+            description=description, created_at="t", updated_at="t2",
+            is_active=is_active if is_active is not None else True,
+        )
+
+    def delete(self, preset_id):
+        return preset_id != 999
 
 
 class FakeRagIndex:
@@ -240,21 +267,23 @@ class FakeRagIndex:
         return f"doc:{paper_id}:{strategy}:{strategy_version}"
 
 
-class FakeCache:
-    """Stand-in for RedisOpenReviewCacheRepository."""
-    saved: dict = {}
+class FakeOpenReviewDb:
+    """Stand-in for DbOpenReviewRepository. ``list_by_paper`` serves rows built
+    from the note fixtures through the REAL OpenReviewAdapter, so the read path
+    (rows -> HumanReview/HumanMetaReview) is exercised end-to-end."""
+    saved: list = []
 
     def __init__(self):
         pass
 
-    def load(self, key):
-        if key == "missing":
-            return None
-        notes = [_review_note(), _neurips_review_note(), _meta_review_note(), _decision_note()]
-        return StoreOpenReviewCache.model_validate({"notes": notes})
+    def create_batch(self, records):
+        FakeOpenReviewDb.saved.extend(records)
 
-    def save(self, key, record):
-        FakeCache.saved[key] = record
+    def list_by_paper(self, paper_id):
+        if paper_id == "missing":
+            return []
+        notes = OpenReviewNotes.from_notes([_review_note(), _neurips_review_note(), _meta_review_note(), _decision_note()])
+        return OpenReviewAdapter.from_notes(notes, paper_id)
 
 
 class FakeFiles:
@@ -284,8 +313,9 @@ def service(monkeypatch) -> StoreService:
     monkeypatch.setattr(store_service_mod, "DbAuthorRepository", FakeAuthors)
     monkeypatch.setattr(store_service_mod, "DbPromptRepository", FakePrompts)
     monkeypatch.setattr(store_service_mod, "DbInstructionRepository", FakeInstructions)
+    monkeypatch.setattr(store_service_mod, "DbPresetRepository", FakePresets)
     monkeypatch.setattr(store_service_mod, "RedisRagIndexRepository", FakeRagIndex)
-    monkeypatch.setattr(store_service_mod, "RedisOpenReviewCacheRepository", FakeCache)
+    monkeypatch.setattr(store_service_mod, "DbOpenReviewRepository", FakeOpenReviewDb)
     monkeypatch.setattr(store_service_mod, "FilePaperRepository", FakeFiles)
     return StoreService()
 
@@ -322,7 +352,7 @@ class TestRuns:
     def test_get_run_builds_full_record_via_adapter(self, service):
         record = service.get_run("R1")
         assert isinstance(record, GraphReviewRecord)
-        assert record.reviews_response == [{"rating": 6}]  # derived from the reviewer trace
+        assert record.reviews_response == [{"rating": 6}]  # derived from the reviewer row
         assert record.graph_config == {"max_rounds": 3}
         assert record.agent_records[0].agent_role is AgentRole.REVIEWER and record.agent_records[0].agent_index == 1
         assert record.agent_records[0].response_payload == {"rating": 6}
@@ -330,14 +360,6 @@ class TestRuns:
 
     def test_build_run_id_delegates_to_repository(self, service):
         assert service.build_run_id("other_p_pdf") == "built:other_p_pdf"
-
-    def test_get_agent_records_maps_pairs_to_records(self, service):
-        records = service.get_agent_records("R1", agent_role=AgentRole.REVIEWER, agent_index=1, round_index=0)
-        assert len(records) == 1 and isinstance(records[0], AgentResponseRecord)
-        assert records[0].input_message == "m2"
-
-    def test_get_agent_records_none_when_run_missing(self, service):
-        assert service.get_agent_records("missing") is None
 
     def test_get_run_ids_for_paper_delegates_to_repository(self, service):
         assert service.get_run_ids_for_paper("other_p_pdf") == ["R1", "R2"]
@@ -413,43 +435,41 @@ class TestRagIndex:
 
 
 class TestOpenReview:
-    def test_get_human_reviews_parses_cache_end_to_end(self, service):
+    def test_get_human_reviews_parses_rows_end_to_end(self, service):
         reviews = service.get_human_reviews("k")
         assert len(reviews) == 2
         assert reviews[0].reviewer_id == "Reviewer_abc"
-        assert reviews[0].rating == 6
-        assert reviews[0].soundness is None  # ICLR-2023-style note has no sub-scores
+        assert reviews[0].summary == "S"
+        assert (reviews[0].rating, reviews[0].confidence) == (6, 4)
 
     def test_get_human_reviews_parses_neurips_v2_note(self, service):
         review = service.get_human_reviews("k")[1]
         assert review.reviewer_id == "Reviewer_xyz"
-        assert (review.summary, review.strengths, review.weaknesses) == ("NS", "solid", "narrow")
+        assert (review.summary, review.strengths) == ("NS", "solid")
         assert (review.rating, review.confidence) == (7, 4)
-        assert review.limitations == "not discussed"
-        assert (review.soundness, review.presentation, review.contribution) == (3, 2, 3)
-        assert review.soundness_label == "3 good"
 
-    def test_get_human_reviews_empty_when_cache_missing(self, service):
+    def test_get_human_reviews_empty_when_paper_missing(self, service):
         assert service.get_human_reviews("missing") == []
 
-    def test_save_open_review_cache_builds_store_record(self, service):
-        service.save_open_review_cache("k", OpenReviewNotes.from_notes([_review_note()]))
-        assert isinstance(FakeCache.saved["k"], StoreOpenReviewCache)
-        assert len(FakeCache.saved["k"].notes) == 1
+    def test_save_open_review_data_persists_parsed_rows(self, service):
+        FakeOpenReviewDb.saved = []
+        service.save_open_review_data("p1", OpenReviewNotes.from_notes([_review_note(), _decision_note()]))
+        assert len(FakeOpenReviewDb.saved) == 2
+        assert {row.reviewer_type for row in FakeOpenReviewDb.saved} == {"reviewer", "area_chair"}
+        assert all(row.paper_id == "p1" for row in FakeOpenReviewDb.saved)
 
-    def test_get_human_meta_review_parses_cache(self, service):
+    def test_get_open_review_data_includes_area_chair_decision(self, service):
+        rows = service.get_open_review_data("k")
+        decision_rows = [row for row in rows if row.reviewer_type == "area_chair"]
+        assert len(decision_rows) == 1 and decision_rows[0].decision == "Accept"
+
+    def test_get_human_meta_review_parses_rows(self, service):
         meta_review = service.get_human_meta_review("k")
         assert meta_review.text == "Overall solid work."
         assert meta_review.recommendation == "Accept"
 
-    def test_get_human_meta_review_none_when_cache_missing(self, service):
+    def test_get_human_meta_review_none_when_paper_missing(self, service):
         assert service.get_human_meta_review("missing") is None
-
-    def test_get_open_review_decision_parses_cache(self, service):
-        assert service.get_open_review_decision("k") == "Accept"
-
-    def test_get_open_review_decision_none_when_cache_missing(self, service):
-        assert service.get_open_review_decision("missing") is None
 
 
 class TestAuthors:
@@ -528,6 +548,45 @@ class TestInstructions:
     def test_update_instruction_meta_maps_row(self, service):
         instruction = service.update_instruction_meta(1, description="new desc", is_active=False)
         assert isinstance(instruction, PromptInstruction) and instruction.description == "new desc" and instruction.is_active is False
+
+    def test_get_instructions_by_ids_maps_rows(self, service):
+        instructions = service.get_instructions_by_ids([7])
+        assert len(instructions) == 1 and isinstance(instructions[0], PromptInstruction)
+        assert instructions[0].id == 7
+
+
+class TestPresets:
+    def test_list_presets_maps_rows_to_domain(self, service):
+        presets = service.list_presets("reviewer")
+        assert len(presets) == 1 and isinstance(presets[0], SystemPromptPreset)
+        assert presets[0].name == "severo" and presets[0].instruction_ids == [3, 7]
+
+    def test_get_preset_returns_none_when_missing(self, service):
+        assert service.get_preset(999) is None
+
+    def test_get_preset_maps_row(self, service):
+        preset = service.get_preset(1)
+        assert isinstance(preset, SystemPromptPreset) and preset.base_prompt_version == "v1"
+
+    def test_create_preset_returns_none_on_duplicate(self, service):
+        assert service.create_preset("reviewer", "dup", "v1") is None
+
+    def test_create_preset_maps_row(self, service):
+        preset = service.create_preset("reviewer", "empirico", "v1", [3, 7], "desc")
+        assert isinstance(preset, SystemPromptPreset)
+        assert preset.name == "empirico" and preset.instruction_ids == [3, 7] and preset.description == "desc"
+
+    def test_update_preset_returns_none_when_missing(self, service):
+        assert service.update_preset(999, name="x") is None
+
+    def test_update_preset_maps_row(self, service):
+        preset = service.update_preset(1, name="nuovo", instruction_ids=[9], is_active=False)
+        assert isinstance(preset, SystemPromptPreset)
+        assert preset.name == "nuovo" and preset.instruction_ids == [9] and preset.is_active is False
+
+    def test_delete_preset_delegates_to_repository(self, service):
+        assert service.delete_preset(1) is True
+        assert service.delete_preset(999) is False
 
 
 class TestFiles:

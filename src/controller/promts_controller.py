@@ -2,9 +2,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from core.container import prompt_service
+from models.domain.prompt import InstructionType
 from models.controller.prompt import (
     CreateInstructionRequest,
+    CreatePresetRequest,
     CreatePromptRequest,
+    PresetListResponse,
+    PresetResponse,
     PromptInstructionListResponse,
     PromptInstructionResponse,
     PromptPreviewRequest,
@@ -12,10 +16,12 @@ from models.controller.prompt import (
     PromptVersionListResponse,
     PromptVersionResponse,
     UpdateInstructionRequest,
+    UpdatePresetRequest,
     UpdatePromptRequest,
 )
-from models.domain.prompt import InstructionType
+
 from service.prompt_service import PromptService
+
 
 router = APIRouter(prefix="/prompts", tags=["prompts"])
 
@@ -54,17 +60,6 @@ def update_prompt(version_id: int, request: UpdatePromptRequest, service: Prompt
     return PromptVersionResponse.from_response(prompt)
 
 
-@router.post("/preview")
-def preview_prompt(request: PromptPreviewRequest, service: PromptService = Depends(prompt_service)) -> PromptPreviewResponse:
-    """Compose the system prompt an agent would receive for this (role, base
-    version, instruction labels) selection; 404 when the base prompt is missing."""
-    try:
-        prompt = service.build_system_prompt(agent_role=request.agent_role, promt_label=request.base_prompt_version, instruction_labels=request.instruction_labels)
-    except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
-    return PromptPreviewResponse.from_response(prompt)
-
-
 @router.get("/instructions/list")
 def list_instructions(type: InstructionType | None = None, include_inactive: bool = False, service: PromptService = Depends(prompt_service)) -> PromptInstructionListResponse:
     """The persona-instruction registry, optionally filtered by axis type."""
@@ -90,3 +85,68 @@ def update_instruction(instruction_id: int, request: UpdateInstructionRequest, s
     if instruction is None:
         raise HTTPException(status_code=404, detail="Prompt instruction not found.")
     return PromptInstructionResponse.from_response(instruction)
+
+
+@router.get("/presets/list")
+def list_presets(agent_role: str | None = None, include_inactive: bool = False, service: PromptService = Depends(prompt_service)) -> PresetListResponse:
+    """The system-prompt preset registry, optionally filtered by role."""
+    presets = service.list_presets(agent_role=agent_role, include_inactive=include_inactive)
+    return PresetListResponse.from_response(presets)
+
+
+@router.get("/presets/{preset_id}")
+def get_preset(preset_id: int, service: PromptService = Depends(prompt_service)) -> PresetResponse:
+    """One preset by id; 404 when it does not exist."""
+    preset = service.get_preset(preset_id)
+    if preset is None:
+        raise HTTPException(status_code=404, detail="System prompt preset not found.")
+    return PresetResponse.from_response(preset)
+
+
+@router.post("/presets/create")
+def create_preset(request: CreatePresetRequest, service: PromptService = Depends(prompt_service)) -> PresetResponse:
+    """Register a new preset; 400 when the base version is not in the role's
+    registry, 409 when (agent_role, name) already exists."""
+    if not service.prompt_version_exists(request.agent_role, request.base_prompt_version):
+        raise HTTPException(status_code=400, detail=f"No prompt version '{request.base_prompt_version}' registered for role '{request.agent_role}'.")
+    preset = service.create_preset(request.agent_role, request.name, request.base_prompt_version, request.instruction_ids, request.description)
+    if preset is None:
+        raise HTTPException(status_code=409, detail="A preset with this (agent_role, name) already exists.")
+    return PresetResponse.from_response(preset)
+
+
+@router.put("/presets/{preset_id}")
+def update_preset(preset_id: int, request: UpdatePresetRequest, service: PromptService = Depends(prompt_service)) -> PresetResponse:
+    """Update a preset — presets are mutable selections, every field may
+    change; 404 on a miss, 400 on an unknown base version, 409 when renaming
+    onto an existing (agent_role, name)."""
+    existing = service.get_preset(preset_id)
+    if existing is None:
+        raise HTTPException(status_code=404, detail="System prompt preset not found.")
+    if request.base_prompt_version is not None and not service.prompt_version_exists(existing.agent_role, request.base_prompt_version):
+        raise HTTPException(status_code=400, detail=f"No prompt version '{request.base_prompt_version}' registered for role '{existing.agent_role}'.")
+    preset = service.update_preset(preset_id, request.name, request.description, request.base_prompt_version, request.instruction_ids, request.is_active)
+    if preset is None:
+        raise HTTPException(status_code=409, detail="A preset with this (agent_role, name) already exists.")
+    return PresetResponse.from_response(preset)
+
+
+@router.delete("/presets/{preset_id}")
+def delete_preset(preset_id: int, service: PromptService = Depends(prompt_service)) -> PresetResponse:
+    """Remove a preset for good; 404 when it does not exist. Past runs are
+    unaffected: they store the composed prompt verbatim."""
+    preset = service.get_preset(preset_id)
+    if preset is None:
+        raise HTTPException(status_code=404, detail="System prompt preset not found.")
+    service.delete_preset(preset_id)
+    return PresetResponse.from_response(preset)
+
+
+
+@router.post("/presets/preview")
+def preview_preset(request: PromptPreviewRequest, service: PromptService = Depends(prompt_service)) -> PromptPreviewResponse:
+    try:
+        prompt = service.build_system_prompt_from_preset_id(agent_role=request.agent_role, preset_id=request.preset_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    return PromptPreviewResponse.from_response(prompt)

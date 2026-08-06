@@ -8,7 +8,7 @@ from langchain_core.messages import AIMessage
 from core.error import UpstreamError, ValidationError
 from domain.agent.base import Agent, AreaChairAgent, AuthorAgent, Factory, MetaReviewerAgent, ReviewerAgent
 from domain.chat.base import Chat, ChatResponse, MockChat
-from models.domain.agent import AgentResponse, AgentRole, AgentSystemPromptRequest
+from models.domain.agent import AgentResponse, AgentRole
 from models.domain.graph import CreateGraphReviewRequest, GraphReviewConfig
 from models.domain.chat import (
     AreaChairResponseSchema,
@@ -133,18 +133,16 @@ class TestConcreteAgents:
 class TestCreateAgentRequests:
     def test_one_request_per_reviewer_with_its_own_config(self):
         config = GraphReviewConfig.default_config(num_reviewers=2)
-        config.reviewers[0].system_prompt_request = AgentSystemPromptRequest(
-            base_prompt_version="v1", instruction_labels=["focus_novelty"],
-        )
+        config.reviewers[0].prompt_preset_id = 7
+
         request = CreateGraphReviewRequest(paper_id="paper-1", graph_config=config)
 
         requests = Factory.create_agent_requests(request)
 
         reviewers = [r for r in requests if r.agent_role is AgentRole.REVIEWER]
         assert [r.agent_index for r in reviewers] == [1, 2]
-        assert reviewers[0].system_prompt_request.base_prompt_version == "v1"
-        assert reviewers[0].system_prompt_request.instruction_labels == ["focus_novelty"]
-        assert reviewers[1].system_prompt_request is None
+        assert reviewers[0].prompt_preset_id == 7
+        assert reviewers[1].prompt_preset_id == 0  # default placeholder
         # 2 reviewers + meta_reviewer + area_chair + author
         assert len(requests) == 5
         assert {r.agent_role for r in requests} == {
