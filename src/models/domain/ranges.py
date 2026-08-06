@@ -14,6 +14,10 @@ CONFIDENCE: Range = (1, 5)
 SCORE: Range = (1, 10)
 """Meta-review overall score."""
 
+SUBSCORE: Range = (1, 4)
+"""Reviewer sub-scores on the OpenReview form: soundness, presentation,
+contribution (1=poor, 2=fair, 3=good, 4=excellent)."""
+
 
 def sql_check_between(column: str, rng: Range, *, nullable: bool = True) -> str:
     """SQL boolean expression for a CHECK constraint bounding ``column`` to ``rng``.

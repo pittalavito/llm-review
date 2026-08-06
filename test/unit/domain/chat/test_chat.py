@@ -50,6 +50,7 @@ class TestAdapter:
     def test_dict_keeps_parsed_schema_and_extracts_tokens(self):
         parsed = ReviewerResponseSchema(
             summary="s", significance_and_novelty="n", reasons_for_acceptance=["a"], rating=6, confidence=4,
+            soundness=3, presentation=2, contribution=3,
         )
         result = Adapter.to_chat_response_dict({"parsed": parsed, "raw": Utils.ai_message(), "parsing_error": None})
         assert result.response_schema is parsed

@@ -41,6 +41,15 @@ class OpenReviewAdapter:
                     confidence=OpenReviewAdapter._extract_int(
                         OpenReviewAdapter._get(content, "confidence")
                     ),
+                    soundness=OpenReviewAdapter._extract_int(
+                        OpenReviewAdapter._get(content, "soundness")
+                    ),
+                    presentation=OpenReviewAdapter._extract_int(
+                        OpenReviewAdapter._get(content, "presentation")
+                    ),
+                    contribution=OpenReviewAdapter._extract_int(
+                        OpenReviewAdapter._get(content, "contribution")
+                    ),
                     summary=OpenReviewAdapter._get(content, "summary_of_the_paper", "summary"),
                     significance_and_novelty=OpenReviewAdapter._get(content, "strengths", "strength_and_weaknesses"),
                     review_text=OpenReviewAdapter._get(content, "review", "main_review"),
@@ -130,6 +139,9 @@ class OpenReviewAdapter:
             full_text=row.review_text,
             rating=row.rating,
             confidence=row.confidence,
+            soundness=row.soundness,
+            presentation=row.presentation,
+            contribution=row.contribution,
         )
 
     @staticmethod

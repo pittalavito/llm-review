@@ -31,6 +31,8 @@ class Utils:
                 "summary": {"value": "S2"}, "review": {"value": "R2"},
                 "strengths": {"value": "solid"},
                 "rating": {"value": "8: top 50%"}, "confidence": {"value": "5"},
+                "soundness": {"value": 2}, "presentation": {"value": "2 fair"},
+                "contribution": {"value": 1},
             },
         }
 
@@ -93,6 +95,12 @@ class TestFromNotes:
         assert row.reviewer_id == "Reviewer_xyz"
         assert (row.summary, row.significance_and_novelty, row.review_text) == ("S2", "solid", "R2")
         assert (row.rating, row.confidence) == (8, 5)
+        # numeric sub-scores: plain int and "2 fair"-style strings both parse
+        assert (row.soundness, row.presentation, row.contribution) == (2, 2, 1)
+
+    def test_v1_note_without_subscores_yields_none(self):
+        row = Utils.rows(Utils.review_note_v1())[0]
+        assert (row.soundness, row.presentation, row.contribution) == (None, None, None)
 
     def test_reviewer_indexes_count_up(self):
         rows = Utils.rows(Utils.review_note_v1(), Utils.review_note_v2())
@@ -123,6 +131,10 @@ class TestToHumanModels:
         assert review.reviewer_id == "Reviewer_abc"
         assert (review.summary, review.strengths, review.full_text) == ("S", "SW", "MR")
         assert (review.rating, review.confidence) == (6, 4)
+
+    def test_to_human_review_carries_the_subscores(self):
+        review = OpenReviewAdapter.to_human_reviews_from_rows(Utils.rows(Utils.review_note_v2()))[0]
+        assert (review.soundness, review.presentation, review.contribution) == (2, 2, 1)
 
     def test_to_human_meta_reviews_from_rows(self):
         rows = Utils.rows(Utils.review_note_v1(), Utils.meta_review_note())

@@ -54,7 +54,10 @@ class Utils:
     def agent_record(role: AgentRole = AgentRole.REVIEWER, index: int | None = 1, payload: dict | None = None) -> AgentResponseRecord:
         return AgentResponseRecord(
             agent_role=role, agent_index=index, round=0, input_message="m", context_used="c",
-            response_payload=payload or {"rating": 6, "confidence": 4, "recommendation": "minor_revision"},
+            response_payload=payload or {
+                "rating": 6, "confidence": 4, "recommendation": "minor_revision",
+                "soundness": 3, "presentation": 2, "contribution": 3,
+            },
             input_tokens=100, output_tokens=50, total_tokens=150,
             system_prompt="You are reviewer 1.",
             prompt_preset_id=2,
@@ -229,6 +232,7 @@ class TestFactory:
         row = Factory.to_agent_record_row("RID", Utils.agent_record(), trace_index=3)
         assert row.agent_role == "reviewer" and row.agent_index == 1
         assert (row.rating, row.confidence) == (6, 4)
+        assert (row.soundness, row.presentation, row.contribution) == (3, 2, 3)
         assert row.decision == "minor_revision"  # falls back to recommendation
         assert row.trace_index == 3  # position in the run's Redis bundle
         assert row.prompt_preset_id == 2  # the prompt itself lives only in the trace

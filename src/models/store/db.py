@@ -49,6 +49,9 @@ class GraphReviewAgentTable(SQLModel, table=True):
         CheckConstraint(ranges.sql_check_between("rating", ranges.RATING), name="ck_graph_review_agent_rating"),
         CheckConstraint(ranges.sql_check_between("confidence", ranges.CONFIDENCE), name="ck_graph_review_agent_confidence"),
         CheckConstraint(ranges.sql_check_between("overall_score", ranges.SCORE), name="ck_graph_review_agent_overall_score"),
+        CheckConstraint(ranges.sql_check_between("soundness", ranges.SUBSCORE), name="ck_graph_review_agent_soundness"),
+        CheckConstraint(ranges.sql_check_between("presentation", ranges.SUBSCORE), name="ck_graph_review_agent_presentation"),
+        CheckConstraint(ranges.sql_check_between("contribution", ranges.SUBSCORE), name="ck_graph_review_agent_contribution"),
         Index("ix_graph_review_agent_run_agent_round", "run_id", "agent_role", "agent_index", "round"),
     )
 
@@ -61,6 +64,9 @@ class GraphReviewAgentTable(SQLModel, table=True):
     rating: int | None = None
     confidence: int | None = None
     overall_score: int | None = None
+    soundness: int | None = None
+    presentation: int | None = None
+    contribution: int | None = None
     decision: str | None = None
     #
     trace_index: int | None = None
@@ -209,6 +215,9 @@ class OpenReviewTable(SQLModel, table=True):
         CheckConstraint(ranges.sql_check_between("rating", ranges.RATING), name="ck_open_review_rating"),
         CheckConstraint(ranges.sql_check_between("confidence", ranges.CONFIDENCE), name="ck_open_review_confidence"),
         CheckConstraint(ranges.sql_check_between("overall_score", ranges.SCORE), name="ck_open_review_overall_score"),
+        CheckConstraint(ranges.sql_check_between("soundness", ranges.SUBSCORE), name="ck_open_review_soundness"),
+        CheckConstraint(ranges.sql_check_between("presentation", ranges.SUBSCORE), name="ck_open_review_presentation"),
+        CheckConstraint(ranges.sql_check_between("contribution", ranges.SUBSCORE), name="ck_open_review_contribution"),
         Index("ix_open_review_paper", "paper_id"),
     )
 
@@ -222,6 +231,9 @@ class OpenReviewTable(SQLModel, table=True):
     rating: int | None = None
     confidence: int | None = None
     overall_score: int | None = None
+    soundness: int | None = None
+    presentation: int | None = None
+    contribution: int | None = None
     decision: str | None = None
     recommendation: str | None = None
 

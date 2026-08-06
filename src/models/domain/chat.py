@@ -85,7 +85,10 @@ class ChatFallbackRawResponseSchema(ChatModelResponseSchema):
 
 
 class ReviewerResponseSchema(ChatModelResponseSchema):
-    """Unified review aligned with AgentReview format: covers soundness, novelty, presentation, and impact."""
+    """Unified review aligned with the OpenReview form: summary, arguments,
+    the overall rating/confidence and the numeric sub-scores (soundness,
+    presentation, contribution) human reviewers also fill in — so graph
+    reviews and OpenReview reviews are comparable score-for-score."""
     summary: str = Field(min_length=1, max_length=600)
     significance_and_novelty: str = Field(min_length=1, max_length=300)
     reasons_for_acceptance: list[str] = Field(min_length=1, max_length=4)
@@ -93,6 +96,9 @@ class ReviewerResponseSchema(ChatModelResponseSchema):
     suggestions: list[str] = Field(default_factory=list, max_length=4)
     rating: int = Field(ge=ranges.RATING[0], le=ranges.RATING[1])
     confidence: int = Field(ge=ranges.CONFIDENCE[0], le=ranges.CONFIDENCE[1])
+    soundness: int = Field(ge=ranges.SUBSCORE[0], le=ranges.SUBSCORE[1])
+    presentation: int = Field(ge=ranges.SUBSCORE[0], le=ranges.SUBSCORE[1])
+    contribution: int = Field(ge=ranges.SUBSCORE[0], le=ranges.SUBSCORE[1])
 
 
 class MetaReviewResponseSchema(ChatModelResponseSchema):

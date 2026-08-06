@@ -28,11 +28,14 @@ class Utils:
     @staticmethod
     def chat_response() -> ChatResponse:
         response_schema = ReviewerResponseSchema(
-            summary="s", 
-            significance_and_novelty="n", 
-            reasons_for_acceptance=["a"], 
-            rating=6, 
-            confidence=4
+            summary="s",
+            significance_and_novelty="n",
+            reasons_for_acceptance=["a"],
+            rating=6,
+            confidence=4,
+            soundness=3,
+            presentation=2,
+            contribution=3,
         )
         
         raw = AIMessage(content="x")

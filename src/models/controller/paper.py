@@ -71,6 +71,9 @@ class OpenReviewItem(BaseModel):
     rating: int | None = None
     confidence: int | None = None
     overall_score: int | None = None
+    soundness: int | None = None
+    presentation: int | None = None
+    contribution: int | None = None
     decision: str | None = None
     recommendation: str | None = None
     significance_and_novelty: str | None = None

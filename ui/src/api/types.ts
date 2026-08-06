@@ -53,6 +53,9 @@ export interface OpenReviewItem {
   rating?: number | null;
   confidence?: number | null;
   overall_score?: number | null;
+  soundness?: number | null;
+  presentation?: number | null;
+  contribution?: number | null;
   decision?: string | null;
   recommendation?: string | null;
   significance_and_novelty?: string | null;

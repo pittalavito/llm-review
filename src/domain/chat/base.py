@@ -285,6 +285,9 @@ _MOCK_INSTANCES: dict[type[ChatModelResponseSchema], ChatModelResponseSchema] = 
         suggestions=["Add ablation study", "Expand related work"],
         rating=6,
         confidence=4,
+        soundness=3,
+        presentation=2,
+        contribution=3,
     ),
     MetaReviewResponseSchema: MetaReviewResponseSchema(
         summary="Solid foundations but revisions needed before acceptance.",

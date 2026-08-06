@@ -478,6 +478,7 @@ class TestOpenReview:
         assert review.reviewer_id == "Reviewer_xyz"
         assert (review.summary, review.strengths) == ("NS", "solid")
         assert (review.rating, review.confidence) == (7, 4)
+        assert (review.soundness, review.presentation, review.contribution) == (3, 2, 3)
 
     def test_get_human_reviews_empty_when_paper_missing(self, service):
         assert service.get_human_reviews("missing") == []
