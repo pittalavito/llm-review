@@ -49,7 +49,7 @@ class AgentRequestContext(BaseModel):
 
 class CreateAgentRequest(BaseModel):
     """Request to create an agent with a specific role, model, temperature, and optional system prompt."""
-    paper_id: str | None = None    
+    paper_id: str 
     
     model: ChatModelName
     temperature: float

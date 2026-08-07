@@ -223,17 +223,16 @@ class Summarizer(ABC):
         ...
 
 
-_SUMMARIZER_SYSTEM_PROMPT = (
-    "You are an expert scientific editor. Summarize the paper provided by the user "
-    "into a faithful, self-contained overview covering: the problem addressed, the "
-    "proposed approach, the experimental setup, the main results, and the stated "
-    "limitations. Stick to what the text says; do not add opinions or external facts."
-)
-
-
 class ChatSummarizer(Summarizer):
     """LLM-backed summarizer over an injected ``Chat`` client. The paper text is
     truncated to ``max_input_chars`` before the call as a context-window guard."""
+
+    SYSTEM_PROMPT = (
+        "You are an expert scientific editor. Summarize the paper provided by the user "
+        "into a faithful, self-contained overview covering: the problem addressed, the "
+        "proposed approach, the experimental setup, the main results, and the stated "
+        "limitations. Stick to what the text says; do not add opinions or external facts."
+    )
 
     def __init__(self, chat: "Chat", max_input_chars: int = 60000):
         self._chat = chat
@@ -242,7 +241,7 @@ class ChatSummarizer(Summarizer):
     def summarize(self, sections: list[RagSectionEntry]) -> SummaryResult:
         paper_text = "\n\n".join(f"# {section.name}\n{section.text}" for section in sections)
         response = self._chat.invoke(
-            system_prompt=_SUMMARIZER_SYSTEM_PROMPT,
+            system_prompt=self.SYSTEM_PROMPT,
             message=paper_text[: self._max_input_chars],
             response_schema=SummaryResponseSchema,
             label="summarizer",
