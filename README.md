@@ -54,7 +54,11 @@ Upload of `txt`/`pdf` files (Docling parsing, multi-strategy background indexing
 
 ### Run persistence and observability
 
-Every run is stored on two levels: Postgres keeps the per-agent, per-round analytical facts (rating, confidence, sub-scores, decisions, tokens, latency), queryable in SQL; Redis keeps the verbatim traces (system prompt, input, hash-deduplicated context, payload, tool calls with queries and results). The UI shows the run history, the per-round flow detail, and per-agent "technical details", tool calls included.
+Every run is stored on two levels: Postgres keeps the per-agent, per-round analytical facts (rating, confidence, sub-scores, decisions, tokens, latency), queryable in SQL; Redis keeps the verbatim traces (system prompt, input, hash-deduplicated context, payload, tool calls with queries and results). The UI shows the run history, the per-round flow detail, per-agent "technical details" (tool calls included), and per-run token/latency metrics; the summarizer's token cost is recorded on the summary index as well.
+
+### Agentic-vs-human comparator
+
+A dedicated dashboard compares one graph run against the paper's real OpenReview reviews: verdict cards (decision match, mean rating and confidence deltas), a per-reviewer rating dumbbell chart, paired sub-score bars, the meta-score trend across the paper's runs, and a per-field text comparison as drill-down per role (reviewers, meta-reviewer, area chair). This is the operational base for objective (ii).
 
 ## Results
 
@@ -90,7 +94,6 @@ The back-end serves the built UI (`ui/dist`) at `/`; in development the Vite UI 
 
 ## Roadmap
 
-- **Comparator** between agentic and human OpenReview reviews (parsers already in place) — objective (ii).
-- Metrics and cost view (per-model price list, per-run aggregates).
+- Per-model price list to turn the recorded token counts into monetary cost per run.
 - Real embedder replacing the mock for the embedding strategy.
 - Round-2 re-review flow revision.
