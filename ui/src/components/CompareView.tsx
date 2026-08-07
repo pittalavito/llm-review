@@ -33,6 +33,9 @@ function rowsForRole(role: string, payload: Record<string, unknown>): Row[] {
       return [
         { key: 'rating', label: 'rating', kind: 'num', agent: payload.rating, human: (h) => h.rating },
         { key: 'confidence', label: 'confidence', kind: 'num', agent: payload.confidence, human: (h) => h.confidence },
+        { key: 'soundness', label: 'soundness', kind: 'num', agent: payload.soundness, human: (h) => h.soundness },
+        { key: 'presentation', label: 'presentation', kind: 'num', agent: payload.presentation, human: (h) => h.presentation },
+        { key: 'contribution', label: 'contribution', kind: 'num', agent: payload.contribution, human: (h) => h.contribution },
         { key: 'summary', label: 'summary', kind: 'text', agent: payload.summary, human: (h) => h.summary },
         { key: 'significance', label: 'significance & novelty', kind: 'text', agent: payload.significance_and_novelty, human: (h) => h.significance_and_novelty },
         { key: 'acceptance', label: 'reasons for acceptance', kind: 'list', agent: payload.reasons_for_acceptance, human: () => null },

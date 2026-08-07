@@ -5,8 +5,8 @@
 .agent-table {
   /* Fixed widths everywhere but the two flexible columns, so header and row
      grids (separate grid containers) resolve to identical tracks. */
-  --agent-table-cols: 28px minmax(150px, 1.2fr) minmax(110px, 0.8fr) 70px 90px 90px minmax(140px, 1fr) 130px;
-  min-width: 780px;
+  --agent-table-cols: 28px minmax(150px, 1.2fr) minmax(110px, 0.8fr) 70px 90px 90px 90px minmax(140px, 1fr) 130px;
+  min-width: 870px;
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
@@ -93,6 +93,7 @@
 /* Numeric columns centered under their header. */
 .agent-table__cell-rating,
 .agent-table__cell-confidence,
+.agent-table__cell-subscores,
 .agent-table__cell-tokens {
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -101,6 +102,7 @@
 
 .agent-table__header .agent-table__cell-rating,
 .agent-table__header .agent-table__cell-confidence,
+.agent-table__header .agent-table__cell-subscores,
 .agent-table__header .agent-table__cell-tokens {
   color: var(--c-text-muted);
 }

@@ -8,14 +8,14 @@
  * it onto the BE contract (per-reviewer configs, prompt resolved on the BE
  * from each agent's prompt_preset_id) and drives POST /graph/compile + /graph/invoke. */
 import { useEffect, useState } from 'react';
-import { ApiError, compileGraph, getGraphConfig, getGraphRun, invokeGraph, listGraphRuns, listPapers } from '../api/client';
+import { useNavigate } from 'react-router-dom';
+import { ApiError, compileGraph, getGraphConfig, invokeGraph, listPapers } from '../api/client';
 import type {
   AgentConfig, BackendAgentConfig, ContextMode, CreateGraphReviewRequest,
-  GraphConfig, GraphReviewConfig, GraphReviewRecord, GraphReviewSummary, Paper,
+  GraphConfig, GraphReviewConfig, GraphReviewRecord, Paper,
 } from '../api/types';
 import ActionCard from '../components/ActionCard';
 import AgentConfigPanel from '../components/AgentConfigPanel';
-import RunFlowView from '../components/RunFlowView';
 
 const STORAGE_KEY = 'llm-review-2.graph-config';
 
@@ -573,186 +573,10 @@ function LaunchReviewModal({ onClose }: { onClose: () => void }) {
 }
 
 
-function RunHistoryModal({ onClose }: { onClose: () => void }) {
-  const [runs, setRuns] = useState<GraphReviewSummary[] | null>(null);
-  const [papers, setPapers] = useState<Paper[]>([]);
-  const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-  const [detail, setDetail] = useState<GraphReviewRecord | null>(null);
-  const [detailError, setDetailError] = useState('');
-
-  useEffect(() => {
-    let alive = true;
-    listGraphRuns()
-      .then((rows) => { if (alive) setRuns(rows); })
-      .catch((err) => { if (alive) setError(err instanceof ApiError ? err.message : String(err)); });
-    // Same catalog call used by "Configura review": paper_id -> paper_name.
-    listPapers()
-      .then((rows) => { if (alive) setPapers(rows); })
-      .catch(() => { /* names stay as ids */ });
-    return () => { alive = false; };
-  }, []);
-
-  const paperName = (paperId: string | null | undefined): string =>
-    (paperId && papers.find((p) => p.paper_id === paperId)?.paper_name) || paperId || '—';
-
-  // Drill-in: fetch the full record when a run is selected.
-  useEffect(() => {
-    if (selectedRunId === null) return;
-    let alive = true;
-    setDetail(null);
-    setDetailError('');
-    getGraphRun(selectedRunId)
-      .then((record) => { if (alive) setDetail(record); })
-      .catch((err) => { if (alive) setDetailError(err instanceof ApiError ? err.message : String(err)); });
-    return () => { alive = false; };
-  }, [selectedRunId]);
-
-  // Close on Esc.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  const visible = runs === null
-    ? null
-    : runs.filter((run) =>
-      (run.description ?? '').toLowerCase().includes(search.trim().toLowerCase()));
-
-  const selectedSummary = selectedRunId === null
-    ? null
-    : runs?.find((run) => run.run_id === selectedRunId) ?? null;
-
-  // The run's paper from the catalog: name and type for the detail header.
-  const selectedPaperId = detail?.paper_id ?? selectedSummary?.paper_id ?? null;
-  const selectedPaper = selectedPaperId
-    ? papers.find((p) => p.paper_id === selectedPaperId) ?? null
-    : null;
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal modal--full"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="run-history-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal__header">
-          <h3 className="modal__title" id="run-history-title">
-            {selectedRunId === null
-              ? 'Storico review'
-              : `Review — ${selectedSummary?.description || selectedRunId}`}
-          </h3>
-          <button className="modal__close" type="button" aria-label="Chiudi" onClick={onClose}>✕</button>
-        </div>
-
-        {selectedRunId === null ? (
-          <>
-            <div className="prompts__filters">
-              <input
-                className="paper-form__input prompts__filters-search"
-                type="search"
-                placeholder="cerca nella descrizione delle run…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            {error && <p className="paper-form__error">{error}</p>}
-            {!error && visible === null && <p className="paper-list__empty">Caricamento…</p>}
-            {visible !== null && visible.length === 0 && (
-              <p className="paper-list__empty">
-                {search.trim() ? 'Nessuna run corrisponde alla ricerca.' : 'Nessuna run nel database.'}
-              </p>
-            )}
-            {visible !== null && visible.length > 0 && (
-              <div className="paper-list__scroll">
-                <table className="paper-list">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>timestamp</th>
-                      <th>paper</th>
-                      <th>decision</th>
-                      <th>round</th>
-                      <th>meta score</th>
-                      <th>descrizione</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visible.map((run) => (
-                      <tr
-                        key={run.run_id}
-                        className="prompts__row"
-                        onClick={() => setSelectedRunId(run.run_id)}
-                      >
-                        <td className="rg-history__toggle">▸</td>
-                        <td>{run.timestamp}</td>
-                        <td title={run.paper_id}>{paperName(run.paper_id)}</td>
-                        <td>{run.decision || '—'}</td>
-                        <td>{run.total_rounds}{run.max_rounds != null ? ` / ${run.max_rounds}` : ''}</td>
-                        <td>{run.meta_overall_score ?? '—'}</td>
-                        <td className="paper-list__desc">{run.description || '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <div className="run-flow__back">
-              <button
-                className="btn btn--ghost btn--sm"
-                type="button"
-                onClick={() => { setSelectedRunId(null); setDetail(null); setDetailError(''); }}
-              >
-                ← Torna alla lista
-              </button>
-            </div>
-
-            <div className="prompts__fields run-flow__summary">
-              <Field label="run_id" value={selectedRunId} />
-              <Field label="timestamp" value={detail?.timestamp ?? selectedSummary?.timestamp ?? '—'} />
-              <Field label="paper" value={selectedPaper?.paper_name ?? selectedPaperId ?? '—'} />
-              <Field label="tipo" value={selectedPaper?.paper_type ?? '—'} />
-              <Field label="decision" value={detail?.decision ?? selectedSummary?.decision ?? '—'} />
-              <Field label="round" value={String(detail?.total_rounds ?? selectedSummary?.total_rounds ?? '—')} />
-              <Field label="descrizione" value={detail?.description || selectedSummary?.description || '—'} />
-            </div>
-
-            {detailError && <p className="paper-form__error">{detailError}</p>}
-            {!detailError && detail === null && <p className="paper-list__empty">Caricamento…</p>}
-            {detail !== null && (
-              <div className="run-flow__scroll">
-                <RunFlowView record={detail} compareEnabled={selectedPaper?.paper_type?.toLowerCase() === 'open_review'} />
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/** One labeled field inside the expanded run panel (prompts-accordion style). */
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="prompts__field">
-      <span className="prompts__field-label">{label}</span>
-      <span className="prompts__field-value">{value}</span>
-    </div>
-  );
-}
-
 export default function GraphReview() {
+  const navigate = useNavigate();
   const [configureOpen, setConfigureOpen] = useState(false);
   const [launchOpen, setLaunchOpen] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
 
   return (
     <div className="section-wrap">
@@ -787,25 +611,30 @@ export default function GraphReview() {
 
       <ActionCard
         title="Storico review"
-        description={<>Le run del grafo eseguite finora: esito, round e paper (dati dal DB).</>}
+        description={
+          <>
+            Le run del grafo eseguite finora: decisione, punteggi per reviewer e
+            flusso round per round, con filtri per paper e decisione.
+          </>
+        }
         actionLabel="Apri"
-        onAction={() => setHistoryOpen(true)}
+        onAction={() => navigate('/review-graph/storico')}
       />
 
       <ActionCard
-        title="Open Review Comparator"
+        title="Confronto con OpenReview"
         description={
           <>
-            Confronta le review del grafo con quelle umane di OpenReview per lo stesso
-            paper — in preparazione.
+            La run del grafo a fianco delle review umane: verdetti, rating a
+            confronto, sub-score e testi campo per campo.
           </>
         }
         actionLabel="Confronta"
+        onAction={() => navigate('/review-graph/confronto')}
       />
 
       {configureOpen && <ConfigureReviewModal onClose={() => setConfigureOpen(false)} />}
       {launchOpen && <LaunchReviewModal onClose={() => setLaunchOpen(false)} />}
-      {historyOpen && <RunHistoryModal onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }

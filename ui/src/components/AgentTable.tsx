@@ -58,6 +58,9 @@ function AgentRow({ record, final, renderDetail, renderBadges, renderActions }: 
   const payload = record.response_payload ?? {};
   const rating = payloadNum(payload, 'rating');
   const confidence = payloadNum(payload, 'confidence');
+  const subscores = (['soundness', 'presentation', 'contribution'] as const)
+    .map((key) => payloadNum(payload, key));
+  const hasSubscores = subscores.some((v) => v !== null);
 
   return (
     <>
@@ -85,6 +88,12 @@ function AgentRow({ record, final, renderDetail, renderBadges, renderActions }: 
         </div>
         <div className="agent-table__cell agent-table__cell-confidence">
           {confidence !== null ? confidence : '—'}
+        </div>
+        <div
+          className="agent-table__cell agent-table__cell-subscores"
+          title="soundness · presentation · contribution (1–4)"
+        >
+          {hasSubscores ? subscores.map((v) => v ?? '—').join(' · ') : '—'}
         </div>
         <div className="agent-table__cell agent-table__cell-tokens">
           {record.total_tokens != null ? record.total_tokens : '—'}
@@ -118,6 +127,7 @@ export default function AgentTable({ records, renderDetail, renderBadges, render
         <div className="agent-table__cell agent-table__cell-model">Modello</div>
         <div className="agent-table__cell agent-table__cell-rating">Rating</div>
         <div className="agent-table__cell agent-table__cell-confidence">Confidence</div>
+        <div className="agent-table__cell agent-table__cell-subscores" title="soundness · presentation · contribution (1–4)">S · P · C</div>
         <div className="agent-table__cell agent-table__cell-tokens">Tokens</div>
         <div className="agent-table__cell agent-table__cell-badges">Esito</div>
         <div className="agent-table__cell agent-table__cell-actions">Azioni</div>

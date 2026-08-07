@@ -83,9 +83,24 @@ function RawJson({ payload }: { payload: Record<string, unknown> }) {
 // ---------------------------------------------------------------------------
 
 function ReviewerBody({ payload }: { payload: Record<string, unknown> }) {
-  const used = ['summary', 'significance_and_novelty', 'reasons_for_acceptance', 'reasons_for_rejection', 'suggestions', 'rating', 'confidence'];
+  const used = ['summary', 'significance_and_novelty', 'reasons_for_acceptance', 'reasons_for_rejection', 'suggestions', 'rating', 'confidence', 'soundness', 'presentation', 'contribution'];
+  const scores = [
+    ['rating', num(payload, 'rating')],
+    ['confidence', num(payload, 'confidence')],
+    ['soundness', num(payload, 'soundness')],
+    ['presentation', num(payload, 'presentation')],
+    ['contribution', num(payload, 'contribution')],
+  ].filter((entry): entry is [string, number] => entry[1] !== null);
   return (
     <>
+      {scores.length > 0 && (
+        <div className="run-flow__field">
+          <span className="prompts__field-label">punteggi</span>
+          <span className="run-flow__badges">
+            {scores.map(([label, value]) => <Badge key={label} variant="score">{label} {value}</Badge>)}
+          </span>
+        </div>
+      )}
       <FieldBlock label="summary" value={text(payload, 'summary')} />
       <FieldBlock label="significance & novelty" value={text(payload, 'significance_and_novelty')} />
       <FieldList label="reasons for acceptance" values={items(payload, 'reasons_for_acceptance')} />
