@@ -7,7 +7,7 @@ builds the stored records: ``AgentResponseRecord`` -> ``AgentTraceRecord``.
 """
 from domain.store.redis.agent_trace_repository import RedisAgentTraceRepository
 from domain.store.redis.rag_index_repository import RedisRagIndexRepository
-from models.store.redis import AgentTraceRecord, RagIndex as StoreRagIndex
+from models.store.redis import AgentTraceRecord, RagIndex as StoreRagIndex, ToolCallEntry
 
 from models.domain.retrieval import IndexInfo, RagIndex
 from models.domain.run_record import AgentResponseRecord
@@ -63,6 +63,10 @@ class Factory:
             output_tokens=agent_record.output_tokens,
             total_tokens=agent_record.total_tokens,
             latency_seconds=agent_record.latency_seconds,
+            tool_trace=(
+                [ToolCallEntry.model_validate(record.model_dump()) for record in agent_record.tool_trace]
+                if agent_record.tool_trace else None
+            ),
         )
 
     @staticmethod

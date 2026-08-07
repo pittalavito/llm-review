@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 
 from models.domain.agent import AgentResponse, AgentRole
+from models.domain.chat import ToolCallRecord
 from models.domain.graph import CreateGraphReviewRequest
 
 class AgentResponseRecord(BaseModel):
@@ -18,6 +19,7 @@ class AgentResponseRecord(BaseModel):
     system_prompt: str | None = None
     prompt_preset_id: int | None = None
     latency_seconds: float | None = None
+    tool_trace: list[ToolCallRecord] | None = None
 
     @classmethod
     def from_response(cls, response: AgentResponse, round: int) -> "AgentResponseRecord":
@@ -36,7 +38,8 @@ class AgentResponseRecord(BaseModel):
             total_tokens=response.total_tokens,
             system_prompt=response.system_prompt,
             prompt_preset_id=response.prompt_preset_id,
-            latency_seconds=response.latency_seconds
+            latency_seconds=response.latency_seconds,
+            tool_trace=response.tool_trace,
         )
 
 

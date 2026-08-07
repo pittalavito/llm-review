@@ -55,6 +55,14 @@ class RagIndex(BaseModel):
     token_usage: RagTokenUsage | None = None
 
 
+class ToolCallEntry(BaseModel):
+    """One executed tool round-trip stored with the trace (mirror of the domain
+    ``ToolCallRecord``, kept as a store shape)."""
+    tool_name: str
+    arguments: dict[str, Any] = Field(default_factory=dict)
+    result: str = ""
+
+
 class AgentTraceRecord(BaseModel):
     """The verbatim trace of one agent invocation. The context text is NOT
     stored inline: ``context_hash`` points into the shared agent-context
@@ -71,6 +79,7 @@ class AgentTraceRecord(BaseModel):
     output_tokens: int | None = None
     total_tokens: int | None = None
     latency_seconds: float | None = None
+    tool_trace: list[ToolCallEntry] | None = None
 
 
 class AgentTraceBundle(BaseModel):

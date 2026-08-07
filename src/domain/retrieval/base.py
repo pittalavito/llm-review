@@ -238,6 +238,7 @@ class ChatSummarizer(Summarizer):
         self._chat = chat
         self._max_input_chars = max_input_chars
 
+    
     def summarize(self, sections: list[RagSectionEntry]) -> SummaryResult:
         paper_text = "\n\n".join(f"# {section.name}\n{section.text}" for section in sections)
         response = self._chat.invoke(

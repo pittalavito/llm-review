@@ -214,6 +214,22 @@ function TechnicalDetails({ record }: { record: AgentResponseRecord }) {
           <pre className="run-flow__pre">{record.context_used}</pre>
         </>
       )}
+      {record.tool_trace && record.tool_trace.length > 0 && (
+        <>
+          <span className="prompts__field-label">tool calls ({record.tool_trace.length})</span>
+          {record.tool_trace.map((call, i) => (
+            <div key={i} className="run-flow__tool-call">
+              <p className="run-flow__tokens">
+                {i + 1}. <code>{call.tool_name}</code>
+                {typeof call.arguments.query === 'string'
+                  ? <> — query: “{call.arguments.query}”</>
+                  : <> — {JSON.stringify(call.arguments)}</>}
+              </p>
+              <pre className="run-flow__pre">{call.result}</pre>
+            </div>
+          ))}
+        </>
+      )}
     </details>
   );
 }

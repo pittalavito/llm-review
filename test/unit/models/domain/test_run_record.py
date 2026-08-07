@@ -62,3 +62,27 @@ class TestFromResult:
         assert record.total_rounds == 0
         assert record.agent_records == []
         assert record.reviews_response is None
+
+
+class TestFromResponse:
+    def test_copies_the_tool_trace(self):
+        from models.domain.agent import AgentResponse
+        from models.domain.chat import ChatFallbackRawResponseSchema, ToolCallRecord
+
+        response = AgentResponse(
+            agent_role=AgentRole.REVIEWER, agent_index=1,
+            response_schema=ChatFallbackRawResponseSchema(response="ok"),
+            tool_trace=[ToolCallRecord(tool_name="search_paper", arguments={"query": "q"}, result="r")],
+        )
+        record = AgentResponseRecord.from_response(response, round=0)
+        assert record.tool_trace is not None and record.tool_trace[0].tool_name == "search_paper"
+
+    def test_without_tools_stays_none(self):
+        from models.domain.agent import AgentResponse
+        from models.domain.chat import ChatFallbackRawResponseSchema
+
+        response = AgentResponse(
+            agent_role=AgentRole.REVIEWER, agent_index=1,
+            response_schema=ChatFallbackRawResponseSchema(response="ok"),
+        )
+        assert AgentResponseRecord.from_response(response, round=0).tool_trace is None

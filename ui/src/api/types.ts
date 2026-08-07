@@ -385,6 +385,13 @@ export interface GraphReviewSummaryResponse {
   summaries: GraphReviewSummary[];
 }
 
+// models/domain/chat.py :: ToolCallRecord — one executed tool round-trip.
+export interface ToolCallRecord {
+  tool_name: string;
+  arguments: Record<string, unknown>;
+  result: string;
+}
+
 // models/domain/run_record.py :: AgentResponseRecord — one agent invocation:
 // identity (role/index/round), the structured payload and the verbatim trace.
 // system_prompt is served from the agent trace; the agent row itself only
@@ -403,6 +410,7 @@ export interface AgentResponseRecord {
   output_tokens?: number | null;
   total_tokens?: number | null;
   latency_seconds?: number | null;
+  tool_trace?: ToolCallRecord[] | null;
 }
 
 // models/domain/run_record.py :: GraphReviewRecord — the full run record;

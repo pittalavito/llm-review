@@ -16,6 +16,7 @@ from domain.store.db.prompt_repository import DbPromptRepository
 from domain.store.db.run_repository import DbRunRepository
 
 from models.domain.agent import AgentRole
+from models.domain.chat import ToolCallRecord
 from models.domain.paper import Author, Paper, PaperType
 from models.domain.prompt import PromptInstruction, PromptVersion, SystemPromptPreset
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord, GraphReviewSummary
@@ -149,6 +150,10 @@ class Adapter:
             output_tokens=row.output_tokens,
             total_tokens=row.total_tokens,
             latency_seconds=row.latency_seconds,
+            tool_trace=(
+                [ToolCallRecord.model_validate(entry.model_dump()) for entry in trace.tool_trace]
+                if trace and trace.tool_trace else None
+            ),
         )
 
     @staticmethod

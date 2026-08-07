@@ -4,6 +4,7 @@ row <-> domain translations, Adapter (rows -> domain models, reads) and Factory
 responses. The verbatim traces are Redis AgentTraceRecord values, keyed by
 ``trace_index``. No database involved."""
 from models.domain.agent import AgentRole
+from models.domain.chat import ToolCallRecord
 from models.domain.paper import Author, Paper, PaperType
 from models.domain.prompt import PromptVersion, SystemPromptPreset
 from models.domain.run_record import AgentResponseRecord, GraphReviewRecord
@@ -61,6 +62,7 @@ class Utils:
             input_tokens=100, output_tokens=50, total_tokens=150,
             system_prompt="You are reviewer 1.",
             prompt_preset_id=2,
+            tool_trace=[ToolCallRecord(tool_name="search_paper", arguments={"query": "ablation"}, result="passage")],
         )
 
 
@@ -248,6 +250,16 @@ class TestFactory:
         assert trace.system_prompt == "You are reviewer 1."
         assert trace.context_used == "c"  # swapped for its hash by the repository at save time
         assert trace.context_hash is None
+        assert trace.tool_trace is not None and trace.tool_trace[0].tool_name == "search_paper"
+
+    def test_tool_trace_absent_stays_none_through_the_seams(self):
+        record = Utils.agent_record()
+        record.tool_trace = None
+        trace = RedisFactory.to_agent_trace_record(record)
+        assert trace.tool_trace is None
+        row = Factory.to_agent_record_row("RID", record, trace_index=0)
+        row.id = 1
+        assert Adapter.to_agent_record(row, trace).tool_trace is None
         assert trace.response_payload["rating"] == 6
         assert (trace.input_tokens, trace.output_tokens, trace.total_tokens) == (100, 50, 150)
         assert trace.latency_seconds is None  # reserved, not populated yet

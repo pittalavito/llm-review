@@ -19,7 +19,7 @@ def _agents(num_reviewers: int) -> dict:
     chat = MockChat()
 
     def make(role: AgentRole, index: int | None = None):
-        request = CreateAgentRequest(model=ChatModelName.MOCK, temperature=0.0, agent_role=role, agent_index=index, prompt_preset_id=0)
+        request = CreateAgentRequest(paper_id="other_p_pdf", model=ChatModelName.MOCK, temperature=0.0, agent_role=role, agent_index=index, prompt_preset_id=0)
         return AgentFactory.create_agent(request, chat, system_prompt=f"You are the {role}.")
 
     agents = {}
