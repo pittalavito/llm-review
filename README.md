@@ -1,28 +1,96 @@
-# llm-review
+# llm-review 2.0
 
-## 2.1 Abstract
+Multi-agent system that simulates the peer-review process of a scientific paper by a conference committee. Experimental thesis project (Computer Engineering, University of Catania).
 
-A system that simulates the peer-review process of a scientific paper by a conference committee.
+## Abstract
 
-Given an input paper, several independent reviewers evaluate it in parallel, each with its own sensitivity and attitude (e.g. more or less strict, more attentive to methodological soundness, to empirical results, or to novelty). A meta-reviewer synthesizes the judgments, an area chair makes the final decision (acceptance or request for revision), and an author agent produces revision notes in response to the remarks. The loop repeats — a new review that takes the author's rebuttal into account — until the work is accepted or the maximum number of rounds is reached.
+Given an input paper, several independent reviewers evaluate it in parallel, each with its own sensitivity and attitude (more or less strict, focused on methodological soundness, empirical results, or novelty). A meta-reviewer synthesizes the judgments, an area chair makes the final decision (acceptance or request for revision), and an author agent produces a rebuttal and revised sections in response to the remarks. The loop repeats — a new review that takes the author's reply into account — until the paper is accepted or the maximum number of rounds is reached.
 
-**Objectives.** (i) Study how the review outcome and dynamics change with the committee composition and the individual reviewers' attitudes, and (ii) compare agentic reviews against real ones.
+**Objectives.** (i) Study how the review outcome and dynamics change with the committee composition, the reviewers' attitudes, and the context strategy (full paper, summary, on-demand retrieval); (ii) compare agentic reviews against real public OpenReview ones, also measuring cost (tokens), latency, and quality.
 
-**Motivations.**
-- *Problem:* speeding up real-world reviews with the help of agentic applications.
-- *Proposed solution:* _(TBD)_
-- *Technologies / methodologies:* Python 3.12, uv, LangChain, LangGraph, PostgreSQL, Redis.
-- *Results:* _(TBD)_
+## Introduction
 
-## 2.2 In
+Peer review is a well-known bottleneck of research: slow, expensive, and variable in outcome. LLMs make it possible to *simulate* the process — not to replace it, but as a research instrument: how close does an artificial committee get to a real one? Which attitudes and which access to the paper's text produce more useful reviews? At what cost?
 
-## Scripts
+The application is the instrument of this investigation: every variable of the process (models, reviewer personas, provided context, retrieval usage, number of rounds) is configurable per run, and every run is traced down to the single LLM call.
 
-Cross-platform Python scripts under `resource/scripts/`.
+## Technologies
 
-| Script | Command | Description |
-|---|---|---|
-| start-venv | `python resource/scripts/1-start-venv.py` | Create `.venv` and install dependencies (`uv venv` + `uv sync`) |
-| start-docker | `python resource/scripts/2-start-docker.py` | Start the Postgres + Redis infra (`docker compose ... up -d`) |
-| run-app | `uv run python resource/scripts/3-run-app.py` | Start uvicorn (`main:app`, host/port from `APP_HOST`/`APP_PORT`, default `0.0.0.0:8081`) |
-| run-test | `python resource/scripts/4-run-test.py` | Run pytest with coverage (`--cov=src`, term-missing) |
+**Back-end** — Python 3.12 managed with `uv`; FastAPI + uvicorn; Pydantic / pydantic-settings (config from `.env`); SQLModel on psycopg (PostgreSQL 17); Redis 7.4; pytest + coverage.
+
+**Agents and orchestration** — LangChain as the provider abstraction (OpenAI, Anthropic, Ollama for local models, OpenAI-compatible endpoints) with structured output per agent; LangGraph models the review flow as a state graph (nodes = agents, shared state, conditional loops). A `mock` model runs the whole pipeline at zero cost.
+
+**Documents and RAG** — Docling for PDF parsing into sections (heading + text); sentence-boundary-aware chunking; BM25 lexical retrieval (`rank-bm25`); cached per-paper LLM summaries.
+
+**Front-end** — React 19 + TypeScript, Vite, React Router; plain CSS.
+
+**Infrastructure** — Docker Compose for Postgres + Redis, with Adminer and Redis Commander dashboards.
+
+## Proposed solution (current state)
+
+### Review pipeline
+
+LangGraph graph: fan-out to N parallel reviewers → meta-reviewer → area chair; unless the decision is `accept`, the author agent produces a rebuttal and revised sections and the cycle restarts, up to `max_rounds`. Each agent has its own configuration: model, temperature, system-prompt preset, and context.
+
+### Reviewer personas
+
+System prompts are composed on the back-end from a versioned registry: immutable base prompts per role + persona instructions along four axes (focus, commitment, intention, knowledgeability), bundled into reusable presets selectable from the UI with an exact-prompt preview.
+
+### Per-agent context
+
+Three ways to hand the paper to an agent:
+
+- `none` — no context (default for meta-reviewer, area chair, author);
+- `full_context` — the whole paper, section by section;
+- `summary` — a summary generated by an app-level "summarizer" model (`SUMMARIZER_MODEL` in `.env`): one per paper, generated lazily on first use, cached in Redis with automatic invalidation when the file or the summarizer model changes; the token cost of the generation is recorded on the index.
+
+### Retrieval tool
+
+Independently of the context mode, each agent can have the `search_paper` tool enabled: during its invocation the model can query the paper's BM25 index with its own queries and receive the most relevant passages (configurable top-k, capped iterations). The implementation is a two-phase loop — an agentic phase with tool binding, then a final structured-output call on the full transcript — with tokens accounted across all turns. The typical combination: summary as context + tool for on-demand deep dives.
+
+### Paper catalog
+
+Upload of `txt`/`pdf` files (Docling parsing, multi-strategy background indexing) and an OpenReview mode: from the raw API response (`/notes?forum=...`) the app extracts metadata, authors (first-class entities, ordered), the human decision, and the human reviews (parsers for API v1 and v2, including NeurIPS/ICLR sub-scores) — the basis for the agentic-vs-human review comparator.
+
+### Run persistence and observability
+
+Every run is stored on two levels: Postgres keeps the per-agent, per-round analytical facts (rating, confidence, sub-scores, decisions, tokens, latency), queryable in SQL; Redis keeps the verbatim traces (system prompt, input, hash-deduplicated context, payload, tool calls with queries and results). The UI shows the run history, the per-round flow detail, and per-agent "technical details", tool calls included.
+
+## Results
+
+_To be completed: planned experimental campaign comparing against OpenReview reviews with known outcomes, varying models, personas, and context strategies, with alignment metrics (rating, decision) and operational ones (tokens, cost, latency)._
+
+## Project structure
+
+```
+src/
+  main.py, core/          FastAPI startup, composition root, error handling
+  controller/             one router per scope: /admin /chat /agent /paper /retrieval /graph /prompts
+  service/                application services (graph, agent, chat, prompt, paper, retrieval, store)
+  domain/                 agents, chat/LLM providers, LangGraph graph, retrieval, store (db/redis/files)
+  models/                 controller / domain / store models (adapters and factories at the seams)
+test/unit/                pytest, no real external services
+ui/                       React + TypeScript front-end (Vite)
+resource/                 docker-compose (Postgres, Redis), scripts, papers
+```
+
+## Getting started
+
+Prerequisites: Python 3.12, `uv`, Docker, Node.js. Copy `.env.example` to `.env` (API keys are only needed for real models; everything works with the `mock` model).
+
+| Step | Command |
+|---|---|
+| Environment + dependencies | `python resource/scripts/1-start-venv.py` |
+| Postgres + Redis infra | `python resource/scripts/2-start-docker.py` |
+| Back-end (uvicorn) | `uv run python resource/scripts/3-run-app.py` |
+| Tests with coverage | `python resource/scripts/4-run-test.py` |
+| Front-end in development | `cd ui && npm install && npm run dev` |
+
+The back-end serves the built UI (`ui/dist`) at `/`; in development the Vite UI runs on `:5173` with CORS already configured.
+
+## Roadmap
+
+- **Comparator** between agentic and human OpenReview reviews (parsers already in place) — objective (ii).
+- Metrics and cost view (per-model price list, per-run aggregates).
+- Real embedder replacing the mock for the embedding strategy.
+- Round-2 re-review flow revision.
