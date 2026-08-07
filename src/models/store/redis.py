@@ -35,15 +35,24 @@ class RagChunk(BaseModel):
     embedding: list[float] | None = None
 
 
+class RagTokenUsage(BaseModel):
+    """Token usage of the LLM call that built the index (summary strategy only)."""
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None
+
+
 class RagIndex(BaseModel):
     """The stored RAG index for one paper (suffix = doc id). Holds ``sections``
-    (full_context) or ``chunks`` (bm25 / embedding) depending on the strategy."""
+    (full_context) or ``chunks`` (bm25 / embedding) depending on the strategy;
+    ``token_usage`` records the build cost when an LLM was involved (summary)."""
     doc_id: str
     paper_id: str
     file_signature: RagFileSignature
     settings: RagIndexConfig
     sections: list[RagSectionEntry] = Field(default_factory=list)
     chunks: list[RagChunk] = Field(default_factory=list)
+    token_usage: RagTokenUsage | None = None
 
 
 class AgentTraceRecord(BaseModel):

@@ -103,6 +103,25 @@ class TestAgentRun:
         with pytest.raises(UpstreamError):
             ReviewerAgent(_BoomChat()).run("review this paper")
 
+    def test_set_tools_flows_into_the_response_tool_trace(self):
+        from langchain_core.tools import tool
+
+        @tool("search_paper")
+        def search_paper(query: str) -> str:
+            """Search the paper under review."""
+            return f"passage for {query}"
+
+        agent = ReviewerAgent(Utils.chat())
+        agent.set_tools([search_paper], max_iterations=2)
+        result = agent.run("review this paper")
+        assert result.tool_trace is not None and len(result.tool_trace) == 1
+        assert result.tool_trace[0].tool_name == "search_paper"
+        assert "passage for" in result.tool_trace[0].result
+
+    def test_run_without_tools_has_no_tool_trace(self):
+        result = ReviewerAgent(Utils.chat()).run("review this paper")
+        assert result.tool_trace is None
+
 
 class TestConcreteAgents:
     @pytest.mark.parametrize(

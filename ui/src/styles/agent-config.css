@@ -32,6 +32,24 @@
   gap: var(--s-3);
 }
 
+/* ── Retrieval tool (checkbox + knobs) ── */
+.acp__tool-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.acp__tool-knobs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--s-3);
+}
+
 /* ── System prompt composer (base version + instructions) ── */
 .acp__instructions {
   display: flex;

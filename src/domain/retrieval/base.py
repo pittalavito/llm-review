@@ -8,13 +8,17 @@ parsing; the format comes from the paper_id, files carry no dot-extension).
 with ``RetrievalStrategy.create(strategy, ...)``:
   - ``FullContextStrategy``: whole paper, all sections concatenated (query ignored);
   - ``Bm25Strategy``: chunk the paper, rank chunks by BM25 lexical score;
-  - ``EmbeddingStrategy``: chunk the paper, rank chunks by embedding cosine similarity.
+  - ``EmbeddingStrategy``: chunk the paper, rank chunks by embedding cosine similarity;
+  - ``SummaryStrategy``: one LLM-generated summary of the whole paper (query ignored).
 Chunk-based strategies share ``Chunker``; the embedding strategy uses an
-``Embedder`` (``MockEmbedder`` for tests; a real provider plugs in behind the seam).
+``Embedder`` (``MockEmbedder`` for tests; a real provider plugs in behind the seam);
+the summary strategy uses a ``Summarizer`` (``ChatSummarizer`` over an injected Chat).
 """
+import re
 from abc import ABC, abstractmethod
 from io import BytesIO
 from pathlib import Path
+from typing import TYPE_CHECKING
 from zlib import crc32
 
 from docling.datamodel.base_models import DocumentStream, InputFormat
@@ -23,7 +27,11 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 from rank_bm25 import BM25Okapi
 
 from core.error import ValidationError
-from models.domain.retrieval import RagChunk, RagFileSignature, RagIndex, RagIndexConfig, RagSectionEntry, RagStrategy
+from models.domain.chat import SummaryResponseSchema
+from models.domain.retrieval import RagChunk, RagFileSignature, RagIndex, RagIndexConfig, RagSectionEntry, RagStrategy, RagTokenUsage, SummaryResult
+
+if TYPE_CHECKING:
+    from domain.chat.base import Chat
 
 _HEADER_LABEL_VALUES = {"section_header", "title"}
 
@@ -105,8 +113,12 @@ class PaperFileReader:
 
 
 class Chunker:
-    """Splits sections into overlapping fixed-size (character) chunks, tagging
-    each chunk with its source section."""
+    """Splits sections into overlapping chunks that respect sentence boundaries
+    (word boundaries for oversized sentences), tagging each chunk with its source
+    section. ``chunk_size``/``overlap`` are character budgets: a chunk holds as
+    many whole sentences as fit in ``chunk_size``, and the next chunk is seeded
+    with the trailing sentences of the previous one up to ``overlap`` chars — so
+    a chunk never cuts mid-word and spans at most ``chunk_size + overlap``."""
 
     def __init__(self, chunk_size: int = 1000, overlap: int = 150):
         self._chunk_size = chunk_size
@@ -120,11 +132,58 @@ class Chunker:
         return chunks
 
     def _split(self, text: str) -> list[str]:
-        text = text.strip()
+        text = " ".join(text.split())
         if not text:
             return []
-        step = max(1, self._chunk_size - self._overlap)
-        return [text[start:start + self._chunk_size] for start in range(0, len(text), step)]
+        chunks: list[str] = []
+        current: list[str] = []
+        current_len = 0
+        for piece in self._pieces(text):
+            extra = len(piece) + (1 if current else 0)
+            if current and current_len + extra > self._chunk_size:
+                chunks.append(" ".join(current))
+                current = self._overlap_tail(current)
+                current_len = sum(len(kept) for kept in current) + max(0, len(current) - 1)
+                extra = len(piece) + (1 if current else 0)
+            current.append(piece)
+            current_len += extra
+        if current:
+            chunks.append(" ".join(current))
+        return chunks
+
+    def _pieces(self, text: str) -> list[str]:
+        """Sentences; any sentence over the chunk budget is word-packed down to
+        size (a single oversized word is kept whole rather than cut)."""
+        pieces: list[str] = []
+        for sentence in re.split(r"(?<=[.!?])\s+", text):
+            if not sentence:
+                continue
+            if len(sentence) <= self._chunk_size:
+                pieces.append(sentence)
+                continue
+            packed = ""
+            for word in sentence.split():
+                if packed and len(packed) + 1 + len(word) > self._chunk_size:
+                    pieces.append(packed)
+                    packed = word
+                else:
+                    packed = f"{packed} {word}" if packed else word
+            if packed:
+                pieces.append(packed)
+        return pieces
+
+    def _overlap_tail(self, pieces: list[str]) -> list[str]:
+        """Trailing pieces of a flushed chunk, up to ``overlap`` chars, used to
+        seed the next chunk for context continuity."""
+        tail: list[str] = []
+        length = 0
+        for piece in reversed(pieces):
+            extra = len(piece) + (1 if tail else 0)
+            if length + extra > self._overlap:
+                break
+            tail.insert(0, piece)
+            length += extra
+        return tail
 
 
 class Embedder(ABC):
@@ -153,6 +212,49 @@ class MockEmbedder(Embedder):
             vector[crc32(token.encode()) % self._dim] += 1.0
         norm = sum(value * value for value in vector) ** 0.5
         return [value / norm for value in vector] if norm else vector
+
+
+class Summarizer(ABC):
+    """Produces a summary of a paper from its sections. The LLM-backed
+    implementation plugs in behind this seam, mirroring the Embedder one."""
+
+    @abstractmethod
+    def summarize(self, sections: list[RagSectionEntry]) -> SummaryResult:
+        ...
+
+
+_SUMMARIZER_SYSTEM_PROMPT = (
+    "You are an expert scientific editor. Summarize the paper provided by the user "
+    "into a faithful, self-contained overview covering: the problem addressed, the "
+    "proposed approach, the experimental setup, the main results, and the stated "
+    "limitations. Stick to what the text says; do not add opinions or external facts."
+)
+
+
+class ChatSummarizer(Summarizer):
+    """LLM-backed summarizer over an injected ``Chat`` client. The paper text is
+    truncated to ``max_input_chars`` before the call as a context-window guard."""
+
+    def __init__(self, chat: "Chat", max_input_chars: int = 60000):
+        self._chat = chat
+        self._max_input_chars = max_input_chars
+
+    def summarize(self, sections: list[RagSectionEntry]) -> SummaryResult:
+        paper_text = "\n\n".join(f"# {section.name}\n{section.text}" for section in sections)
+        response = self._chat.invoke(
+            system_prompt=_SUMMARIZER_SYSTEM_PROMPT,
+            message=paper_text[: self._max_input_chars],
+            response_schema=SummaryResponseSchema,
+            label="summarizer",
+        )
+        return SummaryResult(
+            summary=response.response_schema.summary,
+            token_usage=RagTokenUsage(
+                input_tokens=response.input_tokens,
+                output_tokens=response.output_tokens,
+                total_tokens=response.total_tokens,
+            ),
+        )
 
 
 class RetrievalStrategy(ABC):
@@ -203,7 +305,7 @@ class RetrievalStrategy(ABC):
         return f"# {chunk.section}\n{chunk.text}" if chunk.section else chunk.text
 
     @staticmethod
-    def create(strategy: RagStrategy, strategy_version: str, *, embedder: "Embedder | None" = None, chunker: "Chunker | None" = None, top_k: int = 5) -> "RetrievalStrategy":
+    def create(strategy: RagStrategy, strategy_version: str, *, embedder: "Embedder | None" = None, chunker: "Chunker | None" = None, summarizer: "Summarizer | None" = None, top_k: int = 5) -> "RetrievalStrategy":
         if strategy is RagStrategy.FULL_CONTEXT:
             return FullContextStrategy(strategy_version)
         if strategy is RagStrategy.BM25:
@@ -212,6 +314,10 @@ class RetrievalStrategy(ABC):
             if embedder is None:
                 raise ValueError("The embedding strategy requires an Embedder.")
             return EmbeddingStrategy(strategy_version, chunker or Chunker(), embedder, top_k)
+        if strategy is RagStrategy.SUMMARY:
+            if summarizer is None:
+                raise ValueError("The summary strategy requires a Summarizer.")
+            return SummaryStrategy(strategy_version, summarizer)
         raise ValueError(f"Unsupported RAG strategy: {strategy}")
 
     
@@ -258,7 +364,9 @@ class Bm25Strategy(RetrievalStrategy):
 
     @staticmethod
     def _tokenize(text: str) -> list[str]:
-        return text.lower().split()
+        """Lowercased alphanumeric tokens — punctuation-insensitive, so
+        "Attention," and "attention" score as the same term."""
+        return re.findall(r"[a-z0-9]+", text.lower())
 
 
 class EmbeddingStrategy(RetrievalStrategy):
@@ -296,3 +404,27 @@ class EmbeddingStrategy(RetrievalStrategy):
         norm_a = sum(x * x for x in a) ** 0.5
         norm_b = sum(y * y for y in b) ** 0.5
         return dot / (norm_a * norm_b) if norm_a and norm_b else 0.0
+
+
+class SummaryStrategy(RetrievalStrategy):
+    """One LLM-generated summary of the whole paper, stored as a single
+    ``summary`` section (query ignored, like FullContext). The LLM cost is paid
+    at index time only — serving the context is a plain cache read."""
+
+    strategy = RagStrategy.SUMMARY
+
+    def __init__(self, strategy_version: str, summarizer: Summarizer):
+        super().__init__(strategy_version)
+        self._summarizer = summarizer
+
+    def build_index(self, raw_sections, paper_id, doc_id, file_signature) -> RagIndex:
+        result = self._summarizer.summarize(self._group_sections(raw_sections))
+        return RagIndex(
+            doc_id=doc_id, paper_id=paper_id, file_signature=file_signature,
+            settings=self._config(),
+            sections=[RagSectionEntry(name="summary", text=result.summary)],
+            token_usage=result.token_usage,
+        )
+
+    def build_context(self, index: RagIndex, query: str) -> str:
+        return index.sections[0].text if index.sections else ""

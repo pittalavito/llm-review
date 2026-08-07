@@ -18,6 +18,8 @@ class RagStrategy(StrEnum):
     """Chunk the paper, rank chunks by BM25 lexical score against the query."""
     EMBEDDING = "embedding"
     """Chunk the paper, rank chunks by embedding cosine similarity to the query."""
+    SUMMARY = "summary"
+    """One LLM-generated summary of the whole paper — no query."""
 
 
 class RagFileSignature(BaseModel):
@@ -30,6 +32,21 @@ class RagIndexConfig(BaseModel):
     """The RAG index configuration used to build the index."""
     strategy: RagStrategy = RagStrategy.FULL_CONTEXT
     strategy_version: str = Field(min_length=1, max_length=100)
+
+
+class RagTokenUsage(BaseModel):
+    """Token usage of the LLM call that built an index (summary strategy only —
+    the other strategies cost no tokens)."""
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None
+
+
+class SummaryResult(BaseModel):
+    """What a Summarizer returns: the summary text plus the token usage of the
+    LLM call that produced it (None for token-free summarizers, e.g. fakes)."""
+    summary: str
+    token_usage: RagTokenUsage | None = None
 
 
 class RagSectionEntry(BaseModel):
@@ -54,6 +71,8 @@ class RagIndex(BaseModel):
     settings: RagIndexConfig
     sections: list[RagSectionEntry] = Field(default_factory=list)
     chunks: list[RagChunk] = Field(default_factory=list)
+    token_usage: RagTokenUsage | None = None
+    """Cost of building the index, when an LLM was involved (summary strategy)."""
 
 
 class IndexInfo(BaseModel):
@@ -61,3 +80,4 @@ class IndexInfo(BaseModel):
     doc_id: str
     paper_id: str
     section_count: int
+    token_usage: RagTokenUsage | None = None

@@ -15,12 +15,12 @@
  */
 import { useEffect, useState } from 'react';
 import { listInstructions, listModels, listPresets, listPromptsByRole } from '../api/client';
-import type { AgentConfig, ContextMode, PromptInstruction, PromptVersion, SystemPromptPreset } from '../api/types';
+import type { AgentConfig, AgentRequestContext, ContextMode, PromptInstruction, PromptVersion, SystemPromptPreset } from '../api/types';
 import PromptPreviewModal from './PromptPreviewModal';
 import TemperatureSlider from './TemperatureSlider';
 import { useOptions } from './useOptions';
 
-const CONTEXT_MODES: ContextMode[] = ['none', 'full_context', 'bm25', 'embedding'];
+const CONTEXT_MODES: ContextMode[] = ['none', 'full_context', 'summary'];
 
 interface AgentConfigPanelProps {
   /** Panel heading, e.g. "🔬 Reviewer 2". */
@@ -88,16 +88,18 @@ export default function AgentConfigPanel({
   function updateContextMode(mode: ContextMode) {
     onChange({
       request_context: {
+        ...agent.request_context,
         context_mode: mode,
-        retrieval_context_query: mode === 'bm25' || mode === 'embedding'
-          ? agent.request_context.retrieval_context_query ?? ''
-          : null,
+        retrieval_context_query: null,
       },
     });
   }
 
-  const needsQuery = agent.request_context.context_mode === 'bm25'
-    || agent.request_context.context_mode === 'embedding';
+  const toolEnabled = agent.request_context.use_retrieval_tool ?? false;
+
+  function updateToolConfig(patch: Partial<Pick<AgentRequestContext, 'use_retrieval_tool' | 'retrieval_top_k' | 'max_tool_iterations'>>) {
+    onChange({ request_context: { ...agent.request_context, ...patch } });
+  }
 
   return (
     <div className="acp">
@@ -141,20 +143,40 @@ export default function AgentConfigPanel({
         {CONTEXT_MODES.map((mode) => <option key={mode} value={mode}>{mode}</option>)}
       </select>
 
-      {needsQuery && (
-        <>
-          <label className="paper-form__label" htmlFor={`${idPrefix}-query`}>Retrieval query</label>
+      {/* ── Retrieval tool: the agent may fetch paper passages on demand ── */}
+      <label className="paper-form__label acp__tool-toggle" htmlFor={`${idPrefix}-tool`}>
+        <input
+          id={`${idPrefix}-tool`}
+          type="checkbox"
+          checked={toolEnabled}
+          onChange={(e) => updateToolConfig({ use_retrieval_tool: e.target.checked })}
+        />
+        {' '}Tool di retrieval <span className="acp__hint">(ricerca BM25 nel paper on-demand)</span>
+      </label>
+
+      {toolEnabled && (
+        <div className="acp__tool-knobs">
+          <label className="paper-form__label" htmlFor={`${idPrefix}-tool-topk`}>Top k</label>
           <input
             className="paper-form__input"
-            id={`${idPrefix}-query`}
-            type="text"
-            placeholder="query per il retrieval del contesto"
-            value={agent.request_context.retrieval_context_query ?? ''}
-            onChange={(e) => onChange({
-              request_context: { ...agent.request_context, retrieval_context_query: e.target.value },
-            })}
+            id={`${idPrefix}-tool-topk`}
+            type="number"
+            min={1}
+            max={20}
+            value={agent.request_context.retrieval_top_k ?? 5}
+            onChange={(e) => updateToolConfig({ retrieval_top_k: Number(e.target.value) })}
           />
-        </>
+          <label className="paper-form__label" htmlFor={`${idPrefix}-tool-iterations`}>Max iterazioni tool</label>
+          <input
+            className="paper-form__input"
+            id={`${idPrefix}-tool-iterations`}
+            type="number"
+            min={1}
+            max={10}
+            value={agent.request_context.max_tool_iterations ?? 3}
+            onChange={(e) => updateToolConfig({ max_tool_iterations: Number(e.target.value) })}
+          />
+        </div>
       )}
 
       {/* ── System prompt: pick a saved preset; the bundle's content is

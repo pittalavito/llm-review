@@ -51,18 +51,38 @@ function defaultAgent(contextMode: ContextMode = 'none'): AgentConfig {
     temperature: 0.4,
     prompt_preset_id: null,
     input_message: null,
-    request_context: { context_mode: contextMode, retrieval_context_query: null },
+    request_context: {
+      context_mode: contextMode,
+      retrieval_context_query: null,
+      use_retrieval_tool: false,
+      retrieval_top_k: 5,
+      max_tool_iterations: 3,
+    },
   };
 }
 
 /** Drop the legacy prompt fields from stored configs (JSON system_prompt and
  * the pre-preset system_prompt_request), keeping the preset id when one was
- * selected — so older localStorage keeps loading. */
+ * selected, and deep-merge request_context so pre-migration localStorage keeps
+ * loading. bm25/embedding are no longer offered by the UI: stored configs
+ * using them are coerced to full_context. */
 function sanitizeAgent(agent: AgentConfig & { system_prompt?: unknown; system_prompt_request?: { preset_id?: unknown } | null }): AgentConfig {
   const { system_prompt: _legacy, system_prompt_request: legacyRequest, ...rest } = agent;
   const legacyPresetId = typeof legacyRequest?.preset_id === 'number' ? legacyRequest.preset_id : null;
   const presetId = typeof rest.prompt_preset_id === 'number' ? rest.prompt_preset_id : legacyPresetId;
-  return { ...defaultAgent(), ...rest, prompt_preset_id: presetId };
+  const defaults = defaultAgent();
+  const storedContext = rest.request_context ?? defaults.request_context;
+  const hiddenMode = storedContext.context_mode === 'bm25' || storedContext.context_mode === 'embedding';
+  return {
+    ...defaults,
+    ...rest,
+    prompt_preset_id: presetId,
+    request_context: {
+      ...defaults.request_context,
+      ...storedContext,
+      ...(hiddenMode ? { context_mode: 'full_context' as ContextMode, retrieval_context_query: null } : {}),
+    },
+  };
 }
 
 /** BE default (mock everywhere), with the reviewers reading the whole paper. */

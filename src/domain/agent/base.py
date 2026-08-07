@@ -1,6 +1,8 @@
 from abc import ABC
 from time import perf_counter
 
+from langchain_core.tools import BaseTool
+
 from core.error import ValidationError, UpstreamError
 from core.observability import LogPrefix, observed
 from domain.chat.base import Chat, ChatResponse
@@ -89,16 +91,24 @@ class Agent(ABC):
         self.prompt_preset_id: int | None = prompt_preset_id
         self.response_schema: type[ChatModelResponseSchema] | None = response_schema
         self.context: str | None = None
-    
+        self.tools: list[BaseTool] = []
+        self.max_tool_iterations: int = 3
+
     @property
     def name(self) -> str:
         """String identity of this agent (e.g. ``reviewer_1``, ``meta_reviewer``)."""
         return f"{self.agent_role}_{self.agent_index}" if self.agent_index is not None else str(self.agent_role)
-        
+
     def set_context(self, context: str | None) -> None:
         if self.agent_context is None or self.agent_context.context_mode == ContextMode.NONE:
             raise ValueError("Cannot set context when context_mode is NONE.")
         self.context = context
+
+    def set_tools(self, tools: list[BaseTool], max_iterations: int) -> None:
+        """Tools the agent may call during its invocation. Kept on the agent —
+        never bound onto the Chat, which is cached and shared across agents."""
+        self.tools = tools
+        self.max_tool_iterations = max_iterations
     
     @observed(LogPrefix.AGENT_RUN)    
     def run(self, input_message: str) -> AgentResponse:
@@ -113,7 +123,10 @@ class Agent(ABC):
         return self._to_response(message, chat_response, latency_seconds)
 
     def _invoke_chat(self, message: str) -> ChatResponse:
-        return self.chat.invoke(self.system_prompt or "", message, self.context, self.response_schema, label=self.name)
+        return self.chat.invoke(
+            self.system_prompt or "", message, self.context, self.response_schema,
+            label=self.name, tools=self.tools or None, max_tool_iterations=self.max_tool_iterations,
+        )
 
     @staticmethod
     def _normalize_message(message: str) -> str:
@@ -138,6 +151,7 @@ class Agent(ABC):
             output_tokens=chat_response.output_tokens,
             total_tokens=chat_response.total_tokens,
             latency_seconds=latency_seconds,
+            tool_trace=chat_response.tool_trace,
         )
 
 

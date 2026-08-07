@@ -3,10 +3,10 @@ reviewer persona axes (focus, commitment, intention, knowledgeability) plus the
 area-chair style. The chat-model vocabulary and response schemas live in
 ``domain/models/chat.py``."""
 from enum import StrEnum
-from pydantic import BaseModel, SerializeAsAny
+from pydantic import BaseModel, Field, SerializeAsAny
 from typing import Any
 
-from models.domain.chat import ChatModelName, ChatModelResponseSchema
+from models.domain.chat import ChatModelName, ChatModelResponseSchema, ToolCallRecord
 
 
 class AgentRole(StrEnum):
@@ -22,15 +22,22 @@ class ContextMode(StrEnum):
     FULL_CONTEXT = "full_context"
     BM25 = "bm25"
     EMBEDDING = "embedding"
+    SUMMARY = "summary"
     NONE = "none"
 
 
 class AgentRequestContext(BaseModel):
     context_mode: ContextMode = ContextMode.NONE
     """The context mode used to retrieve the context for this agent"""
-    retrieval_context_query: str | None = None    
+    retrieval_context_query: str | None = None
     """The query used to retrieve the context for this agent. If it is not None, it contains the relevant query."""
-    
+    use_retrieval_tool: bool = False
+    """Whether the agent may call the paper-retrieval tool during its invocation."""
+    retrieval_top_k: int = Field(default=5, ge=1, le=20)
+    """How many passages each retrieval tool call returns."""
+    max_tool_iterations: int = Field(default=3, ge=1, le=10)
+    """Cap on tool-calling round-trips before the agent must answer."""
+
     @staticmethod
     def default_none_context() -> "AgentRequestContext":
         return AgentRequestContext(context_mode=ContextMode.NONE, retrieval_context_query=None)
@@ -73,9 +80,12 @@ class AgentResponse(BaseModel):
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None
-    
+
     latency_seconds: float | None = None
-    
+
+    tool_trace: list[ToolCallRecord] | None = None
+    """Executed tool round-trips, when the agent used the retrieval tool."""
+
     def to_json(self) -> str:
         return self.model_dump_json(ensure_ascii=False)
 

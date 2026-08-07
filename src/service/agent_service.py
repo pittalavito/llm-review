@@ -27,6 +27,11 @@ class AgentService:
         context = self._retrieval_service.get_agent_context(request)
         if context is not None:
             agent.set_context(context)
+
+        request_context = request.context
+        if request_context is not None and request_context.use_retrieval_tool and request.paper_id:
+            retrieval_tool = self._retrieval_service.build_retrieval_tool(request.paper_id, request_context.retrieval_top_k)
+            agent.set_tools([retrieval_tool], request_context.max_tool_iterations)
         return agent
 
     def build_agents_for_graph(self, request: CreateGraphReviewRequest) -> dict[str, Agent]:

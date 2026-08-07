@@ -12,8 +12,9 @@ from typing import Any, Callable
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.tools import BaseTool
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 
@@ -31,6 +32,8 @@ from models.domain.chat import (
     ChatReviewerRebuttal,
     ReviewerResponseSchema,
     ChatRevisedSection,
+    SummaryResponseSchema,
+    ToolCallRecord,
 )
 
 
@@ -46,6 +49,9 @@ class ChatResponse:
     output_tokens: int | None = None
     total_tokens: int | None = None
     parsing_error: Exception | None = None
+    tool_trace: list[ToolCallRecord] | None = None
+    """Executed tool round-trips (tool-loop invocations only); tokens above
+    already include every loop turn plus the final structured call."""
 
 
 class Factory:
@@ -152,6 +158,24 @@ class Adapter:
             parsing_error=parsing_error,
         )
 
+    @staticmethod
+    def merge_tool_loop_usage(final: ChatResponse, loop_turns: list[AIMessage], tool_trace: list[ToolCallRecord]) -> ChatResponse:
+        """Fold the usage of every tool-loop turn into the final response, so
+        the reported tokens cover the whole invocation — without accumulation a
+        3-turn loop would silently report only the last call."""
+        def merge(final_value: int | None, key: str) -> int | None:
+            values = [turn.usage_metadata.get(key) for turn in loop_turns if turn.usage_metadata]
+            values = [value for value in values if value is not None]
+            if final_value is None and not values:
+                return None
+            return (final_value or 0) + sum(values)
+
+        final.input_tokens = merge(final.input_tokens, "input_tokens")
+        final.output_tokens = merge(final.output_tokens, "output_tokens")
+        final.total_tokens = merge(final.total_tokens, "total_tokens")
+        final.tool_trace = tool_trace or None
+        return final
+
 
 class Invoke:
     """Runs the chat model — structured (with a response schema) or raw."""
@@ -176,6 +200,74 @@ class Invoke:
             raise ValidationError(f"Structured output parsing failed for '{label}': {normalized.parsing_error}")
         return normalized
 
+    @staticmethod
+    def invoke_with_tools(
+        chat_model: BaseChatModel,
+        tools: list[BaseTool],
+        max_iterations: int,
+        response_schema: type[ChatModelResponseSchema] | None,
+        label: str,
+        system_prompt: str,
+        message: str,
+        context: str | None,
+    ) -> ChatResponse:
+        """Two-phase tool loop over a raw message list (``with_structured_output``
+        and ``bind_tools`` are not composable on one call).
+
+        Phase 1 (agentic): the tool-bound model is invoked repeatedly — every
+        ``tool_calls`` it emits is executed and appended as a ``ToolMessage`` —
+        until it stops calling tools or ``max_iterations`` is reached.
+        Phase 2 (final): one structured call on the accumulated transcript
+        produces the schema payload, exactly like the tool-less path."""
+        messages: list[BaseMessage] = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=f"{context or ''}{message}"),
+        ]
+        bound = chat_model.bind_tools(tools)
+        tools_by_name = {tool.name: tool for tool in tools}
+        loop_turns: list[AIMessage] = []
+        tool_trace: list[ToolCallRecord] = []
+
+        for _ in range(max_iterations):
+            ai_message: AIMessage = bound.invoke(messages)
+            loop_turns.append(ai_message)
+            if not ai_message.tool_calls:
+                break
+            messages.append(ai_message)
+            for tool_call in ai_message.tool_calls:
+                result = Invoke._execute_tool(tools_by_name, tool_call)
+                tool_trace.append(ToolCallRecord(
+                    tool_name=tool_call["name"],
+                    arguments=tool_call.get("args") or {},
+                    result=result[:2000],
+                ))
+                messages.append(ToolMessage(content=result, tool_call_id=tool_call["id"]))
+
+        if response_schema is None:
+            final = Adapter.to_chat_response_ai_message(chat_model.invoke(messages))
+        else:
+            messages.append(HumanMessage(content="Using the information retrieved above, produce your final answer now."))
+            structured = chat_model.with_structured_output(response_schema, include_raw=True)
+            chat_response = structured.invoke(messages)
+            if not isinstance(chat_response, dict):
+                raise ValidationError(f"Invalid chat response format: {chat_response}")
+            final = Adapter.to_chat_response_dict(chat_response)
+            if final.response_schema is None:
+                raise ValidationError(f"Structured output parsing failed for '{label}': {final.parsing_error}")
+        return Adapter.merge_tool_loop_usage(final, loop_turns, tool_trace)
+
+    @staticmethod
+    def _execute_tool(tools_by_name: dict[str, BaseTool], tool_call: dict) -> str:
+        """Run one tool call; failures are stringified into the result so the
+        model can recover instead of aborting the whole invocation."""
+        tool = tools_by_name.get(tool_call["name"])
+        if tool is None:
+            return f"Error: unknown tool '{tool_call['name']}'."
+        try:
+            return str(tool.invoke(tool_call.get("args") or {}))
+        except Exception as exc:
+            return f"Error executing tool '{tool_call['name']}': {exc}"
+
 
 class Chat:
     """Chat facade bound to one chat model (None only for the mock subclass)."""
@@ -197,17 +289,25 @@ class Chat:
         context: str | None = None,
         response_schema: type[ChatModelResponseSchema] | None = None,
         label: str = "",
+        tools: list[BaseTool] | None = None,
+        max_tool_iterations: int = 3,
     ) -> ChatResponse:
         """Run the chat model on ``system_prompt`` + ``message`` (+ ``context``).
         With a ``response_schema`` the output is parsed as structured; otherwise a
         raw fallback is returned. ``label`` names the caller in parse errors.
-        The ``token-estimation`` pseudo-model short-circuits to a cost estimate
-        without any LLM call."""
-        
+        With ``tools`` the invocation becomes a two-phase tool loop (see
+        ``Invoke.invoke_with_tools``); tools are per-invocation arguments — never
+        bound onto this instance, which is cached and shared across agents."""
+
         if self._model_name == ChatModelName.MOCK:
-            return MockChat().invoke(system_prompt, message, context, response_schema)
+            return MockChat().invoke(system_prompt, message, context, response_schema, label, tools, max_tool_iterations)
         if self._chat_model is None:
             raise ValidationError("Chat has no model bound.")
+
+        if tools:
+            if self._model_name is not None and not self._model_name.supports_tools():
+                raise ValidationError(f"Model '{self._model_name}' does not support tool calling.")
+            return Invoke.invoke_with_tools(self._chat_model, tools, max_tool_iterations, response_schema, label, system_prompt, message, context)
 
         chat_message = Factory.create_chat_message(system_prompt)
         chat_variables = Factory.create_chat_variables(message, context)
@@ -229,10 +329,20 @@ class MockChat(Chat):
         context: str | None = None,
         response_schema: type[ChatModelResponseSchema] | None = None,
         label: str = "",
+        tools: list[BaseTool] | None = None,
+        max_tool_iterations: int = 3,
     ) -> ChatResponse:
         """Return the canned instance for the requested schema (so agents and
         graph run unchanged) with token usage *estimated* from the inputs; with
-        no schema, the fallback response carries the estimate summary."""
+        no schema, the fallback response carries the estimate summary. With
+        ``tools``, the first tool is executed once for real (so default mock
+        runs exercise the tool closure end-to-end) and recorded in the trace."""
+
+        tool_trace: list[ToolCallRecord] | None = None
+        tool_result_tokens = 0
+        if tools:
+            tool_trace = [self._run_first_tool(tools)]
+            tool_result_tokens = self._estimate_tokens(tool_trace[0].result)
 
         system_prompt_tokens = self._estimate_tokens(system_prompt)
         message_tokens = self._estimate_tokens(message)
@@ -241,7 +351,7 @@ class MockChat(Chat):
 
         chat_schemas = _MOCK_INSTANCES.get(response_schema) if response_schema is not None else None
 
-        estimated_input_tokens = system_prompt_tokens + message_tokens + context_tokens + response_schema_tokens
+        estimated_input_tokens = system_prompt_tokens + message_tokens + context_tokens + response_schema_tokens + tool_result_tokens
         estimated_output_tokens = self._estimate_tokens(str(chat_schemas)) if chat_schemas is not None else 20
         total_estimated_tokens = estimated_input_tokens + estimated_output_tokens
 
@@ -260,7 +370,19 @@ class MockChat(Chat):
             output_tokens=estimated_output_tokens,
             total_tokens=total_estimated_tokens,
             parsing_error=None,
+            tool_trace=tool_trace,
         )
+
+    @staticmethod
+    def _run_first_tool(tools: list[BaseTool]) -> ToolCallRecord:
+        """One canned tool round-trip with a fixed query. Failures are recorded
+        as the result (unit tests without Redis must keep passing)."""
+        arguments = {"query": "methodology results evaluation"}
+        try:
+            result = str(tools[0].invoke(arguments))
+        except Exception as exc:
+            result = f"Error executing tool '{tools[0].name}': {exc}"
+        return ToolCallRecord(tool_name=tools[0].name, arguments=arguments, result=result[:2000])
         
     def _estimate_tokens(self, message: str) -> int:
         if not message or not message.strip():
@@ -312,5 +434,13 @@ _MOCK_INSTANCES: dict[type[ChatModelResponseSchema], ChatModelResponseSchema] = 
             ChatRevisedSection(section_name="results", content="Added sensitivity analysis and extra baselines."),
         ],
         key_changes=["Sensitivity analysis", "Hyperparameter details", "Additional baselines"],
+    ),
+    SummaryResponseSchema: SummaryResponseSchema(
+        summary=(
+            "[mock summary] The paper tackles a well-scoped problem, proposes a "
+            "method built on established components, evaluates it on standard "
+            "benchmarks against reasonable baselines, reports consistent "
+            "improvements, and discusses limitations around generalization."
+        ),
     ),
 }

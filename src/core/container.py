@@ -20,7 +20,7 @@ class Container:
         self.chat_service = ChatService()
         self.prompt_service = PromptService(store_service=self.store_service)
         self.paper_service = PaperService(store_service=self.store_service)
-        self.retrieval_service = RetrievalService(store_service=self.store_service)
+        self.retrieval_service = RetrievalService(store_service=self.store_service, chat_service=self.chat_service)
         self.agent_service = AgentService(chat_service=self.chat_service, prompt_service=self.prompt_service, retrieval_service=self.retrieval_service)
         self.graph_service = GraphReviewService(agent_service=self.agent_service, store_service=self.store_service)
 

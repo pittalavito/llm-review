@@ -132,11 +132,19 @@ export interface IndexPaperRequest {
   force?: boolean;
 }
 
+// domain/models/retrieval.py :: RagTokenUsage — build cost of an LLM-built index.
+export interface RagTokenUsage {
+  input_tokens?: number | null;
+  output_tokens?: number | null;
+  total_tokens?: number | null;
+}
+
 // domain/models/retrieval.py :: IndexInfo — lightweight RAG index metadata.
 export interface IndexInfo {
   doc_id: string;
   paper_id: string;
   section_count: number;
+  token_usage?: RagTokenUsage | null;
 }
 
 // models/controller/retrieval.py :: IndexPaperAccepted — 202: the indexing runs in background.
@@ -153,12 +161,15 @@ export interface IndexStatusResponse {
 }
 
 // domain/models/agent.py :: ContextMode (StrEnum).
-export type ContextMode = 'none' | 'full_context' | 'bm25' | 'embedding';
+export type ContextMode = 'none' | 'full_context' | 'bm25' | 'embedding' | 'summary';
 
 // domain/models/agent.py :: AgentRequestContext.
 export interface AgentRequestContext {
   context_mode: ContextMode;
   retrieval_context_query?: string | null;
+  use_retrieval_tool?: boolean;
+  retrieval_top_k?: number;
+  max_tool_iterations?: number;
 }
 
 // models/domain/graph.py :: AgentConfig — LLM settings for one agent role.

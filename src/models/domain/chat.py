@@ -53,6 +53,16 @@ class ChatModelName(StrEnum):
     def is_other_llm_provider(self) -> bool:
         return self == self.OTHER_LLM_PROVIDER_QWEN_3_6
 
+    def supports_tools(self) -> bool:
+        """Whether the model can be trusted with tool calling. Small local
+        models (tinyllama, gemma) either ignore tools or emit malformed calls;
+        selecting them with the retrieval tool fails fast instead."""
+        return self not in {
+            self.OLLAMA_TINYLLAMA,
+            self.OLLAMA_GEMMA_4,
+            self.OLLAMA_GEMMA_3_4B,
+        }
+
 
 class ChatReviewDecision(StrEnum):
     """The recommendation / decision produced by the review agents."""
@@ -74,6 +84,14 @@ class ChatReviewerRebuttal(BaseModel):
     response: str = Field(min_length=1, max_length=1_000)
 
 
+class ToolCallRecord(BaseModel):
+    """One executed tool round-trip inside an agent invocation: what the model
+    asked for and what the tool returned (result truncated at record time)."""
+    tool_name: str
+    arguments: dict
+    result: str
+
+
 class ChatModelResponseSchema(BaseModel):
     """Base class for chat model structured output schemas. Each agent's structured payload inherits from this base class."""
     pass
@@ -82,6 +100,11 @@ class ChatModelResponseSchema(BaseModel):
 class ChatFallbackRawResponseSchema(ChatModelResponseSchema):
     """Fallback payload for agents without a structured output schema."""
     response: str
+
+
+class SummaryResponseSchema(ChatModelResponseSchema):
+    """Structured output of the paper summarizer (SUMMARY retrieval strategy)."""
+    summary: str = Field(min_length=1)
 
 
 class ReviewerResponseSchema(ChatModelResponseSchema):

@@ -49,6 +49,14 @@ class Config(BaseSettings):
     other_llm_provider_url: str | None = None
     other_llm_provider_api_key: SecretStr | None = None
 
+    # --- Summarizer (paper summary served by the SUMMARY context mode) ---
+    # The model name is part of the summary index version: changing it here
+    # invalidates the cached summaries naturally (new doc_id).
+    summarizer_model: str = "mock"
+    summarizer_temperature: float = 0.2
+    summarizer_max_input_chars: int = 60000
+    """Truncation guard on the paper text handed to the summarizer."""
+
 
 def initialize_global_config() -> Config:
     """Initialize the global configuration instance."""
