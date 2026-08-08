@@ -20,6 +20,8 @@ UNKNOWLEDGEABLE = "unknowledgeable"
 ICLR = "iclr"
 NEURIPS = "neurips"
 
+NO_PAPER_ACCESS = "no_paper_access"
+
 # ── FOCUS ───────────────────────────────────────────────────────────────────
 
 FOCUS_SOUNDNESS = (
@@ -112,6 +114,16 @@ KNOWLEDGEABILITY_UNKNOWLEDGEABLE = (
     "plausibility to form your opinion."
 )
 
+NO_PAPER_ACCESS_INSTRUCTION = (
+    "If the paper is not accessible to you — no paper text in your context and "
+    "no search tool available — do NOT review from imagination: state "
+    "explicitly in the summary that you could not access the paper, do not "
+    "fabricate contributions, methods or results, list the missing access as "
+    "the reason for rejection, and set rating and confidence to 1.\n"
+    "Ground every point in the paper itself and never invent content that is "
+    "not there.\n"
+)
+
 # ── Seeds: (type, label, instruction, description) ──────────────────────────
 
 DEFAULT_INSTRUCTION_SEEDS: list[tuple[InstructionType, str, str, str, str | None]] = [
@@ -175,4 +187,9 @@ DEFAULT_INSTRUCTION_SEEDS: list[tuple[InstructionType, str, str, str, str | None
         "Non-expert, judges mostly clarity and plausibility",
         AgentRole.REVIEWER
     ),
+    (
+        InstructionType.CALIBRATION, NO_PAPER_ACCESS, NO_PAPER_ACCESS_INSTRUCTION,
+        "No access to the paper: do not fabricate content, state missing access as reason for rejection",
+        None
+    )
 ]

@@ -10,11 +10,8 @@ DEFAULT_PRESET_SEEDS: list[PresetSeed] = [
         "default",
         "iclr_v2",
         [
-            (InstructionType.COMMITMENT, RESPONSIBLE),
-            (InstructionType.KNOWLEDGEABILITY, KNOWLEDGEABLE),
-            (InstructionType.INTENTION, BENIGN),
             (InstructionType.VENUE, ICLR),
-            (InstructionType.FOCUS, ALL),
+            
         ],
         "Campaign RQ1/RQ2 reviewer: neutral persona (diligent, expert, constructive), ICLR venue",
     ),
