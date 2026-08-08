@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 from models.domain.openreview import OpenReviewNotes
 from models.domain.comparator import HumanReview, HumanMetaReview
@@ -15,7 +15,7 @@ class OpenReviewAdapter:
     @staticmethod
     def from_notes(notes: OpenReviewNotes, paper_id: str) -> list[OpenReviewTable]:
         records = []
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
 
         reviewer_count = {}  
 
