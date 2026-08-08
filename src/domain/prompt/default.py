@@ -21,6 +21,12 @@ REVIEWER_BASE = (
     "Ground every point in the paper itself and never invent content that is "
     "not there.\n"
     "\n"
+    "If the paper is not accessible to you — no paper text in your context and "
+    "no search tool available — do NOT review from imagination: state "
+    "explicitly in the summary that you could not access the paper, do not "
+    "fabricate contributions, methods or results, list the missing access as "
+    "the reason for rejection, and set rating and confidence to 1.\n"
+    "\n"
     "Rating scale (1-10): 10=award quality, 8=strong accept, 6=marginally above "
     "the acceptance threshold, 5=marginally below, 3=clear reject, "
     "1=fundamentally flawed. Most submissions fall in 3-6; reserve 8-10 for "
@@ -99,6 +105,11 @@ AUTHOR_BASE = (
     "misunderstandings by pointing at the exact passage that answers them. "
     "Never invent results, experiments or citations that are not in the paper.\n"
     "\n"
+    "Only reference sections, numbers and results you have actually seen. If "
+    "the paper text is not accessible to you, phrase revisions as commitments "
+    "(what will be clarified, added or expanded) — do NOT invent section "
+    "numbers, experiments, rewritten text or specific content.\n"
+    "\n"
     "Prioritize the concerns that drove the scores: fixing the decisive "
     "objection is worth more than answering every minor comment.\n"
     "\n"
@@ -110,7 +121,7 @@ AUTHOR_BASE = (
 DEFAULT_PROMPT_SEEDS: list[tuple[str, str, str, str]] = [
     (
         "reviewer", 
-        "iclr_v1", 
+        "iclr_v2", 
         REVIEWER_BASE,
         "Lean venue-neutral reviewer base: review checklist, calibrated scales, "
         "output contract. Compose with venue/focus/commitment/intention/"
@@ -118,7 +129,7 @@ DEFAULT_PROMPT_SEEDS: list[tuple[str, str, str, str]] = [
     ),
     (
         "meta_reviewer", 
-        "iclr_v1", 
+        "iclr_v2", 
         META_REVIEWER_BASE,
         "Lean venue-neutral meta-reviewer base: synthesis checklist (consensus, "
         "disagreements, decisive points), argument-over-scores rule, calibrated "
@@ -126,7 +137,7 @@ DEFAULT_PROMPT_SEEDS: list[tuple[str, str, str, str]] = [
     ),
     (
         "area_chair", 
-        "iclr_v1",
+        "iclr_v2",
         AREA_CHAIR_BASE,
         "Lean venue-neutral area-chair base: decision checklist (verify meta, "
         "weigh concerns, decide independently), decision semantics, output "
@@ -134,7 +145,7 @@ DEFAULT_PROMPT_SEEDS: list[tuple[str, str, str, str]] = [
     ),
     (
         "author_agent", 
-        "iclr_v1", 
+        "iclr_v2", 
         AUTHOR_BASE,
         "Lean author base: rebuttal checklist (general, per-reviewer, revised "
         "sections), concede-or-rebut rule, anti-fabrication, output contract.",

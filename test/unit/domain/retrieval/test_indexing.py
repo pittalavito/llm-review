@@ -80,6 +80,17 @@ class TestWalkDocumentSections:
         document = _FakeDocument([_FakeItem("a"), _FakeItem("b")])
         assert PaperFileReader._walk_document_sections(document) == [("body", "a b")]
 
+    def test_digit_only_items_are_dropped(self):
+        """Margin line numbers of submission PDFs (e.g. ICLR '000 001 002 ...')
+        must not pollute the extracted text."""
+        document = _FakeDocument([
+            _FakeItem("000 001 002 003"),
+            _FakeItem("Intro", "section_header"),
+            _FakeItem("042"),
+            _FakeItem("hello world"),
+        ])
+        assert PaperFileReader._walk_document_sections(document) == [("Intro", "hello world")]
+
     def test_keeps_empty_bodied_heading_markers(self):
         document = _FakeDocument([_FakeItem("Appendix", "section_header")])
         assert PaperFileReader._walk_document_sections(document) == [("Appendix", "")]

@@ -33,7 +33,7 @@ class GraphReviewConfig(BaseModel):
     def default_config(num_reviewers: int = 1, max_rounds: int = 1) -> "GraphReviewConfig":
         """A mock-backed default (every role on the mock model) for smoke runs/tests."""
         def cfg() -> AgentConfig:
-            return AgentConfig(model=ChatModelName.MOCK, temperature=0.4, prompt_preset_id=0)
+            return AgentConfig(model=ChatModelName.MOCK, temperature=0.0, prompt_preset_id=0)
         return GraphReviewConfig(
             reviewers=[cfg() for _ in range(num_reviewers)],
             meta_reviewer=cfg(),

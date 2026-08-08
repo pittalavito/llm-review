@@ -8,7 +8,7 @@ DEFAULT_PRESET_SEEDS: list[PresetSeed] = [
     (
         AgentRole.REVIEWER,
         "default",
-        "iclr_v1",
+        "iclr_v2",
         [
             (InstructionType.COMMITMENT, RESPONSIBLE),
             (InstructionType.KNOWLEDGEABILITY, KNOWLEDGEABLE),
@@ -21,21 +21,21 @@ DEFAULT_PRESET_SEEDS: list[PresetSeed] = [
     (
         AgentRole.META_REVIEWER,
         "default",
-        "iclr_v1",
+        "iclr_v2",
         [(InstructionType.VENUE, ICLR)],
         "Campaign meta-reviewer: base template, ICLR venue",
     ),
     (
         AgentRole.AREA_CHAIR,
         "default",
-        "iclr_v1",
+        "iclr_v2",
         [(InstructionType.VENUE, ICLR)],
         "Campaign area chair: base template, ICLR venue",
     ),
     (
         AgentRole.AUTHOR_AGENT,
         "default",
-        "iclr_v1",
+        "iclr_v2",
         [],
         "Campaign author: the base template, no persona instructions",
     ),

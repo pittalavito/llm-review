@@ -12,15 +12,17 @@ from service.store_service import StoreService
 
 MOCK_EMBEDD: Embedder = MockEmbedder()
 
-_FULL_CONTEXT_VERSION = "v1"
+_FULL_CONTEXT_VERSION = "v2"
 
 # Current version per strategy: bump one entry when its indexing logic changes
 # (old keys are simply orphaned in Redis and rebuilt lazily under the new one).
-# v2 (bm25/embedding): sentence-aware Chunker + punctuation-insensitive BM25 tokens.
+# full_context v2: margin line numbers dropped by the PDF parser.
+# bm25/embedding v3: sentence-aware Chunker, punctuation-insensitive BM25
+# tokens, references/bibliography excluded from the chunk index.
 _STRATEGY_VERSIONS = {
     RagStrategy.FULL_CONTEXT: _FULL_CONTEXT_VERSION,
-    RagStrategy.BM25: "v2",
-    RagStrategy.EMBEDDING: "v2",
+    RagStrategy.BM25: "v3",
+    RagStrategy.EMBEDDING: "v3",
 }
 
 class RetrievalService:
@@ -63,7 +65,14 @@ class RetrievalService:
 
         @tool("search_paper")
         def search_paper(query: str) -> str:
-            """Search the paper under review for passages relevant to the query. Returns the most relevant excerpts, each under its section heading."""
+            """Search the paper under review for passages relevant to the query.
+
+            The search is keyword-based (lexical): query with distinctive terms
+            likely to appear verbatim in the paper — method names, dataset or
+            benchmark names, metrics, equations, specific claims. Generic review
+            criteria such as "clarity", "novelty" or "soundness of methods" do
+            not appear in papers and return poor matches. Returns the most
+            relevant excerpts, each under its section heading."""
             passages = retrieve(paper_id, query, RagStrategy.BM25, bm25_version, top_k=top_k)
             return passages or "No relevant passages found."
 
@@ -135,9 +144,10 @@ class RetrievalService:
     def _version(self, strategy: RagStrategy) -> str:
         """Current index version for ``strategy``. The summary version is keyed
         on the summarizer model: changing the model in config invalidates the
-        cached summaries via a new doc_id."""
+        cached summaries via a new doc_id. (v2: summaries regenerate from the
+        line-number-free parse.)"""
         if strategy is RagStrategy.SUMMARY:
-            return f"v1-{get_global_config().summarizer_model}"
+            return f"v2-{get_global_config().summarizer_model}"
         return _STRATEGY_VERSIONS[strategy]
 
     def _get_summarizer(self) -> Summarizer:

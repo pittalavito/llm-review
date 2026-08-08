@@ -56,6 +56,9 @@ def setup(tmp_path, monkeypatch):
     papers.mkdir()
     (papers / "other_p_txt").write_text("gradient descent optimizes the model on imagenet", encoding="utf-8")
     monkeypatch.setattr(get_global_config(), "papers_dir", str(papers))
+    # Pin the summarizer to the mock model: the config/.env default may point at
+    # a real provider, and a unit test must never make a network call.
+    monkeypatch.setattr(get_global_config(), "summarizer_model", "mock")
     store = FakeStoreService()
     return RetrievalService(store, ChatService()), store, papers
 
@@ -98,8 +101,8 @@ class TestGetAgentContext:
         request = _agent_request(AgentRequestContext(context_mode=ContextMode.SUMMARY))
         context = service.get_agent_context(request)
         assert context is not None and "[mock summary]" in context
-        assert "other_p_txt+summary-v1-mock" in store.store
-        usage = store.store["other_p_txt+summary-v1-mock"].token_usage
+        assert "other_p_txt+summary-v2-mock" in store.store
+        usage = store.store["other_p_txt+summary-v2-mock"].token_usage
         assert usage is not None and usage.total_tokens and usage.total_tokens > 0  # build cost tracked on the index
         saves_after_first = store.save_calls
         assert service.get_agent_context(request) == context  # cache hit
@@ -120,8 +123,8 @@ class TestGetAgentContext:
         monkeypatch.setattr(service, "_summarizer", OtherSummarizer())
         second = service.get_agent_context(request)
         assert second == "summary from the other model" and second != first
-        assert "other_p_txt+summary-v1-mock" in store.store  # both coexist
-        assert "other_p_txt+summary-v1-other-model" in store.store
+        assert "other_p_txt+summary-v2-mock" in store.store  # both coexist
+        assert "other_p_txt+summary-v2-other-model" in store.store
 
     def test_full_context_still_works(self, setup):
         service, _, _ = setup
@@ -164,16 +167,16 @@ class TestIndexing:
         assert retrieval_tool.name == "search_paper"
         result = retrieval_tool.invoke({"query": "imagenet gradient"})
         assert "gradient descent" in result
-        assert "other_p_txt+bm25-v2" in store.store  # built under the current version
+        assert "other_p_txt+bm25-v3" in store.store  # built under the current version
 
     def test_multi_strategy_indexed_uses_the_current_versions(self, setup):
-        """The agent-facing versions: full_context stays v1, the chunk
-        strategies moved to v2 (sentence-aware chunker + new BM25 tokens)."""
+        """The agent-facing versions: full_context v2 (line-number filter), the
+        chunk strategies v3 (chunker + tokens + references exclusion)."""
         service, store, _ = setup
         service.multi_strategy_indexed("other_p_txt")
-        assert "other_p_txt+full_context-v1" in store.store
-        assert "other_p_txt+bm25-v2" in store.store
-        assert "other_p_txt+embedding-v2" in store.store
+        assert "other_p_txt+full_context-v2" in store.store
+        assert "other_p_txt+bm25-v3" in store.store
+        assert "other_p_txt+embedding-v3" in store.store
 
     def test_section_reuse_works_across_different_versions(self, setup, monkeypatch):
         """bm25 v2 must recycle the sections of the full_context v1 index (the
@@ -202,9 +205,10 @@ class TestIndexing:
             return original(source_path, file_format)
 
         monkeypatch.setattr(service._reader, "extract_structure", counting)
-        service.index_paper("other_p_txt", RagStrategy.FULL_CONTEXT, "v1")
-        service.index_paper("other_p_txt", RagStrategy.BM25, "v1")
-        service.index_paper("other_p_txt", RagStrategy.EMBEDDING, "v1")
+        # Reuse is keyed on full_context's CURRENT version ("v2").
+        service.index_paper("other_p_txt", RagStrategy.FULL_CONTEXT, "v2")
+        service.index_paper("other_p_txt", RagStrategy.BM25, "v3")
+        service.index_paper("other_p_txt", RagStrategy.EMBEDDING, "v3")
         assert calls["n"] == 1  # parsed once, reused twice
 
     def test_stale_full_context_sections_are_not_reused(self, setup, monkeypatch):
@@ -219,9 +223,9 @@ class TestIndexing:
             return original(source_path, file_format)
 
         monkeypatch.setattr(service._reader, "extract_structure", counting)
-        service.index_paper("other_p_txt", RagStrategy.FULL_CONTEXT, "v1")
+        service.index_paper("other_p_txt", RagStrategy.FULL_CONTEXT, "v2")
         (papers / "other_p_txt").write_text("a brand new much longer body about transformers", encoding="utf-8")
-        service.index_paper("other_p_txt", RagStrategy.BM25, "v1")
+        service.index_paper("other_p_txt", RagStrategy.BM25, "v3")
         assert calls["n"] == 2  # full-context sections were stale -> re-parsed
 
     def test_uses_cache_then_rebuilds_when_file_changes(self, setup):

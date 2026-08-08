@@ -165,6 +165,14 @@ class TestChunker:
         last_sentence_of_first = chunks[0].text.split(". ")[-1].rstrip(".")
         assert chunks[1].text.startswith(last_sentence_of_first.split()[0])
 
+    def test_references_and_bibliography_sections_are_not_chunked(self):
+        chunks = Chunker().chunk([
+            RagSectionEntry(name="Methods", text="we optimize the model"),
+            RagSectionEntry(name="REFERENCES", text="Sutton et al. 1999. Schulman et al. 2017."),
+            RagSectionEntry(name=" Bibliography ", text="More citations here."),
+        ])
+        assert [chunk.section for chunk in chunks] == ["Methods"]
+
     def test_oversized_sentence_falls_back_to_word_packing(self):
         text = "word " * 50  # one 250-char "sentence" with no terminator
         chunks = Chunker(chunk_size=60, overlap=0).chunk([RagSectionEntry(name="S", text=text)])

@@ -84,7 +84,9 @@ class PaperFileReader:
     def _walk_document_sections(document) -> list[tuple[str, str]]:
         """Group Docling's flat item stream into (heading, body) sections. A
         header flushes the current section and opens a new one; a document with
-        no detected headers collapses to a single "body" section."""
+        no detected headers collapses to a single "body" section. Items made of
+        digits only are dropped: they are margin line numbers (ICLR/NeurIPS
+        submission PDFs number every line), not content."""
         sections: list[tuple[str, str]] = []
         heading = "preamble"
         buffer: list[str] = []
@@ -97,6 +99,8 @@ class PaperFileReader:
             text = getattr(item, "text", None)
             if not text:
                 continue
+            if re.fullmatch(r"[\d\s]+", text):
+                continue  # margin line numbers / page numbers
             if str(getattr(item, "label", "")) in _HEADER_LABEL_VALUES:
                 flush()
                 heading, buffer = text, []
@@ -120,6 +124,10 @@ class Chunker:
     with the trailing sentences of the previous one up to ``overlap`` chars — so
     a chunk never cuts mid-word and spans at most ``chunk_size + overlap``."""
 
+    _EXCLUDED_SECTIONS = {"references", "bibliography", "acknowledgments", "acknowledgements"}
+    """Sections that never make good retrieval context: lexically dense (they
+    match almost any query under BM25) and content-free for reviewing."""
+
     def __init__(self, chunk_size: int = 1000, overlap: int = 150):
         self._chunk_size = chunk_size
         self._overlap = overlap
@@ -127,6 +135,8 @@ class Chunker:
     def chunk(self, sections: list[RagSectionEntry]) -> list[RagChunk]:
         chunks: list[RagChunk] = []
         for section in sections:
+            if section.name.strip().lower() in self._EXCLUDED_SECTIONS:
+                continue
             for piece in self._split(section.text):
                 chunks.append(RagChunk(text=piece, section=section.name))
         return chunks
