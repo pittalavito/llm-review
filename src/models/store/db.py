@@ -210,14 +210,12 @@ class OpenReviewTable(SQLModel, table=True):
     review/meta-review/area-chair decision. Linked to paper via ``paper_id``."""
 
     __tablename__ = "open_review"  # type: ignore
+    # No CHECK constraints on the human scores: this is EXTERNAL data — venues
+    # use their own scales (an ICLR reviewer can and does give a 0) and
+    # rejecting or clamping it would corrupt the comparison baseline. The
+    # agent-side ranges only bind the agent tables.
     __table_args__ = (
         CheckConstraint("reviewer_index IS NULL OR reviewer_index >= 1", name="ck_open_review_reviewer_index"),
-        CheckConstraint(ranges.sql_check_between("rating", ranges.RATING), name="ck_open_review_rating"),
-        CheckConstraint(ranges.sql_check_between("confidence", ranges.CONFIDENCE), name="ck_open_review_confidence"),
-        CheckConstraint(ranges.sql_check_between("overall_score", ranges.SCORE), name="ck_open_review_overall_score"),
-        CheckConstraint(ranges.sql_check_between("soundness", ranges.SUBSCORE), name="ck_open_review_soundness"),
-        CheckConstraint(ranges.sql_check_between("presentation", ranges.SUBSCORE), name="ck_open_review_presentation"),
-        CheckConstraint(ranges.sql_check_between("contribution", ranges.SUBSCORE), name="ck_open_review_contribution"),
         Index("ix_open_review_paper", "paper_id"),
     )
 
