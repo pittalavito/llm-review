@@ -1,13 +1,3 @@
-"""Default prompt instructions shipped with the code — the single source of truth.
-
-Instructions are the composable persona axes appended to an agent's base system
-prompt (see ``AgentSystemPromptRequest``): FOCUS (what the reviewer scrutinizes),
-COMMITMENT (how much effort it puts in), INTENTION (its disposition towards the
-paper) and KNOWLEDGEABILITY (its expertise level). One static text per
-(type, label); ``DEFAULT_INSTRUCTION_SEEDS`` mirrors ``DEFAULT_PROMPT_SEEDS``
-in ``default.py`` and will be registered into the instruction table at startup
-(idempotent upsert by (type, label) — existing rows are never overwritten).
-"""
 from models.domain.prompt import InstructionType
 from models.domain.agent import AgentRole
 
@@ -50,6 +40,13 @@ FOCUS_NOVELTY = (
     "against the closest related work, judge what is genuinely new versus "
     "incremental, and weigh the potential impact on the field. Missing or "
     "misrepresented related work is a major weakness."
+)
+
+FOCUS_ALL = (
+    "Focus your assessment on all aspects of the paper: theoretical soundness, "
+    "empirical evaluation, novelty and impact. Check proofs, assumptions, "
+    "experiments, baselines, ablations, statistical significance, reproducibility "
+    "and related work. Any major gap in any of these aspects is a major weakness."
 )
 
 # ── COMMITMENT ──────────────────────────────────────────────────────────────

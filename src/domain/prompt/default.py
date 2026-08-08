@@ -109,25 +109,33 @@ AUTHOR_BASE = (
 
 DEFAULT_PROMPT_SEEDS: list[tuple[str, str, str, str]] = [
     (
-        "reviewer", "base_v1", REVIEWER_BASE,
+        "reviewer", 
+        "base_machine_learning_conference", 
+        REVIEWER_BASE,
         "Lean venue-neutral reviewer base: review checklist, calibrated scales, "
         "output contract. Compose with venue/focus/commitment/intention/"
         "knowledgeability instructions.",
     ),
     (
-        "meta_reviewer", "base_v1", META_REVIEWER_BASE,
+        "meta_reviewer", 
+        "base_machine_learning_conference", 
+        META_REVIEWER_BASE,
         "Lean venue-neutral meta-reviewer base: synthesis checklist (consensus, "
         "disagreements, decisive points), argument-over-scores rule, calibrated "
         "score, output contract. Compose with venue instructions.",
     ),
     (
-        "area_chair", "base_v1", AREA_CHAIR_BASE,
+        "area_chair", 
+        "base_machine_learning_conference",
+        AREA_CHAIR_BASE,
         "Lean venue-neutral area-chair base: decision checklist (verify meta, "
         "weigh concerns, decide independently), decision semantics, output "
         "contract. Compose with venue instructions.",
     ),
     (
-        "author_agent", "base_v1", AUTHOR_BASE,
+        "author_agent", 
+        "base_machine_learning_conference", 
+        AUTHOR_BASE,
         "Lean author base: rebuttal checklist (general, per-reviewer, revised "
         "sections), concede-or-rebut rule, anti-fabrication, output contract.",
     ),

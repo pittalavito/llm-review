@@ -29,8 +29,6 @@ class ReviewerNode(AgentNode):
         if not revised:
             return "Review the paper provided in your context and produce your structured assessment."
 
-        # TODO rivedere flusso 2
-        # Round 2: re-review with the author's response (paper still in context).
         rebuttal = (state.get("author_response") or {}).get("rebuttal") or "(none)"
         sections = "\n\n".join(f"## {name}\n{content}" for name, content in revised.items())
         return (
