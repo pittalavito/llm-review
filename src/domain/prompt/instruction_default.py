@@ -6,6 +6,7 @@ from models.domain.agent import AgentRole
 SOUNDNESS = "soundness"   # theoretical correctness, proofs, assumptions
 EMPIRICAL = "empirical"   # experiments, baselines, reproducibility
 NOVELTY = "novelty"       # originality, related work, impact
+ALL = "all"               # every aspect (soundness + empirical + novelty)
 
 RESPONSIBLE = "responsible"
 IRRESPONSIBLE = "irresponsible"
@@ -127,6 +128,11 @@ DEFAULT_INSTRUCTION_SEEDS: list[tuple[InstructionType, str, str, str, str | None
     (
         InstructionType.FOCUS, NOVELTY, FOCUS_NOVELTY,
         "Reviewer focused on originality, related work and impact",
+        AgentRole.REVIEWER
+    ),
+    (
+        InstructionType.FOCUS, ALL, FOCUS_ALL,
+        "Reviewer covering every aspect: soundness, empirics, novelty and impact",
         AgentRole.REVIEWER
     ),
     (

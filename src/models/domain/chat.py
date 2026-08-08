@@ -22,6 +22,8 @@ class ChatModelName(StrEnum):
     ANTHROPIC_CLAUDE_SONNET = "claude-sonnet-4-6"
     ANTHROPIC_CLAUDE_HAIKU = "claude-haiku-4-5-20251001"
     OTHER_LLM_PROVIDER_QWEN_3_6 = "qwen3.6:27b"
+    OPENROUTER_GPT4O = "openai/gpt-4o"
+    OPENROUTER_GPT4O_MINI = "openai/gpt-4o-mini"
 
     def is_mock(self) -> bool:
         return self in {
@@ -51,7 +53,11 @@ class ChatModelName(StrEnum):
         }
 
     def is_other_llm_provider(self) -> bool:
-        return self == self.OTHER_LLM_PROVIDER_QWEN_3_6
+        return self in {
+            self.OTHER_LLM_PROVIDER_QWEN_3_6,
+            self.OPENROUTER_GPT4O,
+            self.OPENROUTER_GPT4O_MINI,
+        }
 
     def supports_tools(self) -> bool:
         """Whether the model can be trusted with tool calling. Small local
