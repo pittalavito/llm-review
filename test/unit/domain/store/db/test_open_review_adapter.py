@@ -78,6 +78,12 @@ class TestParserHelpers:
         assert OpenReviewAdapter._get({"n": 5}, "n") == "5"
         assert OpenReviewAdapter._get({}, "missing") is None
 
+    def test_get_keeps_falsy_but_present_values(self):
+        """A rating of 0 is a real value, not a missing field."""
+        assert OpenReviewAdapter._get({"rating": 0}, "rating") == "0"
+        assert OpenReviewAdapter._get({"rating": "0"}, "rating") == "0"
+        assert OpenReviewAdapter._extract_int(OpenReviewAdapter._get({"rating": 0}, "rating")) == 0
+
 
 class TestFromNotes:
     def test_parses_v1_flat_review_note(self):

@@ -113,10 +113,11 @@ class OpenReviewAdapter:
 
     @staticmethod
     def _get(content: dict, *keys: str) -> str | None:
-        """Get first available key from content."""
+        """Get first available key from content. Falsy-but-present values (a
+        rating of 0, False) count as present — only None/"" mean missing."""
         for key in keys:
             value = content.get(key)
-            if value:
+            if value is not None and value != "":
                 return value if isinstance(value, str) else str(value)
         return None
 
