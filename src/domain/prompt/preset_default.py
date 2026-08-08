@@ -1,6 +1,6 @@
 from models.domain.agent import AgentRole
 from models.domain.prompt import InstructionType
-from domain.prompt.instruction_default import ALL, RESPONSIBLE, KNOWLEDGEABLE, BENIGN, ICLR
+from domain.prompt.instruction_default import ALL, RESPONSIBLE, KNOWLEDGEABLE, BENIGN, ICLR, VENUE_BAR
 
 PresetSeed = tuple[str, str, str, list[tuple[InstructionType, str]], str]
 
@@ -11,9 +11,9 @@ DEFAULT_PRESET_SEEDS: list[PresetSeed] = [
         "iclr_v2",
         [
             (InstructionType.VENUE, ICLR),
-            
+            (InstructionType.CALIBRATION, VENUE_BAR),
         ],
-        "Campaign RQ1/RQ2 reviewer: neutral persona (diligent, expert, constructive), ICLR venue",
+        "Campaign RQ1/RQ2 reviewer: ICLR venue, calibrated to the venue's real acceptance bar",
     ),
     (
         AgentRole.META_REVIEWER,

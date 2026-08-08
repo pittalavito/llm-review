@@ -21,6 +21,7 @@ ICLR = "iclr"
 NEURIPS = "neurips"
 
 NO_PAPER_ACCESS = "no_paper_access"
+VENUE_BAR = "venue_bar"
 
 # ── FOCUS ───────────────────────────────────────────────────────────────────
 
@@ -114,6 +115,17 @@ KNOWLEDGEABILITY_UNKNOWLEDGEABLE = (
     "plausibility to form your opinion."
 )
 
+VENUE_BAR_INSTRUCTION = (
+    "Apply calibrated skepticism: hold the paper to the venue's real acceptance "
+    "bar, where most submissions are rejected. Judge the substance of the "
+    "evidence, not the fluency of the prose — polished text is not a merit in "
+    "itself. Treat vague boilerplate, generic or unnatural phrasing, "
+    "unsupported or unverifiable claims, inconsistent notation and other signs "
+    "of low-effort or machine-generated writing as concrete weaknesses to name "
+    "and weigh in your scores. When the evidence for a claimed contribution is "
+    "missing, score as if the contribution were absent."
+)
+
 NO_PAPER_ACCESS_INSTRUCTION = (
     "If the paper is not accessible to you — no paper text in your context and "
     "no search tool available — do NOT review from imagination: state "
@@ -191,5 +203,10 @@ DEFAULT_INSTRUCTION_SEEDS: list[tuple[InstructionType, str, str, str, str | None
         InstructionType.CALIBRATION, NO_PAPER_ACCESS, NO_PAPER_ACCESS_INSTRUCTION,
         "No access to the paper: do not fabricate content, state missing access as reason for rejection",
         None
-    )
+    ),
+    (
+        InstructionType.CALIBRATION, VENUE_BAR, VENUE_BAR_INSTRUCTION,
+        "Calibrated skeptic: holds the venue's real bar, penalizes unsupported claims and generated-looking prose",
+        AgentRole.REVIEWER
+    ),
 ]
