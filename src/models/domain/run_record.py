@@ -22,6 +22,17 @@ class AgentResponseRecord(BaseModel):
     tool_trace: list[ToolCallRecord] | None = None
 
     @classmethod
+    def from_response_error(cls, error_message: str, round: int, agent_role: AgentRole, agent_index: int | None = None) -> "AgentResponseRecord":
+        """Failure record for an agent whose LLM call raised: keeps the error in
+        the payload so the run persists what happened instead of crashing."""
+        return cls(
+            round=round,
+            agent_role=agent_role,
+            agent_index=agent_index,
+            response_payload={"error": error_message},
+        )
+
+    @classmethod
     def from_response(cls, response: AgentResponse, round: int) -> "AgentResponseRecord":
         """Live ``AgentResponse`` -> persistable record. ``round`` is computed by
         the caller (the graph node, which knows the state and its offset)."""
