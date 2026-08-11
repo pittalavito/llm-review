@@ -241,9 +241,116 @@ tr.click:hover td { background: color-mix(in srgb, var(--accent) 7%, transparent
 details { margin-top: 10px; }
 summary { cursor: pointer; color: var(--ink-2); }
 
-/* ------------------------------------------------------------- tool rows */
+/* ------------------------------------------------- run detail (flow view) */
 
-.tool-row td { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.run-tiles { margin: 16px 0 6px; }
+.tile-label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+.tile-pill { padding: 4px 0 2px; }
+
+.flow-head, .round-head {
+  font: 700 16px/1.3 var(--serif);
+  margin: 22px 0 10px;
+}
+.round-head {
+  font-size: 15px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+
+.agent-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: var(--card);
+  overflow: hidden;
+}
+.agent-card[open] { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+
+.agent-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: var(--panel);
+  font-size: 14px;
+}
+.agent-head::-webkit-details-marker { display: none; }
+.agent-name { font-weight: 650; min-width: 150px; }
+.agent-model { font: 12.5px var(--mono); color: var(--ink-2); }
+.agent-headline { font: 12.5px var(--mono); color: var(--accent); margin-left: auto; }
+.agent-tokens { font: 12.5px var(--mono); color: var(--muted); }
+
+.agent-body { padding: 14px 16px 16px; }
+
+.field { margin-bottom: 14px; }
+.field-label {
+  color: var(--muted);
+  font: 600 11px var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.field-text { color: var(--ink-2); font-size: 14px; }
+.field-list { margin: 0; padding-left: 20px; color: var(--ink-2); font-size: 14px; }
+.field-list li { margin-bottom: 5px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 11px;
+  font: 12.5px var(--mono);
+  color: var(--ink-2);
+  background: var(--page);
+}
+
+.sub-item { margin-bottom: 6px; }
+.sub-item > summary { font-size: 13.5px; color: var(--accent); }
+.sub-item .field-text { margin-top: 6px; }
+
+.tech {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.tech > summary {
+  color: var(--muted);
+  font: 600 11px var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tech-body { margin-top: 10px; }
+.token-line { font: 12.5px var(--mono); color: var(--ink-2); margin-bottom: 12px; }
+
+.verbatim {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  max-height: 200px;
+  overflow: auto;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: 12.5px/1.5 var(--mono);
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.verbatim.tall { max-height: 260px; }
+
+.context-note {
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--page);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+/* ------------------------------------------------------------- tool calls */
+
 .tool-list { margin: 8px 0 4px; padding-left: 22px; }
 .tool-list li { margin-bottom: 10px; }
 .tool-list code {

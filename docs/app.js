@@ -319,6 +319,27 @@ function renderRuns(runs, agentsByRun) {
     ...rows);
 }
 
+/* ------------------------------------------------- run detail (flow view) */
+
+const ROLE_ICON = {
+  reviewer: "🔬",
+  meta_reviewer: "📋",
+  area_chair: "🪑",
+  author_agent: "✍️",
+};
+
+/* Scalars shown as chips; every other payload key is rendered as a field. */
+const SCORE_KEYS = ["rating", "confidence", "soundness", "presentation",
+                    "contribution", "overall_score", "decision", "recommendation"];
+
+const roleName = (agent) => {
+  const base = (agent.agent_role || "").replace(/_/g, " ");
+  const label = base.charAt(0).toUpperCase() + base.slice(1);
+  return agent.agent_index ? `${label} ${agent.agent_index}` : label;
+};
+
+const fieldLabel = (key) => key.replace(/_/g, " ").toUpperCase();
+
 async function renderDetail(run, invocations) {
   const traceUrl = base + "traces/" + run.run_id.replaceAll(":", "_") + ".json";
   const detail = document.getElementById("detail");
@@ -330,61 +351,163 @@ async function renderDetail(run, invocations) {
   let traces = [];
   try {
     traces = (await (await fetch(traceUrl)).json()).traces || [];
-  } catch { /* bundle missing: the table still renders, without trace columns */ }
+  } catch { /* bundle missing: the flow still renders, without verbatim panels */ }
 
-  const COLUMNS = 10;
-  const rows = invocations.flatMap((a) => {
-    const trace = a.trace_index != null ? traces[a.trace_index] : undefined;
-    const toolCalls = trace?.tool_trace || [];
-    const contextChars = trace?.context_chars || 0;
-    const isBlindReview =
-      a.agent_role === "reviewer" && trace && contextChars === 0 && toolCalls.length === 0;
+  const rounds = new Map();
+  for (const agent of invocations) {
+    const round = agent.round ?? 0;
+    if (!rounds.has(round)) rounds.set(round, []);
+    rounds.get(round).push(agent);
+  }
 
-    const agentCell = el("td", {},
-      `${a.agent_role}${a.agent_index ? " " + a.agent_index : ""}`,
-      ...(isBlindReview ? [" ", el("span", { class: "pill reject" }, "blind")] : []));
-
-    const row = el("tr", {},
-      cell(a.round, true),
-      agentCell,
-      cell(a.model || "—"),
-      cell(a.rating ?? (a.overall_score != null ? `meta ${a.overall_score}` : (a.decision || "—")), true),
-      cell(a.confidence ?? "—", true),
-      cell(a.soundness != null ? `${a.soundness}·${a.presentation}·${a.contribution}` : "—", true),
-      cell(trace ? fmt(contextChars) : "—", true),
-      cell(trace ? String(toolCalls.length) : "—", true),
-      cell(fmt(a.total_tokens || 0), true),
-      cell(a.latency_seconds ? Number(a.latency_seconds).toFixed(1) : "—", true));
-
-    if (!toolCalls.length) return [row];
-    return [row, toolCallsRow(a, toolCalls, COLUMNS)];
-  });
+  const flow = [...rounds.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .flatMap(([round, agents]) => [
+      el("h3", { class: "round-head" }, `Round ${round + 1}`),
+      ...agents.map((agent) =>
+        agentCard(agent, agent.trace_index != null ? traces[agent.trace_index] : undefined)),
+    ]);
 
   detail.replaceChildren(
     el("h2", {}, run.description || run.run_id),
     el("p", { class: "meta" },
-      `max_rounds=${run.graph_config?.max_rounds ?? "—"} · `,
+      `${(run.timestamp || "").slice(0, 16).replace("T", " ")} · max_rounds=${run.graph_config?.max_rounds ?? "—"} · `,
       el("a", { href: traceUrl }, "verbatim trace bundle (JSON)")),
-    el("table", {},
-      headerRow(["Round", true], ["Agent"], ["Model"], ["Rating", true], ["Conf.", true],
-                ["S·P·C", true], ["Ctx chars", true], ["Tool calls", true],
-                ["Tokens", true], ["Lat. s", true]),
-      ...rows));
+    runTiles(run, invocations),
+    el("h3", { class: "flow-head" }, "Flusso completo round per round"),
+    ...flow);
 }
 
-function toolCallsRow(agent, toolCalls, columns) {
-  const label = `${agent.agent_role}${agent.agent_index ? " " + agent.agent_index : ""}`;
-  const items = toolCalls.map((call, index) => {
-    const args = Object.values(call.arguments || {}).join(", ");
-    return el("li", {},
-      el("code", {}, `${call.tool_name}(${JSON.stringify(args)})`),
-      el("div", { class: "tool-result" }, call.result || "(empty result)"));
-  });
-  return el("tr", { class: "tool-row" },
-    el("td", { colspan: String(columns) },
-      el("details", {},
-        el("summary", {}, `${toolCalls.length} search call${toolCalls.length === 1 ? "" : "s"} by ${label} — queries and result previews`),
-        el("ol", { class: "tool-list" }, items))));
+function runTiles(run, invocations) {
+  const reviewers = invocations.filter((a) => a.agent_role === "reviewer" && a.rating != null);
+  const meanRating = reviewers.length
+    ? (reviewers.reduce((sum, a) => sum + a.rating, 0) / reviewers.length).toFixed(1)
+    : "—";
+  const tokens = invocations.reduce((sum, a) => sum + (a.total_tokens || 0), 0);
+  const decisionPill = el("span", {
+    class: "pill " + (run.decision === "reject" ? "reject" :
+                      run.decision === "accept" ? "accept" :
+                      run.decision === "minor_revision" ? "minor" : ""),
+  }, run.decision || "—");
+
+  const tile = (label, value, sub) =>
+    el("div", { class: "tile" },
+      el("span", { class: "tile-label" }, label),
+      typeof value === "string" ? el("b", {}, value) : el("b", {}, value),
+      sub ? el("span", {}, sub) : "");
+
+  return el("div", { class: "tiles run-tiles" },
+    el("div", { class: "tile" },
+      el("span", { class: "tile-label" }, "Decisione"),
+      el("div", { class: "tile-pill" }, decisionPill)),
+    tile("Meta score", String(run.meta_overall_score ?? "—"), "su 10"),
+    tile("Rating medio", meanRating, `${reviewers.length} reviewer`),
+    tile("Round", String(run.total_rounds ?? "—")),
+    tile("Token totali", tokens >= 1000 ? `${(tokens / 1000).toFixed(1)}k` : String(tokens)));
+}
+
+function agentCard(agent, trace) {
+  const payload = agent.response_payload || {};
+  const toolCalls = trace?.tool_trace || [];
+  const contextChars = trace?.context_chars || 0;
+  const isBlind = agent.agent_role === "reviewer" && trace && !contextChars && !toolCalls.length;
+
+  const headline = [];
+  if (agent.rating != null) headline.push(`rating ${agent.rating}`);
+  if (agent.overall_score != null) headline.push(`meta ${agent.overall_score}`);
+  if (agent.confidence != null) headline.push(`conf. ${agent.confidence}`);
+  if (agent.soundness != null)
+    headline.push(`${agent.soundness}·${agent.presentation}·${agent.contribution}`);
+  if (agent.decision) headline.push(agent.decision);
+
+  const head = el("summary", { class: "agent-head" },
+    el("span", { class: "agent-name" },
+      `${ROLE_ICON[agent.agent_role] || "•"} ${roleName(agent)}`,
+      ...(isBlind ? [" ", el("span", { class: "pill reject" }, "blind")] : [])),
+    el("span", { class: "agent-model" }, agent.model || "—"),
+    el("span", { class: "agent-headline" }, headline.join(" · ")),
+    el("span", { class: "agent-tokens" },
+      `${fmt(agent.total_tokens || 0)} tok · ${agent.latency_seconds ? Number(agent.latency_seconds).toFixed(1) : "—"}s`));
+
+  return el("details", { class: "agent-card" }, head,
+    el("div", { class: "agent-body" },
+      scoreChips(payload),
+      ...payloadFields(payload),
+      ...(toolCalls.length ? [toolPanel(toolCalls)] : []),
+      techPanel(agent, trace)));
+}
+
+function scoreChips(payload) {
+  const chips = SCORE_KEYS
+    .filter((key) => payload[key] != null && payload[key] !== "")
+    .map((key) => el("span", { class: "chip" }, `${key.replace(/_/g, " ")} ${payload[key]}`));
+  if (!chips.length) return "";
+  return el("div", { class: "field" },
+    el("div", { class: "field-label" }, "PUNTEGGI"),
+    el("div", { class: "chips" }, chips));
+}
+
+function payloadFields(payload) {
+  return Object.entries(payload)
+    .filter(([key, value]) =>
+      !SCORE_KEYS.includes(key) && value != null && value !== "" &&
+      !(Array.isArray(value) && !value.length))
+    .map(([key, value]) => el("div", { class: "field" },
+      el("div", { class: "field-label" }, fieldLabel(key)),
+      renderValue(value)));
+}
+
+function renderValue(value) {
+  if (Array.isArray(value)) {
+    if (value.every((item) => typeof item !== "object" || item === null))
+      return el("ul", { class: "field-list" }, value.map((item) => el("li", {}, String(item))));
+    return el("div", {}, value.map((item) =>
+      el("details", { class: "sub-item" },
+        el("summary", {}, String(item.section_name ?? item.title ?? item.reviewer ?? "elemento")),
+        el("div", { class: "field-text" },
+          String(item.content ?? item.text ?? item.response ?? JSON.stringify(item, null, 1))))));
+  }
+  if (typeof value === "object")
+    return el("pre", { class: "verbatim" }, JSON.stringify(value, null, 1));
+  return el("div", { class: "field-text" }, String(value));
+}
+
+function toolPanel(toolCalls) {
+  const items = toolCalls.map((call) => el("li", {},
+    el("code", {}, `${call.tool_name}(${JSON.stringify(Object.values(call.arguments || {}).join(", "))})`),
+    el("div", { class: "tool-result" }, call.result || "(empty result)")));
+  return el("details", { class: "tech" },
+    el("summary", {}, `▸ ${toolCalls.length} CHIAMATE ALLO STRUMENTO DI RICERCA`),
+    el("ol", { class: "tool-list" }, items));
+}
+
+function techPanel(agent, trace) {
+  const tokenLine = `token: input ${fmt(agent.input_tokens || 0)} · output ${fmt(agent.output_tokens || 0)} · ` +
+    `totale ${fmt(agent.total_tokens || 0)}` +
+    (agent.latency_seconds ? ` · ${Number(agent.latency_seconds).toFixed(1)}s` : "");
+
+  const blocks = [el("div", { class: "token-line" }, tokenLine)];
+  if (trace) {
+    if (trace.system_prompt)
+      blocks.push(el("div", { class: "field-label" }, "SYSTEM PROMPT"),
+                  el("pre", { class: "verbatim tall" }, trace.system_prompt));
+    if (trace.input_message)
+      blocks.push(el("div", { class: "field-label" }, "INPUT MESSAGE"),
+                  el("pre", { class: "verbatim" }, trace.input_message));
+    blocks.push(el("div", { class: "field-label" }, "CONTEXT"),
+      el("div", { class: "context-note" },
+        trace.context_chars
+          ? `${fmt(trace.context_chars)} caratteri di contesto documentale` +
+            (trace.context_hash ? ` (SHA-256 ${trace.context_hash.slice(0, 12)}…)` : "") +
+            " — il testo integrale non è incluso in questo export pubblico: gli articoli sono su OpenReview, la tesi in resource/thesis."
+          : "nessun contesto iniziale fornito a questo agente."));
+  } else {
+    blocks.push(el("div", { class: "context-note" }, "traccia verbatim non disponibile per questa invocazione."));
+  }
+
+  return el("details", { class: "tech" },
+    el("summary", {}, "▸ DETTAGLI TECNICI"),
+    el("div", { class: "tech-body" }, blocks));
 }
 
 main().catch((error) => {
