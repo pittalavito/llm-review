@@ -1,4 +1,4 @@
-# llm-review 2.0
+# llm-review
 
 **A multi-agent system that simulates the peer-review process of a scientific paper by a conference committee — and doubles as an experimental testbed for measuring how close artificial reviewers get to real ones.**
 
