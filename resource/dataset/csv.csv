@@ -1,0 +1,14 @@
+conference,anno,title,decision,forum_id
+ICLR,2026,Q-RAG: Long Context Multi‑Step Retrieval via Value‑Based Embedder Training,Accept,MS9nWFY7LG
+ICLR,2026,Why DPO is a Misspecified Estimator and How to Fix It,Accept,btEiAfnLsX
+ICLR,2026,Compositional Diffusion with Guided search for Long-Horizon Planning,Accept,b8avf4F2hn
+ICLR,2026,Neuron-Aware Data Selection in Instruction Tuning for Large Language Models,Accept (poster),uq6UWRgzMr
+ICLR,2026,Latent Speech-Text Transformer,Accept,krGpQzo8Mz
+ICLR,2026,Improving Developer Emotion Classification via LLM-Based Augmentation,Reject,FPLNSx1jmL
+ICLR,2026,One-Shot Style Personalization for RL Agents via Latent Discriminator,Reject,GGg2BmcBEp
+ICLR,2026,Contrastive Code Graph Embeddings for Reinforcement Learning-Based Automated Code Refactoring,Reject,0xHWd4CUaX
+ICLR,2026,Training as Computation: A Resource-Bounded Theory of Continual Self-Play Learning,Reject,uKrcWZ2V0F
+ICLR,2026,Unsupervised Dynamic Graph Multi-Model Representation Learning for Temporal Patterns Discovery: Uncovering Parkinson’s Disease Stages Using Cerebrospinal Fluid Longitudinal Profiles,Reject,ogKDAjoyy8
+NeurIPS,2025,EvoLM: In Search of Lost Training Dynamics for Language Model Reasoning,Accept,B6bE2GC71a
+NeurIPS,2025,Deep Active Inference Agents for Delayed and Long-Horizon Environments,Reject,F20AfNqMq9
+NeurIPS,2025,Vulnerable Data-Aware Adversarial Training,Accept (poster),yrrU5YChQr
