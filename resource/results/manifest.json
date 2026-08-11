@@ -1,14 +1,14 @@
 {
- "exported_at": "2026-08-11T15:22:56.527156+00:00",
+ "exported_at": "2026-08-11T17:53:50.315341+00:00",
  "counts": {
-  "runs": 71,
-  "agent_invocations": 442,
-  "papers": 10,
+  "runs": 72,
+  "agent_invocations": 447,
+  "papers": 11,
   "human_reviews": 59,
-  "trace_bundles": 71,
-  "prompt_versions": 6,
-  "prompt_instructions": 15,
-  "presets": 11
+  "trace_bundles": 72,
+  "prompt_versions": 7,
+  "prompt_instructions": 16,
+  "presets": 15
  },
  "exclusions": [
   "full paper texts (agent-context keyspace): traces keep hash and length only",

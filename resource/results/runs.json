@@ -6247,5 +6247,80 @@
    },
    "max_rounds": 2
   }
+ },
+ {
+  "run_id": "2026-08-11T17-42-05_e325f77d19154b2c8bae93137332be75_pdf",
+  "timestamp": "2026-08-11T17:42:05.543304+00:00",
+  "paper_id": "e325f77d19154b2c8bae93137332be75_pdf",
+  "description": "Tesi Vito Pittala (Senza revisione dei relatori)",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 8,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 16,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 16,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 17,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 18,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 19,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
  }
 ]

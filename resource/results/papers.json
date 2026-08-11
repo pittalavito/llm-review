@@ -119,6 +119,18 @@
    "openreview_api_version": "v2",
    "human_decision": "Accept (Poster)",
    "num_graph_review": 8
+  },
+  {
+   "id": 12,
+   "paper_id": "e325f77d19154b2c8bae93137332be75_pdf",
+   "paper_name": "Tesi Vito Pittala (Senza revisione dei relatori)",
+   "paper_type": "OTHER",
+   "description": "Tesi senza revisione dei relatori",
+   "conference": null,
+   "open_review_id": null,
+   "openreview_api_version": null,
+   "human_decision": null,
+   "num_graph_review": 1
   }
  ],
  "authors": [
@@ -445,6 +457,12 @@
    "full_name": "Derek F. Wong",
    "affiliation": null,
    "openreview_profile_id": "~Derek_F._Wong1"
+  },
+  {
+   "id": 55,
+   "full_name": "Vito Pittalà",
+   "affiliation": null,
+   "openreview_profile_id": null
   }
  ],
  "paper_authors": [
@@ -637,6 +655,11 @@
    "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
    "author_id": 20,
    "position": 6
+  },
+  {
+   "paper_id": "e325f77d19154b2c8bae93137332be75_pdf",
+   "author_id": 55,
+   "position": 1
   },
   {
    "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",

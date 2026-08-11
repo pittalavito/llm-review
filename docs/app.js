@@ -65,7 +65,9 @@ function passOf(description) {
   if (description.startsWith("Effetto modello gpt-5")) return "P3 — GPT-5";
   if (description.startsWith("Effetto modello sonnet")) return "P3 — Sonnet 4.5";
   if (description.startsWith("Effetto modello deepsearch")) return "P3 — DeepSeek V3";
-  return "Replica cycle (factorial 3×3)";
+  if (description.startsWith("Compare persona e model")) return "Replica cycle (factorial 3×3)";
+  if (description.startsWith("Tesi ")) return "Thesis self-review";
+  return "Other";
 }
 
 /* ---------------------------------------------------------------- tooltip */
