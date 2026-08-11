@@ -137,7 +137,8 @@ body {
 }
 .sidebar a:hover { background: var(--card); color: var(--ink); }
 .sidebar a .ico { width: 18px; text-align: center; opacity: 0.75; }
-.sidebar a.ext { margin-top: 14px; border-top: 1px solid var(--border); border-radius: 0 0 9px 9px; padding-top: 14px; }
+.sidebar a.ext { margin-top: 14px; border-top: 1px solid var(--border); border-radius: 0; padding-top: 14px; }
+.sidebar a.ext2 { border-radius: 9px; }
 
 main { flex: 1; min-width: 0; padding: 26px 28px 64px; }
 section { margin-bottom: 44px; }
