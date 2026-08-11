@@ -70,6 +70,36 @@ function passOf(description) {
   return "Other";
 }
 
+/* ------------------------------------------------------------------ theme */
+
+const themeButtons = {
+  light: document.getElementById("theme-light"),
+  dark: document.getElementById("theme-dark"),
+};
+
+function currentTheme() {
+  return document.documentElement.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+
+function markTheme() {
+  const active = currentTheme();
+  for (const [name, button] of Object.entries(themeButtons))
+    button.classList.toggle("active", name === active);
+}
+
+function setTheme(name) {
+  document.documentElement.dataset.theme = name;
+  localStorage.setItem("viewer-theme", name);
+  markTheme();
+}
+
+const savedTheme = localStorage.getItem("viewer-theme");
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+themeButtons.light.addEventListener("click", () => setTheme("light"));
+themeButtons.dark.addEventListener("click", () => setTheme("dark"));
+markTheme();
+
 /* ---------------------------------------------------------------- tooltip */
 
 const tip = document.getElementById("tip");
@@ -133,7 +163,7 @@ function renderTiles(manifest, agents, papers) {
     [manifest.counts.agent_invocations, "LLM invocations"],
     [`${(tokensIn / 1e6).toFixed(2)} M`, "tokens in"],
     [`${(tokensOut / 1e3).toFixed(0)} k`, "tokens out"],
-    [papers.length, "papers (ICLR 2026)"],
+    [papers.length, "papers (10 ICLR 2026 + thesis)"],
     [manifest.counts.human_reviews, "human review records"],
   ];
   document.getElementById("tiles").replaceChildren(
@@ -209,8 +239,8 @@ function setupChart(runs, agentsByRun, paperById, humanMean) {
         svg("line", { x1: x(Math.min(row.human, row.artificial)), y1: y,
                       x2: x(Math.max(row.human, row.artificial)), y2: y,
                       stroke: "var(--axis)", "stroke-width": 2 }),
-        dot("human", row.human, "var(--s2)"),
-        dot("artificial", row.artificial, "var(--s1)"),
+        dot("human", row.human, "var(--human)"),
+        dot("artificial", row.artificial, "var(--accent)"),
         svg("text", { x: x(Math.max(row.human, row.artificial)) + 12, y: y + 4,
                       fill: "var(--ink-2)" },
             `${row.artificial.toFixed(1)} vs ${row.human.toFixed(1)}`));
@@ -256,7 +286,7 @@ function renderPasses(runs, agentsByRun) {
       cell(`${rejects}/${groupRuns.length}`, true));
   });
 
-  document.getElementById("passes").replaceChildren(
+  document.getElementById("passes-table").replaceChildren(
     headerRow(["Pass"], ["Runs", true], ["Invocations", true],
               ["Tokens in", true], ["Tokens out", true], ["Rejects", true]),
     ...rows);
@@ -270,7 +300,8 @@ function renderRuns(runs, agentsByRun) {
     const totalTokens = invocations.reduce((sum, a) => sum + (a.total_tokens || 0), 0);
     const pillClass =
       run.decision === "reject" ? "pill reject" :
-      run.decision === "accept" ? "pill accept" : "pill";
+      run.decision === "accept" ? "pill accept" :
+      run.decision === "minor_revision" ? "pill minor" : "pill";
     return el("tr", {
       class: "click",
       onclick: () => renderDetail(run, invocations),
@@ -283,7 +314,7 @@ function renderRuns(runs, agentsByRun) {
       cell(fmt(totalTokens), true));
   });
 
-  document.getElementById("runs").replaceChildren(
+  document.getElementById("runs-table").replaceChildren(
     headerRow(["When"], ["Run"], ["Decision"], ["Meta", true], ["Rounds", true], ["Tokens", true]),
     ...rows);
 }
