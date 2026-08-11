@@ -1,12 +1,34 @@
 # llm-review 2.0
 
-Multi-agent system that simulates the peer-review process of a scientific paper by a conference committee. Experimental thesis project (Computer Engineering, University of Catania).
+**A multi-agent system that simulates the peer-review process of a scientific paper by a conference committee — and doubles as an experimental testbed for measuring how close artificial reviewers get to real ones.**
+
+Experimental thesis project — Computer Engineering, University of Catania.
+
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-ASGI-009688?logo=fastapi&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-multi--agent-orange)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7.4-DC382D?logo=redis&logoColor=white)
 
 ## Abstract
 
 Given an input paper, several independent reviewers evaluate it in parallel, each with its own sensitivity and attitude (more or less strict, focused on methodological soundness, empirical results, or novelty). A meta-reviewer synthesizes the judgments, an area chair makes the final decision (acceptance or request for revision), and an author agent produces a rebuttal and revised sections in response to the remarks. The loop repeats — a new review that takes the author's reply into account — until the paper is accepted or the maximum number of rounds is reached.
 
 **Objectives.** (i) Study how the review outcome and dynamics change with the committee composition, the reviewers' attitudes, and the context strategy (full paper, summary, on-demand retrieval); (ii) compare agentic reviews against real public OpenReview ones, also measuring cost (tokens), latency, and quality.
+
+## Screenshots
+
+<p align="center">
+  <img src="resource/img/review_graph_config.png" width="49%" alt="Committee configuration: the review graph with per-agent panel"/>
+  <img src="resource/img/run_detail.png" width="49%" alt="Run detail: decision, scores, per-reviewer ratings"/>
+</p>
+<p align="center">
+  <img src="resource/img/confronto_openreview.png" width="49%" alt="Agentic vs human comparison against OpenReview"/>
+  <img src="resource/img/technical_trace.png" width="49%" alt="Verbatim technical trace of a single agent invocation"/>
+</p>
+
+<p align="center"><em>Committee configuration &nbsp;·&nbsp; run detail &nbsp;·&nbsp; agentic-vs-human comparator &nbsp;·&nbsp; verbatim invocation trace</em></p>
 
 ## Introduction
 
@@ -18,15 +40,15 @@ The application is the instrument of this investigation: every variable of the p
 
 **Back-end** — Python 3.12 managed with `uv`; FastAPI + uvicorn; Pydantic / pydantic-settings (config from `.env`); SQLModel on psycopg (PostgreSQL 17); Redis 7.4; pytest + coverage.
 
-**Agents and orchestration** — LangChain as the provider abstraction (OpenAI, Anthropic, Ollama for local models, OpenAI-compatible endpoints) with structured output per agent; LangGraph models the review flow as a state graph (nodes = agents, shared state, conditional loops). A `mock` model runs the whole pipeline at zero cost.
+**Agents and orchestration** — LangChain as the provider abstraction (OpenAI, Anthropic, Ollama for local models, OpenAI-compatible endpoints such as OpenRouter) with structured output per agent; LangGraph models the review flow as a state graph (nodes = agents, shared state, conditional loops). A `mock` model runs the whole pipeline at zero cost.
 
 **Documents and RAG** — Docling for PDF parsing into sections (heading + text); sentence-boundary-aware chunking; BM25 lexical retrieval (`rank-bm25`); cached per-paper LLM summaries.
 
-**Front-end** — React 19 + TypeScript, Vite, React Router; plain CSS.
+**Front-end** — React 19 + TypeScript, Vite, React Router; plain CSS, hand-rolled SVG charts, three runtime dependencies in total.
 
 **Infrastructure** — Docker Compose for Postgres + Redis, with Adminer and Redis Commander dashboards.
 
-## Proposed solution (current state)
+## Proposed solution
 
 ### Review pipeline
 
@@ -62,7 +84,22 @@ A dedicated dashboard compares one graph run against the paper's real OpenReview
 
 ## Results
 
-_To be completed: planned experimental campaign comparing against OpenReview reviews with known outcomes, varying models, personas, and context strategies, with alignment metrics (rating, decision) and operational ones (tokens, cost, latency)._
+An experimental campaign was run on **10 real ICLR 2026 submissions** (5 accepted, 5 rejected) with the public OpenReview reviews and decisions as the human baseline: 8 passes, 80+ graph runs, ~4.5M tokens, roughly a dozen dollars in total. Headline findings:
+
+- **The prompt governs the form and severity of reviews** — a stricter output contract makes every review argue its rejection reasons; a calibration instruction moves the judgment bar — but neither widens a weak model's operating scale.
+- **The model determines discriminative power.** Claude Sonnet 4.5 separates accepted from rejected papers (class gap 1.80 vs 2.63 human, r = +0.83 with human ratings, 9/10 binary agreement on rejection); GPT-4o and DeepSeek V3 barely discriminate at any prompt.
+- **A model-specific calibration written by the weak model itself — given the quantitative diagnosis of its own biases — failed to fix it**: following calibration instructions is itself a capability.
+- **The context strategy (full text / summary / search-only) does not shift judgment quality, only costs** — and the verbatim traces caught two *blind reviews* where a context-less reviewer answered without ever calling the search tool: observability is not optional.
+
+The full analysis, tables and figures are in the thesis (see below).
+
+## Thesis
+
+This repository accompanies the thesis *"Simulazione della peer review con agenti LLM: progettazione e valutazione sperimentale di un'applicazione web"* (University of Catania). The [`resource/thesis/`](resource/thesis/) folder will host, at submission time:
+
+- the **frozen PDF** of the thesis version that was — of course — *reviewed by the application itself* with thesis-adapted prompts;
+- the **full run record** of that review (reviews, meta-review, decision, prompts, traces);
+- the comparison between the app's review and the human supervisor's one, once available.
 
 ## Project structure
 
@@ -75,7 +112,7 @@ src/
   models/                 controller / domain / store models (adapters and factories at the seams)
 test/unit/                pytest, no real external services
 ui/                       React + TypeScript front-end (Vite)
-resource/                 docker-compose (Postgres, Redis), scripts, papers
+resource/                 docker-compose (Postgres, Redis), scripts, papers, images, thesis artifacts
 ```
 
 ## Getting started
@@ -94,6 +131,8 @@ The back-end serves the built UI (`ui/dist`) at `/`; in development the Vite UI 
 
 ## Roadmap
 
+- Evidence guard on reviews: require initial context or at least one retrieval-tool call before an agent may emit scores (prevents "blind reviews").
+- Mechanical validation of anchored claims (check that a cited section exists and supports the claim).
 - Per-model price list to turn the recorded token counts into monetary cost per run.
-- Real embedder replacing the mock for the embedding strategy.
-- Round-2 re-review flow revision.
+- Real embedder replacing the mock for the embedding strategy; Docling table-structure parsing for table-heavy papers.
+- Multi-user deployment (authentication in front of the API, per-user data separation).
