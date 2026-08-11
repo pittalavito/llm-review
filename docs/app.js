@@ -288,43 +288,70 @@ function renderRuns(runs, agentsByRun) {
 
 async function renderDetail(run, invocations) {
   const traceUrl = base + "traces/" + run.run_id.replaceAll(":", "_") + ".json";
+  const detail = document.getElementById("detail");
+  detail.replaceChildren(
+    el("h2", {}, run.description || run.run_id),
+    el("p", { class: "meta" }, "loading trace bundle…"));
+  detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-  const table = el("table", {},
-    headerRow(["Round", true], ["Agent"], ["Model"], ["Rating", true],
-              ["Conf.", true], ["S·P·C", true], ["Tokens", true], ["Lat. s", true]),
-    invocations.map((a) => el("tr", {},
+  let traces = [];
+  try {
+    traces = (await (await fetch(traceUrl)).json()).traces || [];
+  } catch { /* bundle missing: the table still renders, without trace columns */ }
+
+  const COLUMNS = 10;
+  const rows = invocations.flatMap((a) => {
+    const trace = a.trace_index != null ? traces[a.trace_index] : undefined;
+    const toolCalls = trace?.tool_trace || [];
+    const contextChars = trace?.context_chars || 0;
+    const isBlindReview =
+      a.agent_role === "reviewer" && trace && contextChars === 0 && toolCalls.length === 0;
+
+    const agentCell = el("td", {},
+      `${a.agent_role}${a.agent_index ? " " + a.agent_index : ""}`,
+      ...(isBlindReview ? [" ", el("span", { class: "pill reject" }, "blind")] : []));
+
+    const row = el("tr", {},
       cell(a.round, true),
-      cell(`${a.agent_role}${a.agent_index ? " " + a.agent_index : ""}`),
+      agentCell,
       cell(a.model || "—"),
       cell(a.rating ?? (a.overall_score != null ? `meta ${a.overall_score}` : (a.decision || "—")), true),
       cell(a.confidence ?? "—", true),
       cell(a.soundness != null ? `${a.soundness}·${a.presentation}·${a.contribution}` : "—", true),
+      cell(trace ? fmt(contextChars) : "—", true),
+      cell(trace ? String(toolCalls.length) : "—", true),
       cell(fmt(a.total_tokens || 0), true),
-      cell(a.latency_seconds ? Number(a.latency_seconds).toFixed(1) : "—", true))));
+      cell(a.latency_seconds ? Number(a.latency_seconds).toFixed(1) : "—", true));
 
-  const traceNote = el("p", { class: "meta" }, "loading trace bundle…");
-  document.getElementById("detail").replaceChildren(
+    if (!toolCalls.length) return [row];
+    return [row, toolCallsRow(a, toolCalls, COLUMNS)];
+  });
+
+  detail.replaceChildren(
     el("h2", {}, run.description || run.run_id),
     el("p", { class: "meta" },
       `max_rounds=${run.graph_config?.max_rounds ?? "—"} · `,
       el("a", { href: traceUrl }, "verbatim trace bundle (JSON)")),
-    table,
-    traceNote);
-  document.getElementById("detail").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    el("table", {},
+      headerRow(["Round", true], ["Agent"], ["Model"], ["Rating", true], ["Conf.", true],
+                ["S·P·C", true], ["Ctx chars", true], ["Tool calls", true],
+                ["Tokens", true], ["Lat. s", true]),
+      ...rows));
+}
 
-  try {
-    const response = await fetch(traceUrl);
-    const bundle = await response.json();
-    traceNote.textContent = bundle.traces
-      .map((trace, index) => {
-        const calls = trace.tool_trace ? trace.tool_trace.length : 0;
-        return `trace ${index}: ${calls} tool call${calls === 1 ? "" : "s"}, ` +
-               `context ${fmt(trace.context_chars || 0)} chars`;
-      })
-      .join(" · ");
-  } catch {
-    traceNote.textContent = "trace bundle not found";
-  }
+function toolCallsRow(agent, toolCalls, columns) {
+  const label = `${agent.agent_role}${agent.agent_index ? " " + agent.agent_index : ""}`;
+  const items = toolCalls.map((call, index) => {
+    const args = Object.values(call.arguments || {}).join(", ");
+    return el("li", {},
+      el("code", {}, `${call.tool_name}(${JSON.stringify(args)})`),
+      el("div", { class: "tool-result" }, call.result || "(empty result)"));
+  });
+  return el("tr", { class: "tool-row" },
+    el("td", { colspan: String(columns) },
+      el("details", {},
+        el("summary", {}, `${toolCalls.length} search call${toolCalls.length === 1 ? "" : "s"} by ${label} — queries and result previews`),
+        el("ol", { class: "tool-list" }, items))));
 }
 
 main().catch((error) => {
