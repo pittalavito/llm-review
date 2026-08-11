@@ -93,7 +93,7 @@ An experimental campaign was run on **10 real ICLR 2026 submissions** (5 accepte
 
 The full analysis, tables and figures are in the thesis (see below). The raw campaign data — every run, every agent invocation, every verbatim trace — is exported to [`resource/results/`](resource/results/) by [`resource/scripts/export_results.py`](resource/scripts/export_results.py) and browsable online:
 
-> **📊 Results viewer: <https://pittalavito.github.io/llm-review-2.0/>** — per-paper committee-vs-human charts, per-pass totals, and a drill-down into each run's reviews and traces (blind reviews included, `tool_calls: 0` in plain sight).
+> **📊 Results viewer: <https://pittalavito.github.io/llm-review/>** — per-paper committee-vs-human charts, per-pass totals, and a drill-down into each run's reviews and traces (blind reviews included, `tool_calls: 0` in plain sight).
 
 ## Thesis
 
