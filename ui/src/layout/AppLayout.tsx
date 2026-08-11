@@ -41,14 +41,14 @@ export default function AppLayout() {
   useEffect(() => {
     const entry = NAV_ENTRIES.find((e) => e.to === location.pathname);
     document.title = entry
-      ? `${entry.label} — LLM Review 2`
-      : 'LLM Review 2 — Academic Review Platform';
+      ? `${entry.label} — LLM Review`
+      : 'LLM Review — Academic Review Platform';
   }, [location.pathname]);
 
   return (
     <>
       <header className="header">
-        <h1 className="header__title">LLM Review 2</h1>
+        <h1 className="header__title">LLM Review</h1>
         <p className="header__subtitle">Academic Peer Review Platform</p>
         <div className="header__actions">
           <ThemeToggle />

@@ -1,0 +1,260 @@
+{
+ "run_id": "2026-08-09T15-22-40_04992f097e524869b1e61ad2c22f94c5_pdf",
+ "traces": [
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "8da52afd9a25b9eb74f04c99e722fefca6512aa6bb111d101b5239460ae6cd0a",
+   "response_payload": {
+    "summary": "The paper studies the computational power of a continual self‑play training loop. It defines a generator–executor–verifier–buffer process with an exploration–exploitation mixture and proves: (i) Turing‑completeness under coverage, persistence and learning assumptions; (ii) a resource‑bounded “SPACE ladder” linking working memory to SPACE[·]; (iii) a finite‑time completeness bound under a length‑aware exploration schedule. It proposes a CPL (Coverage–Persistence–Learning) template.",
+    "significance_and_novelty": "Process-level expressiveness for self-play and a mapping from context/workspace budgets to SPACE classes is an interesting shift from architecture-level universality, though much relies on strong assumptions and reuses classical enumeration and space-hierarchy ideas.",
+    "reasons_for_acceptance": [
+     "Section 6.3 (Thm. 31) cleanly links per-step window/executor space to SPACE[·], offering a useful capability ladder under resource budgets.",
+     "Section 5 (CPL framework) separates coverage, persistence, and learning, clarifying which ingredients drive universality and which drive efficiency.",
+     "Lemma 26 with Assumption 20 gives a transparent coverage proof via a mixture enumerator and Borel–Cantelli-style reasoning.",
+     "The architectural separation in Def. 8 (fixed G_E + learned G_RL) crisply resolves exploration–specialization tension and is well-motivated."
+    ],
+    "reasons_for_rejection": [
+     "Abstract/Def. 4 vs Thm. 25 inconsistency: the abstract and Def. 4 posit bounded verifier/executor resources, but Theorem 25 assumes an executor with unbounded time and memory, weakening the central universality claim’s relevance.",
+     "Learning Lemma 28 (Sec. 6.2, App. C.4) relies on strong, unstated-in-practice conditions (unbiased REINFORCE, gradient non-degeneracy, fair scheduling) and concludes p_t(τ)→1 a.s.; these are unrealistic for deep policies and non-stationary buffers.",
+     "Theorem 31 wording (“{functions computed up to time t} = SPACE[O(s(W(t)))]”) is too strong/ambiguous at finite t; coverage is eventual, so equality in finite time is not justified (Sec. 6.3, App. C.7).",
+     "Appendix D (Thm. 41) conflates ‘functions’ and ‘tasks’: claiming to “solve every function of Kolmogorov complexity ≤ ℓ” in finite time is ill-defined (functions have infinite domains), undermining the finite-time result’s soundness and clarity."
+    ],
+    "suggestions": [
+     "Provide a minimal worked toy example instantiating G_E (length-biased enumerator) and ψ_t to illustrate CPL with concrete constants without changing theorems."
+    ],
+    "rating": 5,
+    "confidence": 4,
+    "soundness": 2,
+    "presentation": 2,
+    "contribution": 2
+   },
+   "input_tokens": 21285,
+   "output_tokens": 3979,
+   "total_tokens": 25264,
+   "latency_seconds": 48.65878329996485,
+   "tool_trace": null,
+   "context_chars": 88632
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "c3bc0e103b812fa01a98e95cd6146626121d5016290404111baba28c83ddc722",
+   "response_payload": {
+    "summary": "The paper studies training-as-computation for continual self-play. It formalizes a generator–executor–verifier–buffer loop, introduces a CPL (coverage–persistence–learning) template, proves process-level universality (partial-recursive/Turing-complete) and a SPACE-based capability hierarchy tied to working-memory budgets, and argues monotone capability growth under explicit exploration schedules and curriculum learnability.",
+    "significance_and_novelty": "Novel process-level expressiveness theory for self-play, linking a modern training loop to classical computability/SPACE hierarchies and separating exploration (completeness) from learned specialization (efficiency). This appears distinct from prior self-play theory on sample complexity and equilibr",
+    "reasons_for_acceptance": [
+     "Section 2.3 and 1.2 claim and motivate a first connection between self-play training loops and classical SPACE hierarchies, which is a conceptually novel contribution.",
+     "Section 5 (CPL template) provides a clear, modular proof strategy (coverage–persistence–learning) that isolates assumptions and could be reused beyond this paper.",
+     "Section 1.1 and 6 articulate an architectural separation via a mixture generator that resolves exploration–specialization tension while retaining completeness guarantees.",
+     "Theorem 25 and Section 6 deliver a process-level universality result (partial-recursive/Turing-complete), advancing understanding from architecture-level to training-process expressiveness."
+    ],
+    "reasons_for_rejection": [
+     "Appendix G.1 assumes an explicit coverage oracle GE with prefix-level support and an exploration schedule sampling every prefix infinitely often; this is a very strong and impractical assumption underpinning completeness.",
+     "Theorem 25 requires the executor E to have unbounded time and memory, which conflicts with the paper’s emphasis on bounded per-step resources and undermines the resource-bounded narrative.",
+     "Section 1.2 acknowledges finite-time guarantees are exponential in horizon length and not PAC-efficient, which limits the practical impact of the theoretical results.",
+     "Empirical validation is absent in the provided content; claims such as monotone capability growth and the Frontier Lemma’s practical acceleration (Section 5.1) are not supported by experiments we could inspect."
+    ],
+    "suggestions": [],
+    "rating": 6,
+    "confidence": 3,
+    "soundness": 3,
+    "presentation": 3,
+    "contribution": 3
+   },
+   "input_tokens": 10045,
+   "output_tokens": 5749,
+   "total_tokens": 15794,
+   "latency_seconds": 71.8884015000076,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "generator-executor-verifier loop continual learning self-proposed curricula SPACE class resource budgets expressiveness"
+     },
+     "result": "# ABSTRACT\nWithin this framework we (i) formalize a general generator-executor-verifier-buffer loop for continual learning with self-proposed curricula; (ii) provide a process-level characterization of expressiveness-the set of functions computable by the evolving loop up to time t matches a corresp … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "process-level characterization of universality partial-recursive Turing-complete self-play loop"
+     },
+     "result": "# 6.1 MAIN UNIVERSALITY THEOREM\nTheorem 25 (Universality of Self-Play Reasoning Agents) . Let ( ˜ G t , § θ , V, E ) be a self-play reasoning agent with effective generator (Definition 8) as specified in Section 4. Assume Assumptions 20 and 23 hold, and the executor E is allotted unbounded time and  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "monotone capability growth exploration schedules curriculum learnability mechanisms"
+     },
+     "result": "# ABSTRACT\nWithin this framework we (i) formalize a general generator-executor-verifier-buffer loop for continual learning with self-proposed curricula; (ii) provide a process-level characterization of expressiveness-the set of functions computable by the evolving loop up to time t matches a corresp … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "mixture generator policy-gradient fixed exploration component bounded working memory context window archival buffer executor-verifier interface"
+     },
+     "result": "# ABSTRACT\nWe study training as computation in a continual self-play setting, where a single reasoning model proposes tasks, solves them, and updates itself using verifiable signals from an external executor-verifier interface. Rather than focusing on oneshot models, we analyze the process-level dyn … [truncated for export]"
+    }
+   ],
+   "context_chars": 1861
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "The paper analyzes a continual self-play training loop (generator–executor–verifier–buffer) under resource budgets. It introduces a CPL (Coverage–Persistence–Learning) template, proves process-level universality and a SPACE-based complexity ladder (Thm. 31), and outlines finite-time and finite-precision considerations, with limitations and implementation challenges discussed in appendices.",
+    "significance_and_novelty": "Process-level characterization of a self-play training loop and its mapping to SPACE classes is conceptually fresh, moving beyond architecture-level completeness results and linking context/working memory budgets to classical space hierarchies.",
+    "reasons_for_acceptance": [
+     "Section 6.3 and App. C.7 give a clear complexity ladder tying W(t) and executor workspace to SPACE[O(s(W(t)))], grounding capability growth in standard hierarchy theorems.",
+     "App. C.6 provides a concrete universality route via CPL: coverage generates tasks, persistence retains them, and learning ensures convergence, with an induction-task design that avoids “cheating by code.”",
+     "Section 1.2’s CPL decomposition offers a modular analysis template that is broadly reusable and clarifies which assumptions drive each guarantee.",
+     "G.2 and E.4 candidly scope the limitations (finite buffers, non-stationarity, lack of efficiency guarantees), which strengthens the credibility of the theoretical claims."
+    ],
+    "reasons_for_rejection": [
+     "Core results hinge on strong idealized assumptions (unbounded archival buffer, fair scheduling, unbiased policy gradients, and a universal executor) stated across Sec. 1.2, C.6, 6.3, and G.2, limiting applicability to real systems.",
+     "There is no empirical validation of CPL assumptions or persistence/coverage behavior; G.2 and E.4 acknowledge simplified models but provide no experiments to test them.",
+     "The finite-time completeness claim in the Introduction (Appendix D) is not shown in the provided text, so its conditions and tightness cannot be verified.",
+     "Presentation issues (duplicated ABSTRACT blocks, odd citations and formatting in Sec. 1, and mixing limitations into E.4) hurt clarity and make it hard to audit assumptions end-to-end."
+    ],
+    "suggestions": [],
+    "rating": 6,
+    "confidence": 3,
+    "soundness": 3,
+    "presentation": 2,
+    "contribution": 3
+   },
+   "input_tokens": 12402,
+   "output_tokens": 3306,
+   "total_tokens": 15708,
+   "latency_seconds": 43.96937239996623,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Abstract"
+     },
+     "result": "# G.2 IMPLEMENTATION CHALLENGES\nThe basic persistence lemma (Lemma 27) assumes an abstract replay buffer with fair scheduling: once a task is admitted to the buffer and remains relevant, it is sampled infinitely often. Real replay systems, however, must cope with finite capacity, non-stationary prio … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Introduction"
+     },
+     "result": "# Anonymous authors\nPaper under double-blind review\n\n# ABSTRACT\nWe study training as computation in a continual self-play setting, where a single reasoning model proposes tasks, solves them, and updates itself using verifiable signals from an external executor-verifier interface. Rather than focusin … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "contributions"
+     },
+     "result": "# 1.2 CONTRIBUTIONS\nWe make four contributions. Process-level universality characterization. We provide a process-level characterization of a modern self-play training loop: under explicit coverage, persistence, and learning assumptions, the set of functions it can realize coincides with the class S … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "CPL decomposition coverage persistence learning section"
+     },
+     "result": "# 1.2 CONTRIBUTIONS\nWe make four contributions. Process-level universality characterization. We provide a process-level characterization of a modern self-play training loop: under explicit coverage, persistence, and learning assumptions, the set of functions it can realize coincides with the class S … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Theorem SPACE hierarchy prompt length W(t) s(W(t)) monotone capability growth ladder theorem"
+     },
+     "result": "# C.7 PROOF OF COMPLEXITY LADDER THEOREM\nProof of Theorem 31. Upper bound. With window W ( t ) , each prompt (task or answer) is limited to W ( t ) tokens, so it occupies O ( W ( t )) cells of memory. The executor is explicitly capped at O ( s ( W ( t ))) bytes of working memory. Thus the total syst … [truncated for export]"
+    }
+   ],
+   "context_chars": 0
+  },
+  {
+   "input_message": "Synthesize the following 3 reviews into a meta-review:\n\n- {\"summary\": \"The paper studies the computational power of a continual self\\u2011play training loop. It defines a generator\\u2013executor\\u2013verifier\\u2013buffer process with an exploration\\u2013exploitation mixture and proves: (i) Turing\\u2011completeness under coverage, persistence and learning assumptions; (ii) a resource\\u2011bounded \\u201cSPACE ladder\\u201d linking working memory to SPACE[\\u00b7]; (iii) a finite\\u2011time completeness bound under a length\\u2011aware exploration schedule. It proposes a CPL (Coverage\\u2013Persistence\\u2013Learning) template.\", \"significance_and_novelty\": \"Process-level expressiveness for self-play and a mapping from context/workspace budgets to SPACE classes is an interesting shift from architecture-level universality, though much relies on strong assumptions and reuses classical enumeration and space-hierarchy ideas.\", \"reasons_for_acceptance\": [\"Section 6.3 (Thm. 31) cleanly links per-step window/executor space to SPACE[\\u00b7], offering a useful capability ladder under resource budgets.\", \"Section 5 (CPL framework) separates coverage, persistence, and learning, clarifying which ingredients drive universality and which drive efficiency.\", \"Lemma 26 with Assumption 20 gives a transparent coverage proof via a mixture enumerator and Borel\\u2013Cantelli-style reasoning.\", \"The architectural separation in Def. 8 (fixed G_E + learned G_RL) crisply resolves exploration\\u2013specialization tension and is well-motivated.\"], \"reasons_for_rejection\": [\"Abstract/Def. 4 vs Thm. 25 inconsistency: the abstract and Def. 4 posit bounded verifier/executor resources, but Theorem 25 assumes an executor with unbounded time and memory, weakening the central universality claim\\u2019s relevance.\", \"Learning Lemma 28 (Sec. 6.2, App. C.4) relies on strong, unstated-in-practice conditions (unbiased REINFORCE, gradient non-degeneracy, fair scheduling) and concludes p_t(\\u03c4)\\u21921 a.s.; these are unrealistic for deep policies and non-stationary buffers.\", \"Theorem 31 wording (\\u201c{functions computed up to time t} = SPACE[O(s(W(t)))]\\u201d) is too strong/ambiguous at finite t; coverage is eventual, so equality in finite time is not justified (Sec. 6.3, App. C.7).\", \"Appendix D (Thm. 41) conflates \\u2018functions\\u2019 and \\u2018tasks\\u2019: claiming to \\u201csolve every function of Kolmogorov complexity \\u2264 \\u2113\\u201d in finite time is ill-defined (functions have infinite domains), undermining the finite-time result\\u2019s soundness and clarity.\"], \"suggestions\": [\"Provide a minimal worked toy example instantiating G_E (length-biased enumerator) and \\u03c8_t to illustrate CPL with concrete constants without changing theorems.\"], \"rating\": 5, \"confidence\": 4, \"soundness\": 2, \"presentation\": 2, \"contribution\": 2}\n\n- {\"summary\": \"The paper studies training-as-computation for continual self-play. It formalizes a generator\\u2013executor\\u2013verifier\\u2013buffer loop, introduces a CPL (coverage\\u2013persistence\\u2013learning) template, proves process-level universality (partial-recursive/Turing-complete) and a SPACE-based capability hierarchy tied to working-memory budgets, and argues monotone capability growth under explicit exploration schedules and curriculum learnability.\", \"significance_and_novelty\": \"Novel process-level expressiveness theory for self-play, linking a modern training loop to classical computability/SPACE hierarchies and separating exploration (completeness) from learned specialization (efficiency). This appears distinct from prior self-play theory on sample complexity and equilibr\", \"reasons_for_acceptance\": [\"Section 2.3 and 1.2 claim and motivate a first connection between self-play training loops and classical SPACE hierarchies, which is a conceptually novel contribution.\", \"Section 5 (CPL template) provides a clear, modular proof strategy (coverage\\u2013persistence\\u2013learning) that isolates assumptions and could be reused beyond this paper.\", \"Section 1.1 and 6 articulate an architectural separation via a mixture generator that resolves exploration\\u2013specialization tension while retaining completeness guarantees.\", \"Theorem 25 and Section 6 deliver a process-level universality result (partial-recursive/Turing-complete), advancing understanding from architecture-level to training-process expressiveness.\"], \"reasons_for_rejection\": [\"Appendix G.1 assumes an explicit coverage oracle GE with prefix-level support and an exploration schedule sampling every prefix infinitely often; this is a very strong and impractical assumption underpinning completeness.\", \"Theorem 25 requires the executor E to have unbounded time and memory, which conflicts with the paper\\u2019s emphasis on bounded per-step resources and undermines the resource-bounded narrative.\", \"Section 1.2 acknowledges finite-time guarantees are exponential in horizon length and not PAC-efficient, which limits the practical impact of the theoretical results.\", \"Empirical validation is absent in the provided content; claims such as monotone capability growth and the Frontier Lemma\\u2019s practical acceleration (Section 5.1) are not supported by experiments we could inspect.\"], \"suggestions\": [], \"rating\": 6, \"confidence\": 3, \"soundness\": 3, \"presentation\": 3, \"contribution\": 3}\n\n- {\"summary\": \"The paper analyzes a continual self-play training loop (generator\\u2013executor\\u2013verifier\\u2013buffer) under resource budgets. It introduces a CPL (Coverage\\u2013Persistence\\u2013Learning) template, proves process-level universality and a SPACE-based complexity ladder (Thm. 31), and outlines finite-time and finite-precision considerations, with limitations and implementation challenges discussed in appendices.\", \"significance_and_novelty\": \"Process-level characterization of a self-play training loop and its mapping to SPACE classes is conceptually fresh, moving beyond architecture-level completeness results and linking context/working memory budgets to classical space hierarchies.\", \"reasons_for_acceptance\": [\"Section 6.3 and App. C.7 give a clear complexity ladder tying W(t) and executor workspace to SPACE[O(s(W(t)))], grounding capability growth in standard hierarchy theorems.\", \"App. C.6 provides a concrete universality route via CPL: coverage generates tasks, persistence retains them, and learning ensures convergence, with an induction-task design that avoids \\u201ccheating by code.\\u201d\", \"Section 1.2\\u2019s CPL decomposition offers a modular analysis template that is broadly reusable and clarifies which assumptions drive each guarantee.\", \"G.2 and E.4 candidly scope the limitations (finite buffers, non-stationarity, lack of efficiency guarantees), which strengthens the credibility of the theoretical claims.\"], \"reasons_for_rejection\": [\"Core results hinge on strong idealized assumptions (unbounded archival buffer, fair scheduling, unbiased policy gradients, and a universal executor) stated across Sec. 1.2, C.6, 6.3, and G.2, limiting applicability to real systems.\", \"There is no empirical validation of CPL assumptions or persistence/coverage behavior; G.2 and E.4 acknowledge simplified models but provide no experiments to test them.\", \"The finite-time completeness claim in the Introduction (Appendix D) is not shown in the provided text, so its conditions and tightness cannot be verified.\", \"Presentation issues (duplicated ABSTRACT blocks, odd citations and formatting in Sec. 1, and mixing limitations into E.4) hurt clarity and make it hard to audit assumptions end-to-end.\"], \"suggestions\": [], \"rating\": 6, \"confidence\": 3, \"soundness\": 3, \"presentation\": 2, \"contribution\": 3}",
+   "system_prompt": "You are the meta-reviewer of a top-tier machine learning conference. You receive the individual peer reviews of one submission and synthesize them into a single aggregated assessment for the Area Chair.\n\nStructure your synthesis in this order:\n1. Points of consensus among the reviewers.\n2. Disagreements, and which side is better supported.\n3. The decisive strengths and weaknesses after weighing the arguments.\n\nJudge arguments, not just scores: a well-substantiated objection outweighs an unsupported enthusiastic rating. Do not introduce claims about the paper that no reviewer made and never invent content.\n\nOverall score (1-10): the aggregated quality of the paper, consistent with the reviewers' calibrated scale (most submissions fall in 3-6).\nRecommendation: accept (ready as is), minor_revision (real but fixable concerns), reject (fundamental flaws or insufficient contribution).\n\nOutput: summary under 600 characters; 1-5 key points, each a single self-contained sentence.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "Reviewers agree the paper offers a novel, process-level theory for self-play—especially the CPL template and the SPACE-based capability ladder—but raise substantial concerns about strong, impractical assumptions, inconsistencies with resource bounds, and over-strong or ill-defined finite-time claims, alongside missing empirical validation and presentation issues. With tightened statements, clarified assumptions, and improved exposition, the work could reach ICLR standards.",
+    "key_points": [
+     "The CPL decomposition and the SPACE ladder (Thm. 31) are seen as conceptually novel and useful for reasoning about capability growth under resource budgets.",
+     "Core guarantees depend on idealized assumptions such as an explicit coverage oracle, fair scheduling, unbiased gradients, unbounded buffers, and a universal or unbounded executor.",
+     "There is a tension between the paper’s bounded-resource narrative and Theorem 25’s need for an unbounded executor, which weakens the central universality claim’s practical relevance.",
+     "Several claims appear overstated or ill-defined, including finite-time completeness (Appendix D) and the equality wording for Thm. 31 at finite t, and the critiques on these points are better substantiated.",
+     "The lack of empirical validation and notable presentation/clarity issues reduce confidence and hinder auditability under ICLR’s standards."
+    ],
+    "overall_score": 6,
+    "recommendation": "minor_revision"
+   },
+   "input_tokens": 2148,
+   "output_tokens": 1783,
+   "total_tokens": 3931,
+   "latency_seconds": 20.701413600007072,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Make the final decision based on the meta-review:\n\n{'summary': 'Reviewers agree the paper offers a novel, process-level theory for self-play—especially the CPL template and the SPACE-based capability ladder—but raise substantial concerns about strong, impractical assumptions, inconsistencies with resource bounds, and over-strong or ill-defined finite-time claims, alongside missing empirical validation and presentation issues. With tightened statements, clarified assumptions, and improved exposition, the work could reach ICLR standards.', 'key_points': ['The CPL decomposition and the SPACE ladder (Thm. 31) are seen as conceptually novel and useful for reasoning about capability growth under resource budgets.', 'Core guarantees depend on idealized assumptions such as an explicit coverage oracle, fair scheduling, unbiased gradients, unbounded buffers, and a universal or unbounded executor.', 'There is a tension between the paper’s bounded-resource narrative and Theorem 25’s need for an unbounded executor, which weakens the central universality claim’s practical relevance.', 'Several claims appear overstated or ill-defined, including finite-time completeness (Appendix D) and the equality wording for Thm. 31 at finite t, and the critiques on these points are better substantiated.', 'The lack of empirical validation and notable presentation/clarity issues reduce confidence and hinder auditability under ICLR’s standards.'], 'overall_score': 6, 'recommendation': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>}",
+   "system_prompt": "You are an Area Chair of a top-tier machine learning conference. You receive the meta-reviewer's aggregated assessment (and, when available, the individual reviews and the author rebuttal) and must produce the final, binding decision on the submission.\n\nReach your decision in this order:\n1. Check the meta-review: is its recommendation actually supported by the reviewers' arguments it summarizes?\n2. Weigh the unresolved concerns: are they fundamental to the contribution, or fixable in a revision?\n3. Decide independently: you are not bound by the recommendation — but justify any departure from it.\n\nBase your decision only on the material you received and never invent content.\n\nDecision: accept (ready as is), minor_revision (real but fixable concerns — the authors get a revision round), reject (fundamental flaws or insufficient contribution).\nConfidence scale (1-5): 5=certain of the decision; 3=reasonably confident but the case is close; 1=highly uncertain.\n\nOutput: summary under 400 characters; justification under 400 characters, stating the decisive reason for the decision.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "Promising process-level theory (CPL, SPACE ladder) with novel framing, but guarantees rely on impractical assumptions and conflict with the bounded-resource narrative (e.g., need for an unbounded executor). Some finite-time claims seem overstated/ill-defined; lack of empirical support and clarity further reduce confidence.",
+    "justification": "Minor revision: tighten/qualify finite-time and universality claims to match bounded resources, clearly state/justify assumptions, resolve the executor tension, and improve exposition. These issues appear fixable by clarifications and scope adjustments rather than new core results.",
+    "decision": "minor_revision",
+    "confidence": 4
+   },
+   "input_tokens": 729,
+   "output_tokens": 1169,
+   "total_tokens": 1898,
+   "latency_seconds": 22.813431599992327,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Write a rebuttal and revisions addressing the decision ({'summary': 'Promising process-level theory (CPL, SPACE ladder) with novel framing, but guarantees rely on impractical assumptions and conflict with the bounded-resource narrative (e.g., need for an unbounded executor). Some finite-time claims seem overstated/ill-defined; lack of empirical support and clarity further reduce confidence.', 'justification': 'Minor revision: tighten/qualify finite-time and universality claims to match bounded resources, clearly state/justify assumptions, resolve the executor tension, and improve exposition. These issues appear fixable by clarifications and scope adjustments rather than new core results.', 'decision': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>, 'confidence': 4}) and 3 reviews.",
+   "system_prompt": "You are the corresponding author of a paper under review at a top-tier machine learning conference. You receive the peer reviews (and the area chair's assessment when available) and must respond to them.\n\nRespond in this order:\n1. General rebuttal: your overall response to the review round.\n2. One targeted response per reviewer, addressing their specific concerns point by point (use the reviewer's name as provided, e.g. 'reviewer_1').\n3. Revise the sections the reviewers most convincingly criticized: for each one, produce the complete rewritten section text.\n\nConcede valid points explicitly and say what you changed; push back on misunderstandings by pointing at the exact passage that answers them. Never invent results, experiments or citations that are not in the paper.\n\nOnly reference sections, numbers and results you have actually seen. If the paper text is not accessible to you, phrase revisions as commitments (what will be clarified, added or expanded) — do NOT invent section numbers, experiments, rewritten text or specific content.\n\nPrioritize the concerns that drove the scores: fixing the decisive objection is worth more than answering every minor comment.\n\nOutput: general rebuttal under 600 characters; each per-reviewer response under 1000 characters; at most 3 revised sections; 1-5 key changes, each a single self-contained sentence.",
+   "context_hash": "8da52afd9a25b9eb74f04c99e722fefca6512aa6bb111d101b5239460ae6cd0a",
+   "response_payload": {
+    "rebuttal": "We thank the AC and reviewers for the constructive minor‑revision decision. We will: (i) explicitly separate two resource regimes (asymptotic unbounded executor vs bounded SPACE‑ladder), (ii) align all claims and notation with this split, (iii) tighten and qualify finite‑time statements as worst‑case upper bounds tied to the exploration floor and horizon, and (iv) clarify assumptions and improve exposition. No empirical claims are made; our scope is capability, not efficiency.",
+    "reviewer_rebuttals": [
+     {
+      "reviewer_name": "reviewer_1",
+      "response": "Executor/Verifier tension with bounded‑resource narrative. We agree the current text can read as inconsistent. We will make the two regimes explicit throughout: (U) asymptotic capability: V remains poly‑time, while E may be unbounded (used only for Theorem 25); (B) bounded resources: both the working view and E are capped, yielding the SPACE ladder (Theorem 31). We revise Definition 4 to disentangle V (decidable, poly‑time) from E (budget depends on regime), and add a “Two‑Regime Interpretation” in §6.1 that states all finite‑time/resource claims refer to (B) only."
+     },
+     {
+      "reviewer_name": "reviewer_2",
+      "response": "Finite‑time claims overstated/ill‑defined. We concede the phrasing suggested stronger guarantees than intended. We will: (i) rename the result as a high‑probability discovery‑and‑learning upper bound for fixed Kolmogorov class F_ℓ under the stated exploration floor and horizon; (ii) emphasize that the exp(ℓ/c) horizon term typically dominates; (iii) remove any efficiency connotation; and (iv) ensure consistency with Assumption 20 (explicitly calling out the exploration floor and length horizon). No new results are added; only wording and scope are tightened."
+     },
+     {
+      "reviewer_name": "reviewer_3",
+      "response": "Impractical assumptions and lack of empirical support/clarity. Our target is process‑level capability, not empirical efficiency. We will centralize and label strong assumptions (coverage oracle, fair scheduling, capacity sufficiency) in §5.2 and §G.1, add a short practical note in §4.1 on how the mixture can be approximated (pointing to App. A/B/E), and insert a worked enumerator sketch (already present in App. A.1) from which the coverage floor follows. We explicitly state that empirical validation is out of scope and leave efficiency to future work."
+     }
+    ],
+    "revised_sections": [
+     {
+      "section_name": "ABSTRACT",
+      "content": "We study training‑as‑computation in continual self‑play under explicit resource budgets. We formalize a generator–executor–verifier–buffer loop and analyze two resource regimes. In the asymptotic regime (unbounded executor), a Coverage–Persistence–Learning (CPL) decomposition yields capability universality of the closed training process. In the bounded regime, a per‑step working view W(t) and executor workspace O(s(W(t))) induce a SPACE[·] ladder and monotone capability growth under length‑aware exploration. Our finite‑time statements are worst‑case, horizon‑dependent upper bounds (not efficiency claims) tied to an explicit exploration floor. The framework separates process‑level capability from objectives/verifiers and provides a reusable template for resource‑aware self‑play."
+     },
+     {
+      "section_name": "4.1 AGENT ARCHITECTURE (revised verifier/budgeting and regime split)",
+      "content": "Definition 3 (Generator and Solver Policies). A self‑play reasoning agent has parameters θ and two stochastic kernels over a finite token alphabet Σ: a generator G(·|z,B) and a solver S(·|x,B), where z∈Σ* is an optional seed, x∈Σ* a task prompt, and B a finite multiset of (prompt,answer) strings. The effective generator at step t is a mixture (Definition 8): \\tilde G_t = (1−ε_t)·G^RL_{φ_t} + ε_t·G^E, where G^E has full prefix support (coverage), while G^RL_{φ_t} is trained via policy gradients to favor frontier tasks.\nNotational convention. We conceptually separate φ (learned generator head) and θ (solver), though they may share a backbone; this only strengthens coupling and does not affect the theory.\nDefinition 4 (Verifier and Executor Budgets; two regimes). The verifier V is a polynomial‑time procedure that, given a task x and candidate y, returns V(x,y)=1 iff (i) the pair passes an efficient syntactic/semantic check and (ii) direct execution via the sandbox executor E confirms y within E’s allocated resources. We analyze two regimes:\n(U) Asymptotic capability (universality). V remains poly‑time. E may use unbounded time/memory (as a mathematical device to express capability in the limit). This regime is used only for the universality result (Theorem 25).\n(B) Bounded resources (SPACE ladder). V remains poly‑time. E is explicitly capped to O(s(W(t))) workspace, and all model calls condition on a working view c_t of length ≤W(t) (Definition 6). This regime underlies the resource‑bounded expressiveness result (Theorem 31) and any finite‑time statements.\nReward signals. The learned generator uses a learnability‑based proposal reward r_prop that concentrates mass on capability‑frontier tasks, while the solver uses r_solv induced by V. Only G^RL_{φ_t} is updated; G^E is fixed, providing coverage independent of specialization.\nPractical note. The explicit mixture can be approximated via high‑entropy sampling or lightweight enumerators (Appendix A/B); our guarantees require only the effective coverage floor in Assumption 20."
+     },
+     {
+      "section_name": "6.1 MAIN UNIVERSALITY THEOREM (with scope clarification)",
+      "content": "Scope and regimes. We separate capability and resources. The asymptotic capability result below assumes an unbounded executor E (regime U) to characterize what the closed training process can compute in principle. All resource‑bounded and finite‑time statements elsewhere refer to the bounded regime (B), where both the working view and E’s workspace are explicitly capped and induce a SPACE[·] ladder (Theorem 31). This resolves the apparent tension between bounded‑resource narratives and universality claims.\nTheorem 25 (Universality of Self‑Play Reasoning Agents). Let (\\tilde G_t, S_θ, V, E) be a self‑play agent with the mixture generator (Definition 8). Assume Assumption 20 (coverage schedule) and Assumption 23 (REINFORCE‑style updates) hold, and that the executor E is allotted unbounded time and memory. Then for every deterministic Turing machine M and input w∈Σ*, with probability 1 there exists a finite random time T_{M,w} such that: (a) the buffer contains the evaluation task τ_{M,w} for all t ≥ T_{M,w}, and (b) the solver’s success probability on τ_{M,w} converges to 1 under fair scheduling. Consequently, the closed loop can compute every partial‑recursive function (Turing‑complete) in the asymptotic sense.\nRelation to bounded analysis. Under explicit per‑step budgets (regime B), the set of functions computable up to time t coincides with SPACE[O(s(W(t)))] (Theorem 31). Finite‑time bounds (Appendix D) are worst‑case upper bounds that depend on the exploration floor ε_min and horizon L(t); they do not assert statistical efficiency."
+     }
+    ],
+    "key_changes": [
+     "Disentangled verifier and executor budgets and introduced two explicit resource regimes, aligning universality with an unbounded executor and the SPACE ladder/finite‑time claims with bounded resources.",
+     "Rewrote Abstract and §6.1 to clearly state scope: asymptotic capability versus bounded expressiveness, and to remove any efficiency connotation from finite‑time results.",
+     "Revised §4.1 (Definition 4) to separate V (poly‑time) from E (regime‑dependent), resolving the prior tension and clarifying reward signals and mixture roles.",
+     "Tightened wording of finite‑time statements (App. D referenced in §6.1) to emphasize worst‑case, horizon‑dependent upper bounds tied to the exploration floor.",
+     "Centralized strong assumptions and practical notes (mixture implementation, coverage oracle) to improve readability and prevent overclaiming."
+    ]
+   },
+   "input_tokens": 21029,
+   "output_tokens": 4963,
+   "total_tokens": 25992,
+   "latency_seconds": 68.99059289996512,
+   "tool_trace": null,
+   "context_chars": 88632
+  }
+ ]
+}

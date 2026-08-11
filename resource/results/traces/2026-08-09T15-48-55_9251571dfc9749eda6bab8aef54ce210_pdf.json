@@ -1,0 +1,362 @@
+{
+ "run_id": "2026-08-09T15-48-55_9251571dfc9749eda6bab8aef54ce210_pdf",
+ "traces": [
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "3433b3abc8d0dea375463495c7b4065e69442bd4ae5992f03b8f2086e3222563",
+   "response_payload": {
+    "summary": "NAIT selects instruction-tuning data by aligning sample neuron activations with capability-specific activation directions extracted via PCA from small in-domain sets. It claims efficiency, external-model independence, interpretability, and targeted capability gains. Experiments on LLaMA-2-7B and other backbones show modest-to-strong gains over full-data IT and several selection baselines, plus cost savings and cross-task transferability analyses.",
+    "significance_and_novelty": "Using neuron activation directions to guide IT data selection is a fresh, interpretable angle beyond surface features, uncertainty, or gradients. If sound and reproducible, it could influence targeted capability development and efficient IT at scale.",
+    "reasons_for_acceptance": [
+     "§3/Alg.1 presents a simple, external-model-free selection mechanism grounded in internal activations, which is conceptually elegant and potentially broadly useful.",
+     "Table 2 and §4.2 show consistent gains over full-data IT and competitive baselines using only 10% data; targeted GSM features yield the strongest average (37.70).",
+     "§5.1–§5.3 provide ablations on subset size, in-domain scale, model families (Table 4), different IT datasets, and interpretability/transferability analyses (Figure 5–7).",
+     "§5.2 reports large cost and time reductions versus LLM-as-scorer or uncertainty/gradient methods, supporting practical impact."
+    ],
+    "reasons_for_rejection": [
+     "§3.2.1/Alg.1 lacks fully rendered equations and exact definitions (e.g., activation aggregation over tokens, normalization, layers used), hindering verification and reproducibility.",
+     "Claims of \"significant\" superiority over strong baselines are weakly supported: in Table 2 the best NAIT setting exceeds SelectIT by only ~0.54 avg points; no multiple runs or statistical tests are reported (§4.2).",
+     "Cost/efficiency claims in Table 5 are hard to verify and may be unfair: Q2Q/SelectIT implementations and API assumptions are not specified, and 1.32h for 52k samples on A800 seems optimistic (§5.2).",
+     "Presentation issues reduce trust: method/equation rendering gaps (§3.2.1), inconsistent naming/citations of LESS/SelectIT in Table 5, and typos (e.g., \"Oral-GPT4\" in Table 7) suggest quality lapses."
+    ],
+    "suggestions": [
+     "Report variance across seeds and significance tests for Table 2 and Table 4, and include per-task standard errors in the main paper.",
+     "Clarify compute setup for Table 5 (sequence lengths, layers recorded, batching, hardware utilization) and align baselines’ cost protocols.",
+     "Add ablations on layer weighting/selection and on using more than the first principal component for V.",
+     "Provide a small public demo showing how capability features transfer across new tasks to bolster §5.3."
+    ],
+    "rating": 5,
+    "confidence": 3,
+    "soundness": 2,
+    "presentation": 2,
+    "contribution": 3
+   },
+   "input_tokens": 20558,
+   "output_tokens": 4108,
+   "total_tokens": 24666,
+   "latency_seconds": 45.93818980001379,
+   "tool_trace": null,
+   "context_chars": 77999
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "94524b32c16375af95ac5a7f657f329ea801568ec1e29cf75a768c10a975202d",
+   "response_payload": {
+    "summary": "The paper proposes NAIT, a neuron-activation–based framework to select instruction-tuning data aligned with target domain capabilities. It extracts activation features from in-domain references via PCA and scores IT samples by alignment. Across MMLU, GSM, BBH, TyDiQA/XQuAD, and coding, NAIT reportedly outperforms AlpaGasus, Q2Q, and SelectIT using only 10% of data, with up to +4.65% on GSM and +3.24% average gains, strong cross-model robustness, and large cost/time reductions.",
+    "significance_and_novelty": "Using neuron activation features to guide IT data selection is a simple, interpretable, and externally independent alternative to score- or gradient-based selectors, with broad empirical gains and cost benefits; novelty is plausible but incremental relative to representation/gradient-based selection",
+    "reasons_for_acceptance": [
+     "Section 4.2 Main Results (Table 2/Systems 08 and 12) shows consistent gains up to +4.65% on GSM and +3.24% average using only 10% of IT data, outperforming AlpaGasus, Q2Q, and SelectIT.",
+     "Section 5.1 Ablation Study (Table 4) demonstrates robustness across base models (LLaMA‑2‑13B, Mistral‑7B, LLaMA‑3‑8B, Qwen‑2.5‑7B) with sizable average improvements.",
+     "Section 5.2 Cost Efficiency (Table 5) reports 17.58× speedup and 94.3% cost reduction vs SelectIT and up to 19× vs AlpaGasus, supporting practicality.",
+     "Section 5.3 Interpretability Analysis and Table 1 claim external-model independence, targeted ability control, and qualitative evidence that selected data emphasizes reasoning/programmatic features."
+    ],
+    "reasons_for_rejection": [
+     "Appendix F Algorithmic Framework and Section 3.2 leave key implementation details under-specified (token pooling over sequences, layer selection/normalization, multi-capability combination), reducing reproducibility.",
+     "Section 4.2 and 5.1 report single-point results without variance, confidence intervals, or repeated runs, so statistical significance of improvements is unclear.",
+     "Section 5.2 Cost Efficiency lacks hardware/configuration parity details and may compare different selection fractions/pipelines, clouding fairness of cost/speed claims.",
+     "Introduction/Table 1 claims first neuron-activation–based IT selection, but positioning vs broader data selection literature (e.g., influence functions/other activation or representation selectors) is limited in the retrieved text."
+    ],
+    "suggestions": [
+     "Section 5.3 could deepen interpretability by attributing influential neurons/layers per capability with circuit-style analyses.",
+     "Appendix I could add interactive visualizations of overlap and task-unique subsets to aid practitioners in mixing capabilities.",
+     "Section 5.1 could include practical guidance on in-domain reference size/quality trade-offs based on Figure 2 trends. "
+    ],
+    "rating": 6,
+    "confidence": 3,
+    "soundness": 3,
+    "presentation": 2,
+    "contribution": 3
+   },
+   "input_tokens": 16908,
+   "output_tokens": 8312,
+   "total_tokens": 25220,
+   "latency_seconds": 101.79133459995501,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "NAIT Neuron Activation-based Instruction Tuning"
+     },
+     "result": "# ABSTRACT\nInstruction Tuning (IT) has been proven to be an effective approach to unlock the powerful capabilities of large language models (LLMs). Recent studies indicate that excessive IT data can degrade LLMs performance, while carefully selecting a small subset of high-quality IT data can signif … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "activation feature-guided data selection"
+     },
+     "result": "# 3.2 OUR DATA SELECTION FRAMEWORK\nNAIT identifies IT data that effectively enhances specific domain capabilities C in the LLM M via two main modules: (a) Neuron Activation Feature Extraction and (b) Activation Feature-Guided Data Selection, as illustrated in Figure 1. The proposed framework is deta … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "MMLU GSM math reasoning multilingual"
+     },
+     "result": "# C COMPARATIVE ANALYSIS BEFORE AND AFTER IT\nBenchmark Settings We evaluated our approach on various downstream tasks using their data as in-domain data (detailed dataset descriptions are in Appendix D): Factual Knowledge : We evaluate the Massive Multitask Language Understanding (MMLU) dataset (Hen … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "AlpaGasus SelectIT data selection"
+     },
+     "result": "# 5.2 COST EFFICIENCY\nWe compare inference time and cost between NAIT and existing approaches, including AlpaGasus (GPT-4o), Q2Q (GPT-4o), and SelectIT, on the Alpaca-GPT4 dataset (52k). As shown in Table 5, NAIT achieves up to 19× and 4× cost reductions compared to AlpaGasus and Q2Q, respectively,  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "achieving up to 4.65% improvement"
+     },
+     "result": "# 4.2 MAIN RESULTS\nOverall Performance The NAIT method effectively enhances model's overall performance by leveraging neuron activation features across multiple domain capabilities. As shown in Table 2, System 01 represents the baseline performance of the Alpaca-GPT4, while System 12 demonstrates th … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "using only 10% of the IT data"
+     },
+     "result": "# 4.2 MAIN RESULTS\nOverall Performance The NAIT method effectively enhances model's overall performance by leveraging neuron activation features across multiple domain capabilities. As shown in Table 2, System 01 represents the baseline performance of the Alpaca-GPT4, while System 12 demonstrates th … [truncated for export]"
+    }
+   ],
+   "context_chars": 1721
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "The paper proposes NAIT, a neuron-activation–aware framework to select instruction-tuning (IT) data for LLMs. It extracts per-layer activation features from small in-domain datasets (via PCA on activation differences) and selects IT samples with high alignment to target-capability activations. Across LLaMA/Mistral/Qwen backbones and multiple tasks (MMLU, BBH, GSM8K, TyDiQA, HumanEval), 10% NAIT-selected subsets outperform full-data or strong baselines and reduce selection cost substantially. Analysis suggests cross-task transferability.",
+    "significance_and_novelty": "Introduces a neuron-centric criterion for IT data selection, targeting capability activation rather than surface features or external models. If robust, this is a meaningful step toward interpretable, efficient IT and capability targeting.",
+    "reasons_for_acceptance": [
+     "Section 4.2 Main Results: NAIT with 10% Alpaca-GPT4 surpasses AlpaGasus, Q2Q, and SelectIT and improves overall scores, including +4.65% using math features and +3.24% when combining capabilities.",
+     "Table 4 in §5.1: Consistent gains across LLaMA-2-13B, Mistral-7B, LLaMA-3-8B, and Qwen-2.5-7B, including large relative improvements (+21.92% and +18.65%).",
+     "§5.1 Ablation (Intensity of Neuron Activation): High alignment subsets outperform random (+3.35%) and low alignment severely hurts (−17.54%), supporting the core hypothesis.",
+     "§5.2 Cost Efficiency: Strong speed/cost reductions vs GPT-4o–dependent and uncertainty baselines (up to 19× cheaper and 17.58× faster than SelectIT)."
+    ],
+    "reasons_for_rejection": [
+     "§3.2/Appendix F (referenced): The exact activation alignment scoring function and token/layer aggregation details are not visible here, so key methodological specifics cannot be verified.",
+     "Experiment Setting (LoRA warmup): A 3-epoch LoRA warmup to obtain feature checkpoints is introduced, but the data used and its influence on selection fairness vs baselines are unclear.",
+     "OOD claims (Appendix C mentions MMLU-Pro, SVAMP, XQuAD, MBPP): Concrete OOD numbers are not shown in the retrieved text, so generalization beyond in-domain splits cannot be assessed.",
+     "Statistical robustness: No evidence of multiple seeds/confidence intervals is provided in the retrieved results, leaving uncertainty about variance and stability."
+    ],
+    "suggestions": [
+     "§3: Add visualizations of layer-wise contribution and activation-overlap across capabilities to strengthen interpretability claims without changing the method.",
+     "§5.1: Include qualitative case studies of NAIT-selected vs rejected samples to illustrate the hypothesized reasoning/programmatic features.",
+     "§3.2: Explore alternative dimensionality-reduction (e.g., CCA/PLS/whitening) to test whether PCA is essential or incidental to performance.",
+     "§5.2: Report normalized wall-clock and dollar costs per 1k samples and per model to ease replication across hardware."
+    ],
+    "rating": 6,
+    "confidence": 3,
+    "soundness": 3,
+    "presentation": 3,
+    "contribution": 3
+   },
+   "input_tokens": 47538,
+   "output_tokens": 4064,
+   "total_tokens": 51602,
+   "latency_seconds": 52.6414598999545,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "abstract"
+     },
+     "result": "# NEURON-AWARE DATA SELECTION IN INSTRUCTION TUNING FOR LARGE LANGUAGE MODELS\nXin Chen 1,2,5, ∗ , Junchao Wu 1, ∗ , Shu Yang 4 , Runzhe Zhan 1 , Zeyu Wu 1 , Min Yang 2,3, † , Shujian Huang 5 , Lidia S. Chao 1 , Derek F. Wong 1, † 1 NLP 2 CT Lab, Department of Computer and Information Science, Univer … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "introduction"
+     },
+     "result": "# NEURON-AWARE DATA SELECTION IN INSTRUCTION TUNING FOR LARGE LANGUAGE MODELS\nXin Chen 1,2,5, ∗ , Junchao Wu 1, ∗ , Shu Yang 4 , Runzhe Zhan 1 , Zeyu Wu 1 , Min Yang 2,3, † , Shujian Huang 5 , Lidia S. Chao 1 , Derek F. Wong 1, † 1 NLP 2 CT Lab, Department of Computer and Information Science, Univer … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "our contributions are"
+     },
+     "result": "# 1 INTRODUCTION\nThe method based on neuron activation features also shows strong interpretability. Further analysis reveals that NAIT tends to select IT data with more logical reasoning and programmatic neuron activation features. Such data can effectively enhance the model's reasoning ability and  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "we propose"
+     },
+     "result": "# 6 CONCLUSION\nIn this paper, we propose NAIT, an efficient framework for selecting high-quality IT data by leveraging neural activation patterns. NAIT identifies the optimal data subset by evaluating the alignment between candidate samples and neural activation features associated with target capab … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "experiments"
+     },
+     "result": "# C COMPARATIVE ANALYSIS BEFORE AND AFTER IT\nMultilingual Understanding : We evaluate the TyDiQA benchmark (Clark et al., 2020), a multilingual QA dataset, using in-domain and test splits, and report 5-shot results with the gold-passage setup. To assess the generalization capability of our model, we … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "results"
+     },
+     "result": "# C COMPARATIVE ANALYSIS BEFORE AND AFTER IT\nBenchmark Settings We evaluated our approach on various downstream tasks using their data as in-domain data (detailed dataset descriptions are in Appendix D): Factual Knowledge : We evaluate the Massive Multitask Language Understanding (MMLU) dataset (Hen … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "limitations"
+     },
+     "result": "# A LIMITATION\nModel Scale Due to computational limitations, our analysis is restricted to models with fewer than 20B parameters. Future studies could evaluate this method on larger models to provide insights into its scalability and broader implications for optimizing LLMs.\n\n# NEURON-AWARE DATA SEL … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "CIFAR-10"
+     },
+     "result": "# G THE DETAILS OF DIFFERENT SELECTION STRATEGIES\nTable 10 compares selection strategies using 10% of the IT dataset. NAIT achieves the best performance with a +3.00% improvement over the baseline (Alpaca-GPT4), while other strategies like Hard (PPL) and Easy (Length) significantly reduce performanc … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "ImageNet"
+     },
+     "result": "# NEURON-AWARE DATA SELECTION IN INSTRUCTION TUNING FOR LARGE LANGUAGE MODELS\nXin Chen 1,2,5, ∗ , Junchao Wu 1, ∗ , Shu Yang 4 , Runzhe Zhan 1 , Zeyu Wu 1 , Min Yang 2,3, † , Shujian Huang 5 , Lidia S. Chao 1 , Derek F. Wong 1, † 1 NLP 2 CT Lab, Department of Computer and Information Science, Univer … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Transformer"
+     },
+     "result": "# NEURON-AWARE DATA SELECTION IN INSTRUCTION TUNING FOR LARGE LANGUAGE MODELS\nXin Chen 1,2,5, ∗ , Junchao Wu 1, ∗ , Shu Yang 4 , Runzhe Zhan 1 , Zeyu Wu 1 , Min Yang 2,3, † , Shujian Huang 5 , Lidia S. Chao 1 , Derek F. Wong 1, † 1 NLP 2 CT Lab, Department of Computer and Information Science, Univer … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "diffusion"
+     },
+     "result": "# NEURON-AWARE DATA SELECTION IN INSTRUCTION TUNING FOR LARGE LANGUAGE MODELS\nXin Chen 1,2,5, ∗ , Junchao Wu 1, ∗ , Shu Yang 4 , Runzhe Zhan 1 , Zeyu Wu 1 , Min Yang 2,3, † , Shujian Huang 5 , Lidia S. Chao 1 , Derek F. Wong 1, † 1 NLP 2 CT Lab, Department of Computer and Information Science, Univer … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "reinforcement learning"
+     },
+     "result": "# D DETAILS OF TRAINING AND EVALUATION SETUP\nThe learning rate follows a cosine decay schedule, starting at 2e-5 and decreasing gradually to 0 , a strategy known to improve convergence by reducing oscillations during later training stages. To maximize the model's performance, we utilize an input seq … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "graph"
+     },
+     "result": "# NEURON-AWARE DATA SELECTION IN INSTRUCTION TUNING FOR LARGE LANGUAGE MODELS\nXin Chen 1,2,5, ∗ , Junchao Wu 1, ∗ , Shu Yang 4 , Runzhe Zhan 1 , Zeyu Wu 1 , Min Yang 2,3, † , Shujian Huang 5 , Lidia S. Chao 1 , Derek F. Wong 1, † 1 NLP 2 CT Lab, Department of Computer and Information Science, Univer … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "LLM"
+     },
+     "result": "# 1 INTRODUCTION\nThe NAIT framework is built on the core hypothesis that when an LLM processes a given sample, the closer the model's resulting neuronal activation pattern aligns with the activation pattern of the target capability, the more effectively that sample enhances the LLM's performance in  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "LLama-2-13b 14B"
+     },
+     "result": "# 5.1 ABLATION STUDY\nFigure 3: Comparison of NAIT with random data selection across different in-domain data scales at 30% IT dataset. Task performance in NAIT (in-domain dataset), such as MMLU in NAIT (MMLU), refers to using the in-domain dataset to guide IT data selection and evaluate task perform … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "3 OUR DATA SELECTION FRAMEWORK Activation Feature-Guided Data Selection alignment score formula \"feature alignment score\""
+     },
+     "result": "# 1 INTRODUCTION\nThis limits the scalability of these methods and their broader application to large-scale data. ∗ Equal contribution. † Corresponding author. Figure 1: Overall framework of NAIT. First, we capture the neuron activation of the LLM using in-domain data that we want the model to learn. … [truncated for export]"
+    }
+   ],
+   "context_chars": 0
+  },
+  {
+   "input_message": "Synthesize the following 3 reviews into a meta-review:\n\n- {\"summary\": \"NAIT selects instruction-tuning data by aligning sample neuron activations with capability-specific activation directions extracted via PCA from small in-domain sets. It claims efficiency, external-model independence, interpretability, and targeted capability gains. Experiments on LLaMA-2-7B and other backbones show modest-to-strong gains over full-data IT and several selection baselines, plus cost savings and cross-task transferability analyses.\", \"significance_and_novelty\": \"Using neuron activation directions to guide IT data selection is a fresh, interpretable angle beyond surface features, uncertainty, or gradients. If sound and reproducible, it could influence targeted capability development and efficient IT at scale.\", \"reasons_for_acceptance\": [\"\\u00a73/Alg.1 presents a simple, external-model-free selection mechanism grounded in internal activations, which is conceptually elegant and potentially broadly useful.\", \"Table 2 and \\u00a74.2 show consistent gains over full-data IT and competitive baselines using only 10% data; targeted GSM features yield the strongest average (37.70).\", \"\\u00a75.1\\u2013\\u00a75.3 provide ablations on subset size, in-domain scale, model families (Table 4), different IT datasets, and interpretability/transferability analyses (Figure 5\\u20137).\", \"\\u00a75.2 reports large cost and time reductions versus LLM-as-scorer or uncertainty/gradient methods, supporting practical impact.\"], \"reasons_for_rejection\": [\"\\u00a73.2.1/Alg.1 lacks fully rendered equations and exact definitions (e.g., activation aggregation over tokens, normalization, layers used), hindering verification and reproducibility.\", \"Claims of \\\"significant\\\" superiority over strong baselines are weakly supported: in Table 2 the best NAIT setting exceeds SelectIT by only ~0.54 avg points; no multiple runs or statistical tests are reported (\\u00a74.2).\", \"Cost/efficiency claims in Table 5 are hard to verify and may be unfair: Q2Q/SelectIT implementations and API assumptions are not specified, and 1.32h for 52k samples on A800 seems optimistic (\\u00a75.2).\", \"Presentation issues reduce trust: method/equation rendering gaps (\\u00a73.2.1), inconsistent naming/citations of LESS/SelectIT in Table 5, and typos (e.g., \\\"Oral-GPT4\\\" in Table 7) suggest quality lapses.\"], \"suggestions\": [\"Report variance across seeds and significance tests for Table 2 and Table 4, and include per-task standard errors in the main paper.\", \"Clarify compute setup for Table 5 (sequence lengths, layers recorded, batching, hardware utilization) and align baselines\\u2019 cost protocols.\", \"Add ablations on layer weighting/selection and on using more than the first principal component for V.\", \"Provide a small public demo showing how capability features transfer across new tasks to bolster \\u00a75.3.\"], \"rating\": 5, \"confidence\": 3, \"soundness\": 2, \"presentation\": 2, \"contribution\": 3}\n\n- {\"summary\": \"The paper proposes NAIT, a neuron-activation\\u2013based framework to select instruction-tuning data aligned with target domain capabilities. It extracts activation features from in-domain references via PCA and scores IT samples by alignment. Across MMLU, GSM, BBH, TyDiQA/XQuAD, and coding, NAIT reportedly outperforms AlpaGasus, Q2Q, and SelectIT using only 10% of data, with up to +4.65% on GSM and +3.24% average gains, strong cross-model robustness, and large cost/time reductions.\", \"significance_and_novelty\": \"Using neuron activation features to guide IT data selection is a simple, interpretable, and externally independent alternative to score- or gradient-based selectors, with broad empirical gains and cost benefits; novelty is plausible but incremental relative to representation/gradient-based selection\", \"reasons_for_acceptance\": [\"Section 4.2 Main Results (Table 2/Systems 08 and 12) shows consistent gains up to +4.65% on GSM and +3.24% average using only 10% of IT data, outperforming AlpaGasus, Q2Q, and SelectIT.\", \"Section 5.1 Ablation Study (Table 4) demonstrates robustness across base models (LLaMA\\u20112\\u201113B, Mistral\\u20117B, LLaMA\\u20113\\u20118B, Qwen\\u20112.5\\u20117B) with sizable average improvements.\", \"Section 5.2 Cost Efficiency (Table 5) reports 17.58\\u00d7 speedup and 94.3% cost reduction vs SelectIT and up to 19\\u00d7 vs AlpaGasus, supporting practicality.\", \"Section 5.3 Interpretability Analysis and Table 1 claim external-model independence, targeted ability control, and qualitative evidence that selected data emphasizes reasoning/programmatic features.\"], \"reasons_for_rejection\": [\"Appendix F Algorithmic Framework and Section 3.2 leave key implementation details under-specified (token pooling over sequences, layer selection/normalization, multi-capability combination), reducing reproducibility.\", \"Section 4.2 and 5.1 report single-point results without variance, confidence intervals, or repeated runs, so statistical significance of improvements is unclear.\", \"Section 5.2 Cost Efficiency lacks hardware/configuration parity details and may compare different selection fractions/pipelines, clouding fairness of cost/speed claims.\", \"Introduction/Table 1 claims first neuron-activation\\u2013based IT selection, but positioning vs broader data selection literature (e.g., influence functions/other activation or representation selectors) is limited in the retrieved text.\"], \"suggestions\": [\"Section 5.3 could deepen interpretability by attributing influential neurons/layers per capability with circuit-style analyses.\", \"Appendix I could add interactive visualizations of overlap and task-unique subsets to aid practitioners in mixing capabilities.\", \"Section 5.1 could include practical guidance on in-domain reference size/quality trade-offs based on Figure 2 trends. \"], \"rating\": 6, \"confidence\": 3, \"soundness\": 3, \"presentation\": 2, \"contribution\": 3}\n\n- {\"summary\": \"The paper proposes NAIT, a neuron-activation\\u2013aware framework to select instruction-tuning (IT) data for LLMs. It extracts per-layer activation features from small in-domain datasets (via PCA on activation differences) and selects IT samples with high alignment to target-capability activations. Across LLaMA/Mistral/Qwen backbones and multiple tasks (MMLU, BBH, GSM8K, TyDiQA, HumanEval), 10% NAIT-selected subsets outperform full-data or strong baselines and reduce selection cost substantially. Analysis suggests cross-task transferability.\", \"significance_and_novelty\": \"Introduces a neuron-centric criterion for IT data selection, targeting capability activation rather than surface features or external models. If robust, this is a meaningful step toward interpretable, efficient IT and capability targeting.\", \"reasons_for_acceptance\": [\"Section 4.2 Main Results: NAIT with 10% Alpaca-GPT4 surpasses AlpaGasus, Q2Q, and SelectIT and improves overall scores, including +4.65% using math features and +3.24% when combining capabilities.\", \"Table 4 in \\u00a75.1: Consistent gains across LLaMA-2-13B, Mistral-7B, LLaMA-3-8B, and Qwen-2.5-7B, including large relative improvements (+21.92% and +18.65%).\", \"\\u00a75.1 Ablation (Intensity of Neuron Activation): High alignment subsets outperform random (+3.35%) and low alignment severely hurts (\\u221217.54%), supporting the core hypothesis.\", \"\\u00a75.2 Cost Efficiency: Strong speed/cost reductions vs GPT-4o\\u2013dependent and uncertainty baselines (up to 19\\u00d7 cheaper and 17.58\\u00d7 faster than SelectIT).\"], \"reasons_for_rejection\": [\"\\u00a73.2/Appendix F (referenced): The exact activation alignment scoring function and token/layer aggregation details are not visible here, so key methodological specifics cannot be verified.\", \"Experiment Setting (LoRA warmup): A 3-epoch LoRA warmup to obtain feature checkpoints is introduced, but the data used and its influence on selection fairness vs baselines are unclear.\", \"OOD claims (Appendix C mentions MMLU-Pro, SVAMP, XQuAD, MBPP): Concrete OOD numbers are not shown in the retrieved text, so generalization beyond in-domain splits cannot be assessed.\", \"Statistical robustness: No evidence of multiple seeds/confidence intervals is provided in the retrieved results, leaving uncertainty about variance and stability.\"], \"suggestions\": [\"\\u00a73: Add visualizations of layer-wise contribution and activation-overlap across capabilities to strengthen interpretability claims without changing the method.\", \"\\u00a75.1: Include qualitative case studies of NAIT-selected vs rejected samples to illustrate the hypothesized reasoning/programmatic features.\", \"\\u00a73.2: Explore alternative dimensionality-reduction (e.g., CCA/PLS/whitening) to test whether PCA is essential or incidental to performance.\", \"\\u00a75.2: Report normalized wall-clock and dollar costs per 1k samples and per model to ease replication across hardware.\"], \"rating\": 6, \"confidence\": 3, \"soundness\": 3, \"presentation\": 3, \"contribution\": 3}",
+   "system_prompt": "You are the meta-reviewer of a top-tier machine learning conference. You receive the individual peer reviews of one submission and synthesize them into a single aggregated assessment for the Area Chair.\n\nStructure your synthesis in this order:\n1. Points of consensus among the reviewers.\n2. Disagreements, and which side is better supported.\n3. The decisive strengths and weaknesses after weighing the arguments.\n\nJudge arguments, not just scores: a well-substantiated objection outweighs an unsupported enthusiastic rating. Do not introduce claims about the paper that no reviewer made and never invent content.\n\nOverall score (1-10): the aggregated quality of the paper, consistent with the reviewers' calibrated scale (most submissions fall in 3-6).\nRecommendation: accept (ready as is), minor_revision (real but fixable concerns), reject (fundamental flaws or insufficient contribution).\n\nOutput: summary under 600 characters; 1-5 key points, each a single self-contained sentence.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "Consensus: NAIT is a simple, interpretable, external-model–free activation-based selector that yields gains and likely efficiency. Disagreements: magnitude/significance of improvements and fairness of cost claims; caution is better supported given single runs and sparse details. Decisive view: a promising, cross-model method, but underspecified algorithms, missing variance/significance, and unclear/possibly unfair cost protocols and some presentation lapses must be addressed before acceptance.",
+    "key_points": [
+     "NAIT introduces an elegant activation-alignment criterion for IT data selection without external scorers, with interpretability benefits.",
+     "Across several tasks/backbones, 10% NAIT subsets outperform baselines, but results lack seeds, error bars, and significance tests.",
+     "Key implementation details (token/layer aggregation, normalization, multi-capability fusion) are under-specified, limiting reproducibility.",
+     "Reported cost/speedups lack parity-controlled setups and may be optimistic relative to baselines.",
+     "Presentation issues (naming/typos) and unclear LoRA warmup/OOD reporting weaken trust in claims."
+    ],
+    "overall_score": 6,
+    "recommendation": "minor_revision"
+   },
+   "input_tokens": 2511,
+   "output_tokens": 1424,
+   "total_tokens": 3935,
+   "latency_seconds": 15.47397390002152,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Make the final decision based on the meta-review:\n\n{'summary': 'Consensus: NAIT is a simple, interpretable, external-model–free activation-based selector that yields gains and likely efficiency. Disagreements: magnitude/significance of improvements and fairness of cost claims; caution is better supported given single runs and sparse details. Decisive view: a promising, cross-model method, but underspecified algorithms, missing variance/significance, and unclear/possibly unfair cost protocols and some presentation lapses must be addressed before acceptance.', 'key_points': ['NAIT introduces an elegant activation-alignment criterion for IT data selection without external scorers, with interpretability benefits.', 'Across several tasks/backbones, 10% NAIT subsets outperform baselines, but results lack seeds, error bars, and significance tests.', 'Key implementation details (token/layer aggregation, normalization, multi-capability fusion) are under-specified, limiting reproducibility.', 'Reported cost/speedups lack parity-controlled setups and may be optimistic relative to baselines.', 'Presentation issues (naming/typos) and unclear LoRA warmup/OOD reporting weaken trust in claims.'], 'overall_score': 6, 'recommendation': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>}",
+   "system_prompt": "You are an Area Chair of a top-tier machine learning conference. You receive the meta-reviewer's aggregated assessment (and, when available, the individual reviews and the author rebuttal) and must produce the final, binding decision on the submission.\n\nReach your decision in this order:\n1. Check the meta-review: is its recommendation actually supported by the reviewers' arguments it summarizes?\n2. Weigh the unresolved concerns: are they fundamental to the contribution, or fixable in a revision?\n3. Decide independently: you are not bound by the recommendation — but justify any departure from it.\n\nBase your decision only on the material you received and never invent content.\n\nDecision: accept (ready as is), minor_revision (real but fixable concerns — the authors get a revision round), reject (fundamental flaws or insufficient contribution).\nConfidence scale (1-5): 5=certain of the decision; 3=reasonably confident but the case is close; 1=highly uncertain.\n\nOutput: summary under 400 characters; justification under 400 characters, stating the decisive reason for the decision.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "A simple, interpretable activation-based data selector shows cross-model gains, but the paper lacks seeds/error bars/significance, underspecifies key aggregation/normalization/fusion details, reports unclear/possibly unfair cost/speedups, and has presentation lapses. Needs tightening before acceptance.",
+    "justification": "The core idea is promising, but statistical rigor and reproducibility are insufficient (no variance/significance; missing implementation specifics), and efficiency claims lack parity-controlled evaluation. These are real yet fixable issues, warranting a minor revision before acceptance.",
+    "decision": "minor_revision",
+    "confidence": 4
+   },
+   "input_tokens": 690,
+   "output_tokens": 939,
+   "total_tokens": 1629,
+   "latency_seconds": 12.178162699972745,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Write a rebuttal and revisions addressing the decision ({'summary': 'A simple, interpretable activation-based data selector shows cross-model gains, but the paper lacks seeds/error bars/significance, underspecifies key aggregation/normalization/fusion details, reports unclear/possibly unfair cost/speedups, and has presentation lapses. Needs tightening before acceptance.', 'justification': 'The core idea is promising, but statistical rigor and reproducibility are insufficient (no variance/significance; missing implementation specifics), and efficiency claims lack parity-controlled evaluation. These are real yet fixable issues, warranting a minor revision before acceptance.', 'decision': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>, 'confidence': 4}) and 3 reviews.",
+   "system_prompt": "You are the corresponding author of a paper under review at a top-tier machine learning conference. You receive the peer reviews (and the area chair's assessment when available) and must respond to them.\n\nRespond in this order:\n1. General rebuttal: your overall response to the review round.\n2. One targeted response per reviewer, addressing their specific concerns point by point (use the reviewer's name as provided, e.g. 'reviewer_1').\n3. Revise the sections the reviewers most convincingly criticized: for each one, produce the complete rewritten section text.\n\nConcede valid points explicitly and say what you changed; push back on misunderstandings by pointing at the exact passage that answers them. Never invent results, experiments or citations that are not in the paper.\n\nOnly reference sections, numbers and results you have actually seen. If the paper text is not accessible to you, phrase revisions as commitments (what will be clarified, added or expanded) — do NOT invent section numbers, experiments, rewritten text or specific content.\n\nPrioritize the concerns that drove the scores: fixing the decisive objection is worth more than answering every minor comment.\n\nOutput: general rebuttal under 600 characters; each per-reviewer response under 1000 characters; at most 3 revised sections; 1-5 key changes, each a single self-contained sentence.",
+   "context_hash": "3433b3abc8d0dea375463495c7b4065e69442bd4ae5992f03b8f2086e3222563",
+   "response_payload": {
+    "rebuttal": "We thank the AC and reviewers for the constructive minor‑revision decision. We agree our promising results need tighter statistical rigor, fuller method specification, and parity‑controlled efficiency reporting. We will: add multi‑seed results with error bars and significance tests; fully detail aggregation/normalization/fusion in NAIT; standardize and document cost/time accounting; and fix presentation issues. We also commit to releasing code, logs, and the feature library.",
+    "reviewer_rebuttals": [
+     {
+      "reviewer_name": "reviewer_1",
+      "response": "Statistical rigor. We agree that single‑seed reporting is insufficient. In the revision we will (i) re‑run all main results with ≥3 seeds and report mean±std, (ii) add paired bootstrap CIs and significance (per task over evaluation items; for HumanEval/MBPP we bootstrap over problems with the pass@k estimator), and (iii) control family‑wise error with Holm–Bonferroni within each column. We will also publish seeds, prompts, and evaluation scripts. Note that §4.1 and App. D already fix shot counts and decoding settings; we will make these prominently visible in the main text."
+     },
+     {
+      "reviewer_name": "reviewer_2",
+      "response": "Method underspecification. We will make NAIT’s aggregation/normalization/fusion explicit: (a) token aggregation: per‑sample ΔA_l is the mean over tokens of a_l(tk)−a_l(t1); (b) PCA per layer on the centered ΔA^(l), first PC unit‑norm; (c) sign calibration using μ_diff·v_l; (d) scoring: compute ΔÂ_l(y) for a candidate by the same procedure and sum layerwise dot‑products s(y)=Σ_l ΔÂ_l(y)·v_l with equal weights; no extra normalization; no gradients are used. We will also specify layers used (all decoder layers by default), activation points, memory/time complexity, and release code and the feature library for exact replication."
+     },
+     {
+      "reviewer_name": "reviewer_3",
+      "response": "Efficiency/cost fairness and presentation. We will standardize accounting across methods: identical hardware (A800 80GB), tokenizer, seq‑length cap (2048), batch sizes, and include all phases (feature extraction, scoring, ranking, and one SFT run) for each method; API costs include prompt+completion tokens. We will re‑run baselines under these controls and update Table 5, releasing scripts and raw logs. Presentation fixes: correct typos (e.g., Orca‑GPT4), bibliography mix‑ups (LESS vs. SelectIT), unify system IDs, and ensure figure/table cross‑references are accurate and self‑contained."
+     }
+    ],
+    "revised_sections": [
+     {
+      "section_name": "3.2 Our Data Selection Framework (Revised)",
+      "content": "NAIT selects instruction‑tuning (IT) data that most effectively enhances a target capability C of an LLM M via two modules: (A) neuron activation feature extraction and (B) activation‑feature‑guided data selection.\nModule (A): Neuron activation feature extraction for C. Let P={Pi} be a small in‑domain set exemplifying C. Each sample Pi is tokenized into (t1,…,tK). For decoder layer l with J neurons, let a_l(tk)∈R^J denote the neuron activations at token tk. We define per‑token differences δ_l(tk)=a_l(tk)−a_l(t1) and aggregate per‑sample differences by the mean over tokens: ΔA_l(Pi)=(1/K)∑_{k=1..K} δ_l(tk). Collecting these across Pi yields a matrix ΔA^(l)∈R^{|P|×J}. We apply PCA to the centered ΔA^(l) and take the first principal component v_l (unit norm). To align its sign with the average activation trend, we compute μ_diff=(1/|P|)∑_i (a_l^i(tK)−a_l^i(t1)) and flip v_l if μ_diff·v_l<0. The per‑layer direction set is V={v_l} across all decoder layers l used (all layers by default). No gradients are required.\nModule (B): Activation‑feature‑guided data selection. For a candidate instruction‑response sample y in the IT pool D_ins, we compute its per‑layer mean‑difference vector ΔÂ_l(y) using the same procedure as above (relative to its first token, averaged over tokens). We then form a layerwise alignment s_l(y)=ΔÂ_l(y)·v_l and the global score s(y)=∑_l s_l(y) with equal layer weights. We rank D_ins by s(y) and select the top‑k samples. This procedure requires a single forward pass per sample to record activations and no backpropagation. Implementation details (layers used, activation tap points, batching, and memory/runtime) will be released with code for exact replication."
+     },
+     {
+      "section_name": "4.1 Setups and Statistical Protocol (Revised)",
+      "content": "Benchmarks and baselines remain as described, using the same in‑domain/test splits and prompting settings (shots, CoT for GSM/BBH, decoding hyperparameters) detailed in Appendix D. To strengthen statistical rigor, we will adopt the following protocol in all main tables: (i) repeat each SFT configuration with multiple random seeds (≥3) and report mean±std; (ii) report 95% paired bootstrap confidence intervals and p‑values per task (resampling evaluation items; for HumanEval/MBPP, resample problems and use the pass@k estimator); (iii) control family‑wise error within each column via Holm–Bonferroni; (iv) fix and publish the random seeds, data shuffles, few‑shot exemplars, and decoding settings; (v) release evaluation scripts and raw predictions to enable third‑party recomputation. We will also ensure that in‑domain data are disjoint from test data for each capability and that any OOD evaluations use untouched test splits."
+     },
+     {
+      "section_name": "5.2 Cost Efficiency (Revised)",
+      "content": "We compare end‑to‑end time and monetary cost for NAIT and baselines on the same hardware and settings. Accounting includes: (1) feature extraction on P, (2) scoring+ranking over D_ins, and (3) one SFT run on the selected subset (or full data for “Full”), measured wall‑clock. For API‑based methods, we include all prompt+completion tokens at official rates; for GPU‑based methods, we measure on identical GPUs (A800 80GB), with identical tokenizer, max sequence length 2048, and matched batch sizes for scoring and SFT. Preprocessing and I/O are included; data download is excluded. We will re‑run all methods under this parity‑controlled protocol and update Table 5 accordingly, releasing scripts and logs for verification. Errata: we correct bibliography labels (LESS: Xia et al., 2024; SelectIT: Liu et al., 2024b) and typos (e.g., Orca‑GPT4)."
+     }
+    ],
+    "key_changes": [
+     "Added a multi‑seed statistical protocol with mean±std, paired bootstrap confidence intervals, significance tests, and Holm–Bonferroni corrections to all main results.",
+     "Fully specified NAIT’s token aggregation, PCA calibration, and layer fusion, and committed to releasing code, scripts, and the neuron‑feature library.",
+     "Standardized and documented end‑to‑end cost/time accounting across methods on identical hardware and hyperparameters, with re‑runs under parity control and public logs.",
+     "Fixed presentation issues (typos, dataset names, citation mix‑ups, figure/table references) and surfaced key experimental settings in the main text."
+    ]
+   },
+   "input_tokens": 20296,
+   "output_tokens": 4817,
+   "total_tokens": 25113,
+   "latency_seconds": 188.61715579999145,
+   "tool_trace": null,
+   "context_chars": 77999
+  }
+ ]
+}

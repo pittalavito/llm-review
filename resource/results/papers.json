@@ -1,0 +1,722 @@
+{
+ "papers": [
+  {
+   "id": 2,
+   "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+   "paper_name": "Contrastive Code Graph Embeddings for Reinforcement Learning-Based Automated Code Refactoring",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "0xHWd4CUaX",
+   "openreview_api_version": "v2",
+   "human_decision": "Reject",
+   "num_graph_review": 7
+  },
+  {
+   "id": 3,
+   "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+   "paper_name": "Compositional Diffusion with Guided search for Long-Horizon Planning",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "b8avf4F2hn",
+   "openreview_api_version": "v2",
+   "human_decision": "Accept (Oral)",
+   "num_graph_review": 7
+  },
+  {
+   "id": 4,
+   "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+   "paper_name": "Why DPO is a Misspecified Estimator and How to Fix It",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "btEiAfnLsX",
+   "openreview_api_version": "v2",
+   "human_decision": "Accept (Oral)",
+   "num_graph_review": 7
+  },
+  {
+   "id": 5,
+   "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+   "paper_name": "Improving Developer Emotion Classification via LLM-Based Augmentation",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "FPLNSx1jmL",
+   "openreview_api_version": "v2",
+   "human_decision": "Reject",
+   "num_graph_review": 7
+  },
+  {
+   "id": 6,
+   "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+   "paper_name": "One-Shot Style Personalization for RL Agents via Latent Discriminator",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "GGg2BmcBEp",
+   "openreview_api_version": "v2",
+   "human_decision": "Reject",
+   "num_graph_review": 7
+  },
+  {
+   "id": 7,
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "paper_name": "Latent Speech-Text Transformer",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "krGpQzo8Mz",
+   "openreview_api_version": "v2",
+   "human_decision": "Accept (Oral)",
+   "num_graph_review": 7
+  },
+  {
+   "id": 8,
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "paper_name": "Q-RAG: Long Context Multi‑Step Retrieval via Value‑Based Embedder Training",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "MS9nWFY7LG",
+   "openreview_api_version": "v2",
+   "human_decision": "Accept (Oral)",
+   "num_graph_review": 7
+  },
+  {
+   "id": 9,
+   "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+   "paper_name": "Unsupervised Dynamic Graph Multi-Model Representation Learning for Temporal Patterns Discovery: Uncovering Parkinson’s Disease Stages Using Cerebrospinal Fluid Longitudinal Profiles",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "ogKDAjoyy8",
+   "openreview_api_version": "v2",
+   "human_decision": "Reject",
+   "num_graph_review": 7
+  },
+  {
+   "id": 10,
+   "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+   "paper_name": "Training as Computation: A Resource-Bounded Theory of Continual Self-Play Learning",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "uKrcWZ2V0F",
+   "openreview_api_version": "v2",
+   "human_decision": "Reject",
+   "num_graph_review": 7
+  },
+  {
+   "id": 11,
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "paper_name": "Neuron-Aware Data Selection in Instruction Tuning for Large Language Models",
+   "paper_type": "OPEN_REVIEW",
+   "description": null,
+   "conference": "ICLR",
+   "open_review_id": "uq6UWRgzMr",
+   "openreview_api_version": "v2",
+   "human_decision": "Accept (Poster)",
+   "num_graph_review": 8
+  }
+ ],
+ "authors": [
+  {
+   "id": 1,
+   "full_name": "Hu Ao",
+   "affiliation": null,
+   "openreview_profile_id": "~Hu_Ao1"
+  },
+  {
+   "id": 2,
+   "full_name": "Utkarsh Aashu Mishra",
+   "affiliation": null,
+   "openreview_profile_id": "~Utkarsh_Aashu_Mishra2"
+  },
+  {
+   "id": 3,
+   "full_name": "David He",
+   "affiliation": null,
+   "openreview_profile_id": "~David_He1"
+  },
+  {
+   "id": 4,
+   "full_name": "Yongxin Chen",
+   "affiliation": null,
+   "openreview_profile_id": "~Yongxin_Chen1"
+  },
+  {
+   "id": 5,
+   "full_name": "Danfei Xu",
+   "affiliation": null,
+   "openreview_profile_id": "~Danfei_Xu1"
+  },
+  {
+   "id": 6,
+   "full_name": "Aditya Gopalan",
+   "affiliation": null,
+   "openreview_profile_id": "~Aditya_Gopalan1"
+  },
+  {
+   "id": 7,
+   "full_name": "Sayak Ray Chowdhury",
+   "affiliation": null,
+   "openreview_profile_id": "~Sayak_Ray_Chowdhury1"
+  },
+  {
+   "id": 8,
+   "full_name": "Debangshu Banerjee",
+   "affiliation": null,
+   "openreview_profile_id": "~Debangshu_Banerjee1"
+  },
+  {
+   "id": 9,
+   "full_name": "Fahmida Haque Fariha",
+   "affiliation": null,
+   "openreview_profile_id": "~Fahmida_Haque_Fariha1"
+  },
+  {
+   "id": 10,
+   "full_name": "Insaniyat Ishan",
+   "affiliation": null,
+   "openreview_profile_id": "~Insaniyat_Ishan1"
+  },
+  {
+   "id": 11,
+   "full_name": "S. M. Hozaifa Hossain",
+   "affiliation": null,
+   "openreview_profile_id": "~S._M._Hozaifa_Hossain1"
+  },
+  {
+   "id": 12,
+   "full_name": "Mushfiq Zahid",
+   "affiliation": null,
+   "openreview_profile_id": "~Mushfiq_Zahid1"
+  },
+  {
+   "id": 13,
+   "full_name": "Zawad Al Akram",
+   "affiliation": null,
+   "openreview_profile_id": "~Zawad_Al_Akram1"
+  },
+  {
+   "id": 14,
+   "full_name": "Md. Aquib Azmain",
+   "affiliation": null,
+   "openreview_profile_id": "~Md._Aquib_Azmain1"
+  },
+  {
+   "id": 15,
+   "full_name": "Xi WANG",
+   "affiliation": null,
+   "openreview_profile_id": "~Xi_WANG24"
+  },
+  {
+   "id": 16,
+   "full_name": "Xu Liu",
+   "affiliation": null,
+   "openreview_profile_id": "~Xu_Liu12"
+  },
+  {
+   "id": 17,
+   "full_name": "Hongsheng Yu",
+   "affiliation": null,
+   "openreview_profile_id": "~Hongsheng_Yu1"
+  },
+  {
+   "id": 18,
+   "full_name": "Haobo Fu",
+   "affiliation": null,
+   "openreview_profile_id": "~Haobo_Fu2"
+  },
+  {
+   "id": 19,
+   "full_name": "QIANG FU",
+   "affiliation": null,
+   "openreview_profile_id": "~QIANG_FU8"
+  },
+  {
+   "id": 20,
+   "full_name": "Shuai Li",
+   "affiliation": null,
+   "openreview_profile_id": "~Shuai_Li3"
+  },
+  {
+   "id": 21,
+   "full_name": "Yen-Ju Lu",
+   "affiliation": null,
+   "openreview_profile_id": "~Yen-Ju_Lu1"
+  },
+  {
+   "id": 22,
+   "full_name": "Yashesh Gaur",
+   "affiliation": null,
+   "openreview_profile_id": "~Yashesh_Gaur1"
+  },
+  {
+   "id": 23,
+   "full_name": "Wei Zhou",
+   "affiliation": null,
+   "openreview_profile_id": "~Wei_Zhou18"
+  },
+  {
+   "id": 24,
+   "full_name": "Benjamin Muller",
+   "affiliation": null,
+   "openreview_profile_id": "~Benjamin_Muller1"
+  },
+  {
+   "id": 25,
+   "full_name": "Jesus Villalba",
+   "affiliation": null,
+   "openreview_profile_id": "~Jesus_Villalba1"
+  },
+  {
+   "id": 26,
+   "full_name": "Najim Dehak",
+   "affiliation": null,
+   "openreview_profile_id": "~Najim_Dehak1"
+  },
+  {
+   "id": 27,
+   "full_name": "Luke Zettlemoyer",
+   "affiliation": null,
+   "openreview_profile_id": "~Luke_Zettlemoyer1"
+  },
+  {
+   "id": 28,
+   "full_name": "Gargi Ghosh",
+   "affiliation": null,
+   "openreview_profile_id": "~Gargi_Ghosh3"
+  },
+  {
+   "id": 29,
+   "full_name": "Mike Lewis",
+   "affiliation": null,
+   "openreview_profile_id": "~Mike_Lewis1"
+  },
+  {
+   "id": 30,
+   "full_name": "Srini Iyer",
+   "affiliation": null,
+   "openreview_profile_id": "~Srini_Iyer1"
+  },
+  {
+   "id": 31,
+   "full_name": "Duc Le",
+   "affiliation": null,
+   "openreview_profile_id": "~Duc_Le1"
+  },
+  {
+   "id": 32,
+   "full_name": "Artyom Sorokin",
+   "affiliation": null,
+   "openreview_profile_id": "~Artyom_Sorokin1"
+  },
+  {
+   "id": 33,
+   "full_name": "Nazar Buzun",
+   "affiliation": null,
+   "openreview_profile_id": "~Nazar_Buzun1"
+  },
+  {
+   "id": 34,
+   "full_name": "Aleksandr Anokhin",
+   "affiliation": null,
+   "openreview_profile_id": "~Aleksandr_Anokhin2"
+  },
+  {
+   "id": 35,
+   "full_name": "Egor KONSTANTINOVICH VEDERNIKOV",
+   "affiliation": null,
+   "openreview_profile_id": "~Egor_KONSTANTINOVICH_VEDERNIKOV1"
+  },
+  {
+   "id": 36,
+   "full_name": "Petr Anokhin",
+   "affiliation": null,
+   "openreview_profile_id": "~Petr_Anokhin1"
+  },
+  {
+   "id": 37,
+   "full_name": "Mikhail Burtsev",
+   "affiliation": null,
+   "openreview_profile_id": "~Mikhail_Burtsev1"
+  },
+  {
+   "id": 38,
+   "full_name": "Evgeny Burnaev",
+   "affiliation": null,
+   "openreview_profile_id": "~Evgeny_Burnaev1"
+  },
+  {
+   "id": 39,
+   "full_name": "Lubna Mahmoud Abu Zohair",
+   "affiliation": null,
+   "openreview_profile_id": "~Lubna_Mahmoud_Abu_Zohair1"
+  },
+  {
+   "id": 40,
+   "full_name": "Hind Zantout",
+   "affiliation": null,
+   "openreview_profile_id": "~Hind_Zantout1"
+  },
+  {
+   "id": 41,
+   "full_name": "Marta Vallejo",
+   "affiliation": null,
+   "openreview_profile_id": "~Marta_Vallejo1"
+  },
+  {
+   "id": 42,
+   "full_name": "Md Azher Uddin",
+   "affiliation": null,
+   "openreview_profile_id": "~Md_Azher_Uddin1"
+  },
+  {
+   "id": 43,
+   "full_name": "John R. Woodward",
+   "affiliation": null,
+   "openreview_profile_id": "~John_R._Woodward2"
+  },
+  {
+   "id": 44,
+   "full_name": "Yun Juei Yen",
+   "affiliation": null,
+   "openreview_profile_id": "~Yun_Juei_Yen1"
+  },
+  {
+   "id": 45,
+   "full_name": "Henghsiu Tsai",
+   "affiliation": null,
+   "openreview_profile_id": "~Henghsiu_Tsai1"
+  },
+  {
+   "id": 46,
+   "full_name": "Xin Chen",
+   "affiliation": null,
+   "openreview_profile_id": "~Xin_Chen94"
+  },
+  {
+   "id": 47,
+   "full_name": "Junchao Wu",
+   "affiliation": null,
+   "openreview_profile_id": "~Junchao_Wu2"
+  },
+  {
+   "id": 48,
+   "full_name": "Shu Yang",
+   "affiliation": null,
+   "openreview_profile_id": "~Shu_Yang10"
+  },
+  {
+   "id": 49,
+   "full_name": "Runzhe Zhan",
+   "affiliation": null,
+   "openreview_profile_id": "~Runzhe_Zhan1"
+  },
+  {
+   "id": 50,
+   "full_name": "Zeyu Wu",
+   "affiliation": null,
+   "openreview_profile_id": "~Zeyu_Wu2"
+  },
+  {
+   "id": 51,
+   "full_name": "Min Yang",
+   "affiliation": null,
+   "openreview_profile_id": "~Min_Yang4"
+  },
+  {
+   "id": 52,
+   "full_name": "Shujian Huang",
+   "affiliation": null,
+   "openreview_profile_id": "~Shujian_Huang1"
+  },
+  {
+   "id": 53,
+   "full_name": "Lidia S. Chao",
+   "affiliation": null,
+   "openreview_profile_id": "~Lidia_S._Chao2"
+  },
+  {
+   "id": 54,
+   "full_name": "Derek F. Wong",
+   "affiliation": null,
+   "openreview_profile_id": "~Derek_F._Wong1"
+  }
+ ],
+ "paper_authors": [
+  {
+   "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+   "author_id": 44,
+   "position": 1
+  },
+  {
+   "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+   "author_id": 45,
+   "position": 2
+  },
+  {
+   "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+   "author_id": 2,
+   "position": 1
+  },
+  {
+   "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+   "author_id": 3,
+   "position": 2
+  },
+  {
+   "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+   "author_id": 4,
+   "position": 3
+  },
+  {
+   "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+   "author_id": 5,
+   "position": 4
+  },
+  {
+   "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+   "author_id": 6,
+   "position": 1
+  },
+  {
+   "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+   "author_id": 7,
+   "position": 2
+  },
+  {
+   "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+   "author_id": 8,
+   "position": 3
+  },
+  {
+   "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+   "author_id": 9,
+   "position": 1
+  },
+  {
+   "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+   "author_id": 10,
+   "position": 2
+  },
+  {
+   "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+   "author_id": 11,
+   "position": 3
+  },
+  {
+   "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+   "author_id": 12,
+   "position": 4
+  },
+  {
+   "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+   "author_id": 13,
+   "position": 5
+  },
+  {
+   "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+   "author_id": 14,
+   "position": 6
+  },
+  {
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "author_id": 32,
+   "position": 1
+  },
+  {
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "author_id": 33,
+   "position": 2
+  },
+  {
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "author_id": 34,
+   "position": 3
+  },
+  {
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "author_id": 35,
+   "position": 4
+  },
+  {
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "author_id": 36,
+   "position": 5
+  },
+  {
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "author_id": 37,
+   "position": 6
+  },
+  {
+   "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+   "author_id": 38,
+   "position": 7
+  },
+  {
+   "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+   "author_id": 1,
+   "position": 1
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 46,
+   "position": 1
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 47,
+   "position": 2
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 48,
+   "position": 3
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 49,
+   "position": 4
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 50,
+   "position": 5
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 51,
+   "position": 6
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 52,
+   "position": 7
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 53,
+   "position": 8
+  },
+  {
+   "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+   "author_id": 54,
+   "position": 9
+  },
+  {
+   "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+   "author_id": 15,
+   "position": 1
+  },
+  {
+   "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+   "author_id": 16,
+   "position": 2
+  },
+  {
+   "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+   "author_id": 17,
+   "position": 3
+  },
+  {
+   "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+   "author_id": 18,
+   "position": 4
+  },
+  {
+   "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+   "author_id": 19,
+   "position": 5
+  },
+  {
+   "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+   "author_id": 20,
+   "position": 6
+  },
+  {
+   "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+   "author_id": 39,
+   "position": 1
+  },
+  {
+   "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+   "author_id": 40,
+   "position": 2
+  },
+  {
+   "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+   "author_id": 41,
+   "position": 3
+  },
+  {
+   "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+   "author_id": 42,
+   "position": 4
+  },
+  {
+   "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+   "author_id": 43,
+   "position": 5
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 21,
+   "position": 1
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 22,
+   "position": 2
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 23,
+   "position": 3
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 24,
+   "position": 4
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 25,
+   "position": 5
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 26,
+   "position": 6
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 27,
+   "position": 7
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 28,
+   "position": 8
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 29,
+   "position": 9
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 30,
+   "position": 10
+  },
+  {
+   "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+   "author_id": 31,
+   "position": 11
+  }
+ ]
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>llm-review 2.0 — experimental results</title>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<main>
+  <h1>llm-review 2.0 — experimental results</h1>
+  <p class="sub">Raw data of the experimental campaign: LLM review committees vs. real OpenReview
+     committees on 10 ICLR 2026 submissions. Code and thesis:
+     <a href="https://github.com/pittalavito/llm-review-2.0">github.com/pittalavito/llm-review-2.0</a></p>
+  <p class="meta" id="manifest-line">loading…</p>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2>Committee vs. humans, per paper</h2>
+  <section class="card">
+    <div class="row">
+      <label for="pass">Pass:&nbsp;</label>
+      <select id="pass"></select>
+      <div class="legend">
+        <span><i class="swatch s1"></i>artificial committee (mean rating)</span>
+        <span><i class="swatch s2"></i>human committee (mean rating)</span>
+      </div>
+    </div>
+    <div id="chart"></div>
+    <details>
+      <summary>Data table</summary>
+      <div id="chart-table"></div>
+    </details>
+  </section>
+
+  <h2>Passes</h2>
+  <section class="card scroll-x">
+    <table id="passes"></table>
+  </section>
+
+  <h2>All runs</h2>
+  <p class="sub">Click a run for its per-agent breakdown and the verbatim trace bundle.</p>
+  <section class="card scroll-x">
+    <table id="runs"></table>
+    <div id="detail"></div>
+  </section>
+
+  <p class="foot" id="exclusions"></p>
+</main>
+<div class="tooltip" id="tip" role="tooltip"></div>
+</body>
+</html>

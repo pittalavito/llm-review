@@ -1,0 +1,22 @@
+{
+ "exported_at": "2026-08-11T15:22:56.527156+00:00",
+ "counts": {
+  "runs": 71,
+  "agent_invocations": 442,
+  "papers": 10,
+  "human_reviews": 59,
+  "trace_bundles": 71,
+  "prompt_versions": 6,
+  "prompt_instructions": 15,
+  "presets": 11
+ },
+ "exclusions": [
+  "full paper texts (agent-context keyspace): traces keep hash and length only",
+  "tool results truncated to 300 chars",
+  "author emails dropped",
+  "orphan trace bundles of runs deleted from the archive are not exported"
+ ],
+ "notes": [
+  "the thesis cost accounting also includes discarded misconfigured executions that were deleted from the archive and therefore have no trace here"
+ ]
+}

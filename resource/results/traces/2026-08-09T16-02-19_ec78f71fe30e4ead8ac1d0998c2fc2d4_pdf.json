@@ -1,0 +1,335 @@
+{
+ "run_id": "2026-08-09T16-02-19_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+ "traces": [
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "f03b1370261ac13dc655db425ad94b383b7cb28daddb0b37639265e2bfee509f",
+   "response_payload": {
+    "summary": "Proposes Latent Speech-Text Transformer (LST), which aggregates HuBERT speech tokens into latent patches modeled autoregressively with text, using static, alignment-based, mixed, and curriculum patching. Across sHellaSwag/StoryCloze/TopicStoryCloze, LST improves S→S and T→T under compute- and data-controlled settings, scales from 420M–7B, and brings ASR/TTS efficiency benefits. Analyses include ablations, scaling, aligner-noise robustness, and embedding visualizations; code is released.",
+    "significance_and_novelty": "Applies BLT-style latent patching to speech-text LMs and introduces alignment- and curriculum-based patching for cross-modal granularity matching, yielding consistent accuracy and compute gains. Novelty is moderate but practically impactful with careful empirical validation.",
+    "reasons_for_acceptance": [
+     "Section 3/3.1 and Tables 3–4: A clear, general patching mechanism with well-motivated variants (static/aligned/mixed/curriculum) yields consistent gains in both S→S and T→T while reducing effective sequence length.",
+     "Section 5.2 and Fig. 4: Improvements hold across scales (420M–1.8B compute-optimal; persist at 7B under fixed tokens), indicating better sample/compute efficiency.",
+     "Section 5.3 and Table 5: Downstream ASR/TTS show large practical benefits (stable ASR adaptation and ~4× fewer TTS steps) without quality loss.",
+     "Appendices A.5–A.7/A.11 and Fig. 5: Thoughtful analyses (stability across runs, speech/text ratio, patching ablations, aligner-noise robustness, embedding clustering) strengthen claims."
+    ],
+    "reasons_for_rejection": [
+     "Section 5.1 and Appendix A.10: Compute accounting is insufficient—compute-controlled equates tokens to patches and reports ~20% FLOPs reduction without end-to-end FLOPs/time including patch encoder/decoder, risking unfairness in comparisons.",
+     "Section 4.1/A.8: Core evaluations use TTS-generated speech (Kokoro) for sHellaSwag/SC/TSC; lack of natural speech evaluations limits external validity of reported gains.",
+     "Section 4.2: Baselines are in-house (vanilla and BPE) trained from scratch; no comparison to strong warm-start interleaved systems (e.g., SpiritLM-style) under matched budgets, so the advantage over prior SOTA remains unclear.",
+     "Appendix A.3 (Optimization): Numerical inconsistency—200k steps × 0.5M units/step equals 100B, not “~1T” units—and Table 5 columns (Ctx./Gen. Units) are insufficiently defined, undermining clarity of efficiency/ASR claims."
+    ],
+    "suggestions": [
+     "Section 3.1/Fig. 3: Add qualitative audio examples illustrating how patches capture silences/prosody to aid intuition without changing core results.",
+     "Appendix A.2: Report a small ablation on patch encoder/decoder depth/width to illustrate robustness of the “lightweight” choice.",
+     "Section 5.3: Include a brief human listening study for TTS naturalness (e.g., MOS) to complement CER, without affecting core compute claims.",
+     "Section 3.1/A.11: Explore an alignment-free heuristic (energy/voicing-based boundaries) as an additional training-time option to broaden applicability."
+    ],
+    "rating": 6,
+    "confidence": 4,
+    "soundness": 3,
+    "presentation": 2,
+    "contribution": 3
+   },
+   "input_tokens": 15672,
+   "output_tokens": 4635,
+   "total_tokens": 20307,
+   "latency_seconds": 50.408697700011544,
+   "tool_trace": null,
+   "context_chars": 59913
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "dfecbff63e909a4771ffdb4ce116ec8f07eaf0ac7287a48ed10a83ab868faf13",
+   "response_payload": {
+    "summary": "The paper proposes the Latent Speech-Text Transformer (LST), which aggregates speech tokens into latent patches to balance sequence granularity between speech and text, improving compute efficiency and cross-modal alignment. Trained on interleaved speech-text data, LST yields consistent gains on HellaSwag, StoryCloze, and TopicStoryCloze, up to +6.5% on speech HellaSwag, with benefits increasing with model scale while reducing effective autoregressive sequence length and inference cost.",
+    "significance_and_novelty": "Addresses a practical scaling bottleneck in interleaved speech-text LMs with a simple, effective latent patching mechanism; novelty is moderate as it extends BLT-style patching to speech-text and analyzes alignment/curriculum strategies at scale.",
+    "reasons_for_acceptance": [
+     "Abstract/Fig. 1: Under compute- and data-controlled settings, LST consistently improves speech and text accuracy, including +6.5% absolute on speech HellaSwag.",
+     "Abstract/Scaling results: Gains grow from 420M→1.8B and persist to 7B parameters under fixed-token budgets, indicating favorable scaling.",
+     "A.10: LST reduces effective sequence length (∼20% FLOPs in interleaved training; ~4× fewer AR steps for TTS), delivering concrete efficiency benefits.",
+     "A.5: Multi-run stability analysis shows lower variance and higher averages (especially with Curriculum), supporting robustness."
+    ],
+    "reasons_for_rejection": [
+     "§3 and references: The core idea closely follows BLT-style dynamic patching; applying token-to-patch modeling to speech-text is incremental in novelty.",
+     "Abstract/Conclusion/A.10: Claims of ASR/TTS benefits “without degrading reconstruction quality” are not substantiated with WER/MOS/latency metrics in the retrieved text, so the claim cannot be verified.",
+     "§7 Limitations: Patching strategies (alignment/curriculum) rely on forced alignments during pre-training, which limits applicability to settings without reliable aligners and could bias comparisons.",
+     "§7 Limitations and Related Work: No full-duplex/real-time evaluation and no head-to-head comparisons with alternative efficiency approaches (e.g., simultaneous decoding/upsampling systems), limiting external validity."
+    ],
+    "suggestions": [
+     "§3: Add qualitative visualizations of learned patch boundaries versus text units to illustrate alignment behavior.",
+     "A.1.1: Release the interleaved data construction and alignment pipeline scripts for easier reproduction.",
+     "A.2.1: Provide a concise parameter/FLOPs breakdown for the patch encoder/decoder to quantify their overhead."
+    ],
+    "rating": 6,
+    "confidence": 3,
+    "soundness": 3,
+    "presentation": 3,
+    "contribution": 3
+   },
+   "input_tokens": 12478,
+   "output_tokens": 6602,
+   "total_tokens": 19080,
+   "latency_seconds": 84.67457249999279,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Latent Speech-Text Transformer LST latent speech patches aggregate speech tokens into patches sequence-modeling granularity alignment compute efficiency"
+     },
+     "result": "# ABSTRACT\nAuto-regressive speech-text models pre-trained on interleaved text tokens and discretized speech tokens demonstrate strong speech understanding and generation, yet remain substantially less compute-efficient than text LLMs, partly due to the much longer sequences of speech tokens relative … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "HellaSwag StoryCloze TopicStoryCloze speech benchmarks results +6.5% compute-controlled training speech HellaSwag"
+     },
+     "result": "# ABSTRACT\nAcross story-completion benchmarks under both computecontrolled and data-controlled settings, LST consistently improves speech accuracy while also improving text performance, achieving up to +6.5% absolute gain on speech HellaSwag in compute-controlled training (+5.3% in data-controlled t … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "pre-training mixture of text and interleaved speech datasets interleaved speech-text training setup forced alignments during pre-training"
+     },
+     "result": "# 4.1 TRAINING AND EVALUATION DATASETS\nOur pre-training data comprises a mixture of text and interleaved speech datasets. Text. Our text training data consists of web and academic corpora, sourced from a subset of the Llama 2 pre-training collection (Touvron et al., 2023), totaling 1.8T tokens. We f … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "half-duplex speech-text modeling limitation reliance on forced alignments limitation speech-text only modality not extended to image video"
+     },
+     "result": "# 7 LIMITATIONS\nOur study has several limitations. First, we focus on half-duplex speech-text modeling, where speech and text alternate in turns, and do not yet address full-duplex interaction required for realtime dialogue such as Moshi (D´ efossez et al., 2024). Second, our analysis is restricted  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "reduces effective autoregressive sequence length during inference lower computational cost without degrading quality scaling benefits grow with model scale"
+     },
+     "result": "# ABSTRACT\nAcross story-completion benchmarks under both computecontrolled and data-controlled settings, LST consistently improves speech accuracy while also improving text performance, achieving up to +6.5% absolute gain on speech HellaSwag in compute-controlled training (+5.3% in data-controlled t … [truncated for export]"
+    }
+   ],
+   "context_chars": 1466
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply calibrated skepticism: hold the paper to the venue's real acceptance bar, where most submissions are rejected. Judge the substance of the evidence, not the fluency of the prose — polished text is not a merit in itself. Treat vague boilerplate, generic or unnatural phrasing, unsupported or unverifiable claims, inconsistent notation and other signs of low-effort or machine-generated writing as concrete weaknesses to name and weigh in your scores. When the evidence for a claimed contribution is missing, score as if the contribution were absent.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "The paper proposes the Latent Speech-Text Transformer (LST), which compresses HuBERT speech tokens into latent patches to align autoregressive granularity with text. It introduces static, alignment-based, and curriculum patching. On TTS-rendered HellaSwag/StoryCloze/TopicStoryCloze, LST yields up to +6.5 abs. S→S gains under compute control and also improves T→T; gains grow with scale and persist to 7B. Ablations and clustering analyses support semantic alignment; code is released.",
+    "significance_and_novelty": "Addresses the token-density imbalance in spoken LMs with a practical patching mechanism that improves accuracy and compute efficiency and shows scalable gains. Novelty is moderate relative to prior hierarchical/patching models; the speech-only patching and curriculum strategy are the main new pieces",
+    "reasons_for_acceptance": [
+     "Section 5.1 (compute-controlled): Curriculum Patching improves HellaSwag S→S from 39.0 to 45.5 (+6.5) and T→T from 47.0 to 52.2 (+5.2), indicating clear benefits to both modalities under matched training budgets.",
+     "Section 5.3 and Fig. 5: Aligned and curriculum patching outperform static at comparable patch sizes (e.g., HS S→S 41.3 vs 37.2) and yield tight word-level clusters (silhouette 0.65–0.68), evidencing semantic alignment.",
+     "Abstract/Introduction: Gains grow from 420M→1.8B params and persist to 7B under fixed-token budgets, suggesting favorable compute-optimal scaling behavior.",
+     "Appendix A.11 and A.5: Curriculum patching is robust to ±20–40 ms boundary noise (~1% degradation) and shows low variance on HS, supporting stability and robustness."
+    ],
+    "reasons_for_rejection": [
+     "Section 5.1 defines “compute-controlled” by equating unit counts (baseline tokens = LST patches) rather than FLOPs; without FLOP-level accounting, compute fairness remains uncertain.",
+     "Sections 4.1 and A.8 evaluate mainly on TTS-synthesized story-completion tasks (sHellaSwag/SC/TSC), limiting task diversity and external validity to real speech; standard ASR/TTS metrics are not reported in the provided text.",
+     "Section 5.3 downstream claims (faster ASR adaptation, reduced sequence length without quality loss) lack detailed quantitative metrics in the retrieved content, making the extent of practical gains hard to verify.",
+     "Sections 3 and 6 suggest overlap with prior hierarchical/patch-based work (e.g., BLT, Moshi), making the incremental novelty hinge on speech-only patching and curriculum heuristics."
+    ],
+    "suggestions": [
+     "Section 3: Add a concise algorithm box summarizing static/aligned/curriculum patching and their schedules for quick reference.",
+     "Appendix A.1.1: Clarify dynamic interleaving sampling hyperparameters and provide a small reproducible example.",
+     "Section A.2.2: Report sensitivity to patch window size and local attention window to guide practitioners.",
+     "Release the sHellaSwag/SC/TSC TTS renderings and alignment pipeline scripts alongside the code for easy replication."
+    ],
+    "rating": 6,
+    "confidence": 3,
+    "soundness": 3,
+    "presentation": 3,
+    "contribution": 3
+   },
+   "input_tokens": 25199,
+   "output_tokens": 7058,
+   "total_tokens": 32257,
+   "latency_seconds": 104.02092869998887,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Abstract"
+     },
+     "result": "# LATENT SPEECH-TEXT TRANSFORMER\nYen-Ju Lu 1 ⋄ , Yashesh Gaur 2 , Wei Zhou 2 ⋄ , Benjamin Muller 2 , Jesus Villalba 1 , Najim Dehak 1 , Luke Zettlemoyer 2 , Gargi Ghosh 2 , Mike Lewis 2 , Srinivasan Iyer 2 † , Duc Le 2 † 1 Center for Language and Speech Processing, Johns Hopkins University Meta Supe … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Introduction"
+     },
+     "result": "# LATENT SPEECH-TEXT TRANSFORMER\nYen-Ju Lu 1 ⋄ , Yashesh Gaur 2 , Wei Zhou 2 ⋄ , Benjamin Muller 2 , Jesus Villalba 1 , Najim Dehak 1 , Luke Zettlemoyer 2 , Gargi Ghosh 2 , Mike Lewis 2 , Srinivasan Iyer 2 † , Duc Le 2 † 1 Center for Language and Speech Processing, Johns Hopkins University Meta Supe … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "contributions"
+     },
+     "result": "# 1 INTRODUCTION\nCollectively, these contributions demonstrate that aligning the autoregressive modeling granularity of speech and text helps mitigate a key barrier to efficient and scalable spoken language modeling. Figure 2: Latent Speech-Text Transformer (LST). The model encodes BPE text tokens a … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "We propose"
+     },
+     "result": "# 6 RELATED WORK\nMore recently, Moshi (D´ efossez et al., 2024) propose a hierarchical inner monologue method, that jointly predicts time-aligned text and acoustic tokens (with distilled semantic information), together with modeling multiple-stream audio for handling full-duplex audio dialogues. Fin … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Experiments"
+     },
+     "result": "# 3 LATENT SPEECH-TEXT TRANSFORMERS\nPatch Encoder. Similar to BLT, the patch encoder uses a series of sliding window self-attention and cross-attention layers to aggregate token representations into patch representations. In LST, we only patch spans of speech tokens using strategies described in Sec … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Results"
+     },
+     "result": "# A.5 STABILITY ANALYSIS ACROSS TASKS\nWe further examine the robustness of patching strategies by repeating each experiment three times and reporting the average (Ave) and standard deviation (Std). Table 9 summarizes results for HellaSwag (HS), StoryCloze (SC), and TopicStoryCloze (TSC) under both s … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Datasets"
+     },
+     "result": "# 6 RELATED WORK\nGoing beyond measuring only acoustic and phonetic capabilities of speech models using scores such as ABX (Kahn et al., 2020), Nguyen et al. (2020) established the Zero Resource Speech Benchmark 2021, comprising datasets/metrics to evaluate lexical (sWUGGY), syntactic (sBLIMP) and le … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Ablation"
+     },
+     "result": "# 5.3 DOWNSTREAM TRANSFER AND ANALYSIS\nThese qualitative patterns match quantitative results: within-word similarity is high ( ∼ 0.87), between-word similarity is much lower ( ∼ 0.43), and silhouette scores (0.65-0.68) (Rousseeuw, 1987) confirm well-separated clusters. Ablation on Patching Strategie … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Limitations"
+     },
+     "result": "# 7 LIMITATIONS\nOur study has several limitations. First, we focus on half-duplex speech-text modeling, where speech and text alternate in turns, and do not yet address full-duplex interaction required for realtime dialogue such as Moshi (D´ efossez et al., 2024). Second, our analysis is restricted  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Related Work"
+     },
+     "result": "# 5.3 DOWNSTREAM TRANSFER AND ANALYSIS\nTogether, LST enables faster ASR adaptation and preserves TTS quality while requiring fewer context units and decoding steps at inference. Visualization of Word-Level Speech Patch Embeddings We visualize word-level speech patch embeddings using t-SNE (van der M … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "benchmark"
+     },
+     "result": "# 6 RELATED WORK\nGoing beyond measuring only acoustic and phonetic capabilities of speech models using scores such as ABX (Kahn et al., 2020), Nguyen et al. (2020) established the Zero Resource Speech Benchmark 2021, comprising datasets/metrics to evaluate lexical (sWUGGY), syntactic (sBLIMP) and le … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "ICLR"
+     },
+     "result": "# ETHICS STATEMENT\nThis work adheres to the ICLR Code of Ethics. We use only publicly available datasets (e.g., LibriLight, People's Speech, Multilingual LibriSpeech, Spotify) and did not collect any new humansubject data. No personally identifiable information is included. Our methods aim to improv … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "theorem"
+     },
+     "result": "# LATENT SPEECH-TEXT TRANSFORMER\nYen-Ju Lu 1 ⋄ , Yashesh Gaur 2 , Wei Zhou 2 ⋄ , Benjamin Muller 2 , Jesus Villalba 1 , Najim Dehak 1 , Luke Zettlemoyer 2 , Gargi Ghosh 2 , Mike Lewis 2 , Srinivasan Iyer 2 † , Duc Le 2 † 1 Center for Language and Speech Processing, Johns Hopkins University Meta Supe … [truncated for export]"
+    }
+   ],
+   "context_chars": 0
+  },
+  {
+   "input_message": "Synthesize the following 3 reviews into a meta-review:\n\n- {\"summary\": \"Proposes Latent Speech-Text Transformer (LST), which aggregates HuBERT speech tokens into latent patches modeled autoregressively with text, using static, alignment-based, mixed, and curriculum patching. Across sHellaSwag/StoryCloze/TopicStoryCloze, LST improves S\\u2192S and T\\u2192T under compute- and data-controlled settings, scales from 420M\\u20137B, and brings ASR/TTS efficiency benefits. Analyses include ablations, scaling, aligner-noise robustness, and embedding visualizations; code is released.\", \"significance_and_novelty\": \"Applies BLT-style latent patching to speech-text LMs and introduces alignment- and curriculum-based patching for cross-modal granularity matching, yielding consistent accuracy and compute gains. Novelty is moderate but practically impactful with careful empirical validation.\", \"reasons_for_acceptance\": [\"Section 3/3.1 and Tables 3\\u20134: A clear, general patching mechanism with well-motivated variants (static/aligned/mixed/curriculum) yields consistent gains in both S\\u2192S and T\\u2192T while reducing effective sequence length.\", \"Section 5.2 and Fig. 4: Improvements hold across scales (420M\\u20131.8B compute-optimal; persist at 7B under fixed tokens), indicating better sample/compute efficiency.\", \"Section 5.3 and Table 5: Downstream ASR/TTS show large practical benefits (stable ASR adaptation and ~4\\u00d7 fewer TTS steps) without quality loss.\", \"Appendices A.5\\u2013A.7/A.11 and Fig. 5: Thoughtful analyses (stability across runs, speech/text ratio, patching ablations, aligner-noise robustness, embedding clustering) strengthen claims.\"], \"reasons_for_rejection\": [\"Section 5.1 and Appendix A.10: Compute accounting is insufficient\\u2014compute-controlled equates tokens to patches and reports ~20% FLOPs reduction without end-to-end FLOPs/time including patch encoder/decoder, risking unfairness in comparisons.\", \"Section 4.1/A.8: Core evaluations use TTS-generated speech (Kokoro) for sHellaSwag/SC/TSC; lack of natural speech evaluations limits external validity of reported gains.\", \"Section 4.2: Baselines are in-house (vanilla and BPE) trained from scratch; no comparison to strong warm-start interleaved systems (e.g., SpiritLM-style) under matched budgets, so the advantage over prior SOTA remains unclear.\", \"Appendix A.3 (Optimization): Numerical inconsistency\\u2014200k steps \\u00d7 0.5M units/step equals 100B, not \\u201c~1T\\u201d units\\u2014and Table 5 columns (Ctx./Gen. Units) are insufficiently defined, undermining clarity of efficiency/ASR claims.\"], \"suggestions\": [\"Section 3.1/Fig. 3: Add qualitative audio examples illustrating how patches capture silences/prosody to aid intuition without changing core results.\", \"Appendix A.2: Report a small ablation on patch encoder/decoder depth/width to illustrate robustness of the \\u201clightweight\\u201d choice.\", \"Section 5.3: Include a brief human listening study for TTS naturalness (e.g., MOS) to complement CER, without affecting core compute claims.\", \"Section 3.1/A.11: Explore an alignment-free heuristic (energy/voicing-based boundaries) as an additional training-time option to broaden applicability.\"], \"rating\": 6, \"confidence\": 4, \"soundness\": 3, \"presentation\": 2, \"contribution\": 3}\n\n- {\"summary\": \"The paper proposes the Latent Speech-Text Transformer (LST), which aggregates speech tokens into latent patches to balance sequence granularity between speech and text, improving compute efficiency and cross-modal alignment. Trained on interleaved speech-text data, LST yields consistent gains on HellaSwag, StoryCloze, and TopicStoryCloze, up to +6.5% on speech HellaSwag, with benefits increasing with model scale while reducing effective autoregressive sequence length and inference cost.\", \"significance_and_novelty\": \"Addresses a practical scaling bottleneck in interleaved speech-text LMs with a simple, effective latent patching mechanism; novelty is moderate as it extends BLT-style patching to speech-text and analyzes alignment/curriculum strategies at scale.\", \"reasons_for_acceptance\": [\"Abstract/Fig. 1: Under compute- and data-controlled settings, LST consistently improves speech and text accuracy, including +6.5% absolute on speech HellaSwag.\", \"Abstract/Scaling results: Gains grow from 420M\\u21921.8B and persist to 7B parameters under fixed-token budgets, indicating favorable scaling.\", \"A.10: LST reduces effective sequence length (\\u223c20% FLOPs in interleaved training; ~4\\u00d7 fewer AR steps for TTS), delivering concrete efficiency benefits.\", \"A.5: Multi-run stability analysis shows lower variance and higher averages (especially with Curriculum), supporting robustness.\"], \"reasons_for_rejection\": [\"\\u00a73 and references: The core idea closely follows BLT-style dynamic patching; applying token-to-patch modeling to speech-text is incremental in novelty.\", \"Abstract/Conclusion/A.10: Claims of ASR/TTS benefits \\u201cwithout degrading reconstruction quality\\u201d are not substantiated with WER/MOS/latency metrics in the retrieved text, so the claim cannot be verified.\", \"\\u00a77 Limitations: Patching strategies (alignment/curriculum) rely on forced alignments during pre-training, which limits applicability to settings without reliable aligners and could bias comparisons.\", \"\\u00a77 Limitations and Related Work: No full-duplex/real-time evaluation and no head-to-head comparisons with alternative efficiency approaches (e.g., simultaneous decoding/upsampling systems), limiting external validity.\"], \"suggestions\": [\"\\u00a73: Add qualitative visualizations of learned patch boundaries versus text units to illustrate alignment behavior.\", \"A.1.1: Release the interleaved data construction and alignment pipeline scripts for easier reproduction.\", \"A.2.1: Provide a concise parameter/FLOPs breakdown for the patch encoder/decoder to quantify their overhead.\"], \"rating\": 6, \"confidence\": 3, \"soundness\": 3, \"presentation\": 3, \"contribution\": 3}\n\n- {\"summary\": \"The paper proposes the Latent Speech-Text Transformer (LST), which compresses HuBERT speech tokens into latent patches to align autoregressive granularity with text. It introduces static, alignment-based, and curriculum patching. On TTS-rendered HellaSwag/StoryCloze/TopicStoryCloze, LST yields up to +6.5 abs. S\\u2192S gains under compute control and also improves T\\u2192T; gains grow with scale and persist to 7B. Ablations and clustering analyses support semantic alignment; code is released.\", \"significance_and_novelty\": \"Addresses the token-density imbalance in spoken LMs with a practical patching mechanism that improves accuracy and compute efficiency and shows scalable gains. Novelty is moderate relative to prior hierarchical/patching models; the speech-only patching and curriculum strategy are the main new pieces\", \"reasons_for_acceptance\": [\"Section 5.1 (compute-controlled): Curriculum Patching improves HellaSwag S\\u2192S from 39.0 to 45.5 (+6.5) and T\\u2192T from 47.0 to 52.2 (+5.2), indicating clear benefits to both modalities under matched training budgets.\", \"Section 5.3 and Fig. 5: Aligned and curriculum patching outperform static at comparable patch sizes (e.g., HS S\\u2192S 41.3 vs 37.2) and yield tight word-level clusters (silhouette 0.65\\u20130.68), evidencing semantic alignment.\", \"Abstract/Introduction: Gains grow from 420M\\u21921.8B params and persist to 7B under fixed-token budgets, suggesting favorable compute-optimal scaling behavior.\", \"Appendix A.11 and A.5: Curriculum patching is robust to \\u00b120\\u201340 ms boundary noise (~1% degradation) and shows low variance on HS, supporting stability and robustness.\"], \"reasons_for_rejection\": [\"Section 5.1 defines \\u201ccompute-controlled\\u201d by equating unit counts (baseline tokens = LST patches) rather than FLOPs; without FLOP-level accounting, compute fairness remains uncertain.\", \"Sections 4.1 and A.8 evaluate mainly on TTS-synthesized story-completion tasks (sHellaSwag/SC/TSC), limiting task diversity and external validity to real speech; standard ASR/TTS metrics are not reported in the provided text.\", \"Section 5.3 downstream claims (faster ASR adaptation, reduced sequence length without quality loss) lack detailed quantitative metrics in the retrieved content, making the extent of practical gains hard to verify.\", \"Sections 3 and 6 suggest overlap with prior hierarchical/patch-based work (e.g., BLT, Moshi), making the incremental novelty hinge on speech-only patching and curriculum heuristics.\"], \"suggestions\": [\"Section 3: Add a concise algorithm box summarizing static/aligned/curriculum patching and their schedules for quick reference.\", \"Appendix A.1.1: Clarify dynamic interleaving sampling hyperparameters and provide a small reproducible example.\", \"Section A.2.2: Report sensitivity to patch window size and local attention window to guide practitioners.\", \"Release the sHellaSwag/SC/TSC TTS renderings and alignment pipeline scripts alongside the code for easy replication.\"], \"rating\": 6, \"confidence\": 3, \"soundness\": 3, \"presentation\": 3, \"contribution\": 3}",
+   "system_prompt": "You are the meta-reviewer of a top-tier machine learning conference. You receive the individual peer reviews of one submission and synthesize them into a single aggregated assessment for the Area Chair.\n\nStructure your synthesis in this order:\n1. Points of consensus among the reviewers.\n2. Disagreements, and which side is better supported.\n3. The decisive strengths and weaknesses after weighing the arguments.\n\nJudge arguments, not just scores: a well-substantiated objection outweighs an unsupported enthusiastic rating. Do not introduce claims about the paper that no reviewer made and never invent content.\n\nOverall score (1-10): the aggregated quality of the paper, consistent with the reviewers' calibrated scale (most submissions fall in 3-6).\nRecommendation: accept (ready as is), minor_revision (real but fixable concerns), reject (fundamental flaws or insufficient contribution).\n\nOutput: summary under 600 characters; 1-5 key points, each a single self-contained sentence.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "The paper adapts BLT-style latent patching to interleaved speech–text LMs, showing consistent S→S and T→T gains and favorable scaling while shortening sequences; analyses and code release add credibility. Reviewers agree novelty is moderate. Main concerns are incomplete compute accounting (no end-to-end FLOPs or overhead), reliance on TTS-based evaluations with few real-speech/ASR–TTS metrics, and limited baselines. Overall: solid but needs fixes.",
+    "key_points": [
+     "LST yields consistent accuracy gains and reduced effective sequence length across tasks and scales under matched training budgets.",
+     "Novelty is moderate as it extends prior patching/hierarchical ideas, with alignment/curriculum strategies the main additions.",
+     "Compute fairness is under-specified: comparisons equate tokens to patches and omit patch encoder/decoder FLOPs and wall-clock.",
+     "External validity is limited by TTS-generated evaluations, sparse real-speech tests, and missing standard ASR/TTS metrics.",
+     "Stronger baselines and clearer numerics (e.g., unit counts, FLOPs breakdown) are needed for defensible claims."
+    ],
+    "overall_score": 6,
+    "recommendation": "minor_revision"
+   },
+   "input_tokens": 2571,
+   "output_tokens": 1557,
+   "total_tokens": 4128,
+   "latency_seconds": 24.191104700032156,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Make the final decision based on the meta-review:\n\n{'summary': 'The paper adapts BLT-style latent patching to interleaved speech–text LMs, showing consistent S→S and T→T gains and favorable scaling while shortening sequences; analyses and code release add credibility. Reviewers agree novelty is moderate. Main concerns are incomplete compute accounting (no end-to-end FLOPs or overhead), reliance on TTS-based evaluations with few real-speech/ASR–TTS metrics, and limited baselines. Overall: solid but needs fixes.', 'key_points': ['LST yields consistent accuracy gains and reduced effective sequence length across tasks and scales under matched training budgets.', 'Novelty is moderate as it extends prior patching/hierarchical ideas, with alignment/curriculum strategies the main additions.', 'Compute fairness is under-specified: comparisons equate tokens to patches and omit patch encoder/decoder FLOPs and wall-clock.', 'External validity is limited by TTS-generated evaluations, sparse real-speech tests, and missing standard ASR/TTS metrics.', 'Stronger baselines and clearer numerics (e.g., unit counts, FLOPs breakdown) are needed for defensible claims.'], 'overall_score': 6, 'recommendation': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>}",
+   "system_prompt": "You are an Area Chair of a top-tier machine learning conference. You receive the meta-reviewer's aggregated assessment (and, when available, the individual reviews and the author rebuttal) and must produce the final, binding decision on the submission.\n\nReach your decision in this order:\n1. Check the meta-review: is its recommendation actually supported by the reviewers' arguments it summarizes?\n2. Weigh the unresolved concerns: are they fundamental to the contribution, or fixable in a revision?\n3. Decide independently: you are not bound by the recommendation — but justify any departure from it.\n\nBase your decision only on the material you received and never invent content.\n\nDecision: accept (ready as is), minor_revision (real but fixable concerns — the authors get a revision round), reject (fundamental flaws or insufficient contribution).\nConfidence scale (1-5): 5=certain of the decision; 3=reasonably confident but the case is close; 1=highly uncertain.\n\nOutput: summary under 400 characters; justification under 400 characters, stating the decisive reason for the decision.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "Adapts latent patching to interleaved speech–text LMs, showing consistent gains and shorter sequences; analyses and code add credibility. Novelty is moderate. Key gaps: incomplete compute/FLOPs and overhead accounting, TTS-heavy evaluation with sparse real-speech and standard metrics, and limited baselines.",
+    "justification": "Promising results but claims aren’t yet defensible: compute fairness (end-to-end FLOPs/overheads, wall-clock) is under-specified and external validity is limited by TTS-centric evals and missing standard metrics/baselines. These are concrete, fixable issues—hence minor revision.",
+    "decision": "minor_revision",
+    "confidence": 4
+   },
+   "input_tokens": 701,
+   "output_tokens": 716,
+   "total_tokens": 1417,
+   "latency_seconds": 15.228173899988178,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Write a rebuttal and revisions addressing the decision ({'summary': 'Adapts latent patching to interleaved speech–text LMs, showing consistent gains and shorter sequences; analyses and code add credibility. Novelty is moderate. Key gaps: incomplete compute/FLOPs and overhead accounting, TTS-heavy evaluation with sparse real-speech and standard metrics, and limited baselines.', 'justification': 'Promising results but claims aren’t yet defensible: compute fairness (end-to-end FLOPs/overheads, wall-clock) is under-specified and external validity is limited by TTS-centric evals and missing standard metrics/baselines. These are concrete, fixable issues—hence minor revision.', 'decision': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>, 'confidence': 4}) and 3 reviews.",
+   "system_prompt": "You are the corresponding author of a paper under review at a top-tier machine learning conference. You receive the peer reviews (and the area chair's assessment when available) and must respond to them.\n\nRespond in this order:\n1. General rebuttal: your overall response to the review round.\n2. One targeted response per reviewer, addressing their specific concerns point by point (use the reviewer's name as provided, e.g. 'reviewer_1').\n3. Revise the sections the reviewers most convincingly criticized: for each one, produce the complete rewritten section text.\n\nConcede valid points explicitly and say what you changed; push back on misunderstandings by pointing at the exact passage that answers them. Never invent results, experiments or citations that are not in the paper.\n\nOnly reference sections, numbers and results you have actually seen. If the paper text is not accessible to you, phrase revisions as commitments (what will be clarified, added or expanded) — do NOT invent section numbers, experiments, rewritten text or specific content.\n\nPrioritize the concerns that drove the scores: fixing the decisive objection is worth more than answering every minor comment.\n\nOutput: general rebuttal under 600 characters; each per-reviewer response under 1000 characters; at most 3 revised sections; 1-5 key changes, each a single self-contained sentence.",
+   "context_hash": "f03b1370261ac13dc655db425ad94b383b7cb28daddb0b37639265e2bfee509f",
+   "response_payload": {
+    "rebuttal": "We appreciate the constructive reviews and AC assessment. We will strengthen compute fairness by reporting end-to-end FLOPs (including patch encoder/decoder), memory, and wall-clock; broaden non-TTS evaluation; and expand baselines. We also clarify that curriculum-patched LST needs no aligner at inference. Our current paper already reports ∼20% FLOPs savings (A.10), 4× fewer TTS steps, robust ASR WER gains (Table 5), and code release; we will make these points explicit and add the requested analyses.",
+    "reviewer_rebuttals": [
+     {
+      "reviewer_name": "reviewer_1",
+      "response": "Thank you for flagging compute fairness. We agree our accounting focused on sequence-length savings and omitted a full end-to-end breakdown. We will add: (i) per-module FLOPs for the global transformer, patch encoder, and patch decoder; (ii) peak memory and per-step wall-clock; and (iii) inference latency for ASR/TTS. Appendix A.10 already quantifies sequence-length/FLOPs savings (≈20%) and Section 5.3 reports 4× fewer TTS steps and reduced ASR context units; we will foreground these and report full overhead accounting. We will also clarify that curriculum patching removes the need for an external aligner at inference (thus no runtime aligner cost) and that training-time aligner cost is external to model FLOPs. No claims will rely on TTS-only savings; all metrics will be reported end-to-end."
+     },
+     {
+      "reviewer_name": "reviewer_2",
+      "response": "We used TTS to control lexical/prosodic confounds across options in MC story completion; prompts and candidates are synthesized independently to prevent leakage (Sec. 4.1). To broaden external validity, we already report real-speech ASR adaptation (LibriSpeech WER; Table 5) and fine-grained spoken benchmarks sWUGGY/sBLIMP (App. A.9), where LST matches the baseline. We will add: (i) additional real-speech comprehension/evaluation beyond TTS (e.g., human-recorded prompts for SC/TSC-style tasks), (ii) noise-robustness ablations, and (iii) human transcription-based evaluation for TTS beyond CER. We will release our synthesized evaluation audio to ensure reproducibility."
+     },
+     {
+      "reviewer_name": "reviewer_3",
+      "response": "On baselines: we compare to a strong interleaved SpeechLLM trained from scratch and a BPE-on-speech variant (Sec. 4.2), and provide extensive ablations on patching strategies/sizes and speech–text ratios (Table 6, App. A.6–A.7). Many related systems (e.g., warm-start from text LMs or multi-stage/hierarchical pipelines) differ in objectives or initialization; however, we agree broader baselines will help. We will add: (i) a warm-started interleaved baseline initialized from a text LM, (ii) a chain-of-modality/inner-monologue style baseline, and (iii) a coarse speech-unit tokenizer baseline. We will ensure compute- or data-controlled parity (as in Sec. 5.1) and report end-to-end costs for all."
+     }
+    ],
+    "revised_sections": [
+     {
+      "section_name": "4.1 TRAINING AND EVALUATION DATASETS (revised)",
+      "content": "Our pre-training data mix follows Sec. 4.1. We used TTS for story-completion evaluations to control confounds across multiple-choice options: prompts and each candidate ending are synthesized independently and concatenated afterward, ensuring identical prompt acoustics across choices and preventing leakage. While TTS standardizes acoustic conditions, we complement it with real-speech evaluation: (i) LibriSpeech ASR adaptation with WER (Table 5), and (ii) fine-grained spoken benchmarks (sWUGGY, sBLIMP) probing lexical/syntactic sensitivity (App. A.9). In the camera-ready, we will broaden non-TTS evaluation by: (a) adding human-recorded versions of story-completion style tasks to test generalization beyond synthesis, (b) reporting robustness to additive noise/reverberation, and (c) including human transcription-based TTS evaluation in addition to CER. We will release the synthesized evaluation audio and scripts to facilitate exact replication and enable community re-synthesis with alternate TTS voices."
+     },
+     {
+      "section_name": "4.2 LST MODELS AND BASELINES (revised)",
+      "content": "We compare LST against two single-stage interleaved SpeechLLMs trained from scratch: a token-level baseline and a BPE-on-speech variant (Sec. 4.2). These choices isolate the effect of latent speech patching under identical objectives and training recipes. To strengthen coverage, we will add baselines that reflect alternative design axes: (1) warm-started interleaved SpeechLLM initialized from a pretrained text LM; (2) a chain-of-modality/inner-monologue baseline that first (or jointly) produces text before/accompanied by speech; and (3) a coarse speech-unit tokenizer baseline. All new baselines will be run under the same compute- or data-controlled protocols as Sec. 5.1 to ensure fairness. We will report end-to-end metrics (accuracy, WER/CER as applicable) together with full compute accounting (FLOPs by module, peak memory, and wall-clock) for every system to contextualize efficiency–quality trade-offs."
+     },
+     {
+      "section_name": "A.10 SEQUENCE LENGTH, COMPUTE, AND INFERENCE SCALING (revised)",
+      "content": "Under the compute-controlled setting, interleaved speech–text follows a fixed 1:2 word ratio. Due to higher temporal density of speech, the baseline allocates ≈0.77 speech vs. 0.23 text units within the interleaved portion. LST applies 4→1 speech patching, reducing speech units from ≈0.77 to ≈0.19 while leaving text unchanged, shortening total sequence length from ≈3.00 to ≈2.42 (≈20% FLOPs reduction from the quadratic attention cost). During TTS inference, LST reduces autoregressive acoustic steps by ≈4×; during ASR inference, the effective encoder context is reduced proportionally (Sec. 5.3). In the camera-ready, we will extend this section with end-to-end compute and efficiency accounting: (i) per-module FLOPs (global transformer, patch encoder, patch decoder) for training and inference; (ii) peak memory; (iii) per-step wall-clock for training and end-to-end latency for ASR/TTS; and (iv) a discussion of aligner costs. Notably, curriculum patching removes the need for any aligner at inference, so runtime costs reflect only the LST model. We will include the same accounting for all added baselines to enable like-for-like comparisons."
+     }
+    ],
+    "key_changes": [
+     "Add end-to-end compute fairness: per-module FLOPs, memory, and wall-clock/latency for training and inference across all models.",
+     "Broaden evaluation beyond TTS by adding human-recorded story-style tests, noise robustness, and human transcription-based TTS assessment, while releasing all evaluation audio.",
+     "Expand baselines to include warm-started interleaved, chain-of-modality/inner-monologue, and coarse-unit tokenizer systems under matched compute/data protocols.",
+     "Clarify that curriculum-patched LST requires no aligner at inference and foreground existing ∼20% FLOPs savings, 4× fewer TTS steps, and ASR context reductions.",
+     "Reorganize Sections 4.1, 4.2, and A.10 to make evaluation rationale, baseline scope, and compute accounting explicit and reproducible."
+    ]
+   },
+   "input_tokens": 15430,
+   "output_tokens": 4104,
+   "total_tokens": 19534,
+   "latency_seconds": 60.38845379999839,
+   "tool_trace": null,
+   "context_chars": 59913
+  }
+ ]
+}

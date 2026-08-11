@@ -1,0 +1,6251 @@
+[
+ {
+  "run_id": "2026-08-09T11-02-14_04992f097e524869b1e61ad2c22f94c5_pdf",
+  "timestamp": "2026-08-09T11:02:14.686087+00:00",
+  "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+  "description": "Q1 uKrcWZ2V0F",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-04-18_3d782447311f473db5855b1de96aa01d_pdf",
+  "timestamp": "2026-08-09T11:04:18.387948+00:00",
+  "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+  "description": "Q1 b8avf4F2hn",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-05-55_43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "timestamp": "2026-08-09T11:05:55.176286+00:00",
+  "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "description": "Q1 btEiAfnLsX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-06-47_6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "timestamp": "2026-08-09T11:06:47.496941+00:00",
+  "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "description": "Q1 FPLNSx1jmL",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-07-33_73a762b0069d417da20b21f1ff52b435_pdf",
+  "timestamp": "2026-08-09T11:07:33.313501+00:00",
+  "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+  "description": "Q1 MS9nWFY7LG",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-08-27_90cfc091062b49078f5af06442118bf1_pdf",
+  "timestamp": "2026-08-09T11:08:27.924945+00:00",
+  "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+  "description": "Q1 0xHWd4CUaX",
+  "decision": "accept",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 8,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-09-13_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-09T11:09:13.212504+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Q1 uq6UWRgzMr",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-09-57_b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "timestamp": "2026-08-09T11:09:57.120702+00:00",
+  "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "description": "Q1 GGg2BmcBEp",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-10-47_e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "timestamp": "2026-08-09T11:10:47.321888+00:00",
+  "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "description": "Q1 ogKDAjoyy8",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T11-11-30_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "timestamp": "2026-08-09T11:11:30.862563+00:00",
+  "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "description": "Q1 krGpQzo8Mz",
+  "decision": "accept",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 1,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-20-22_04992f097e524869b1e61ad2c22f94c5_pdf",
+  "timestamp": "2026-08-09T14:20:22.006184+00:00",
+  "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+  "description": "Q2 uKrcWZ2V0F",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-22-22_3d782447311f473db5855b1de96aa01d_pdf",
+  "timestamp": "2026-08-09T14:22:22.546576+00:00",
+  "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+  "description": "Q2 b8avf4F2hn",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-23-13_43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "timestamp": "2026-08-09T14:23:13.560952+00:00",
+  "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "description": "Q2 btEiAfnLsX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-24-36_6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "timestamp": "2026-08-09T14:24:36.140421+00:00",
+  "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "description": "Q2 FPLNSx1jmL",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-25-30_73a762b0069d417da20b21f1ff52b435_pdf",
+  "timestamp": "2026-08-09T14:25:30.411901+00:00",
+  "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+  "description": "Q2 MS9nWFY7LG",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-26-27_90cfc091062b49078f5af06442118bf1_pdf",
+  "timestamp": "2026-08-09T14:26:27.332453+00:00",
+  "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+  "description": "Q2 0xHWd4CUaX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-27-24_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-09T14:27:24.420890+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Q2 uq6UWRgzMr",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-28-34_b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "timestamp": "2026-08-09T14:28:34.669346+00:00",
+  "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "description": "Q2 GGg2BmcBEp",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-29-15_e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "timestamp": "2026-08-09T14:29:15.827106+00:00",
+  "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "description": "Q2 ogKDAjoyy8",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-30-00_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "timestamp": "2026-08-09T14:30:00.728192+00:00",
+  "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "description": "Q2 krGpQzo8Mz",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 9,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-41-29_04992f097e524869b1e61ad2c22f94c5_pdf",
+  "timestamp": "2026-08-09T14:41:29.808347+00:00",
+  "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+  "description": "Q3 uKrcWZ2V0F",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-42-21_3d782447311f473db5855b1de96aa01d_pdf",
+  "timestamp": "2026-08-09T14:42:21.837949+00:00",
+  "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+  "description": "Q3 b8avf4F2hn",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-45-39_43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "timestamp": "2026-08-09T14:45:39.353696+00:00",
+  "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "description": "Q3 btEiAfnLsX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-46-51_6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "timestamp": "2026-08-09T14:46:51.082281+00:00",
+  "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "description": "Q3 FPLNSx1jmL",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-47-45_73a762b0069d417da20b21f1ff52b435_pdf",
+  "timestamp": "2026-08-09T14:47:45.482303+00:00",
+  "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+  "description": "Q3 MS9nWFY7LG",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-48-32_90cfc091062b49078f5af06442118bf1_pdf",
+  "timestamp": "2026-08-09T14:48:32.813894+00:00",
+  "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+  "description": "Q3 0xHWd4CUaX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-49-07_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-09T14:49:07.951062+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Q3 uq6UWRgzMr",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-50-40_b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "timestamp": "2026-08-09T14:50:40.967319+00:00",
+  "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "description": "Q3 GGg2BmcBEp",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-51-37_e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "timestamp": "2026-08-09T14:51:37.741214+00:00",
+  "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "description": "Q3 ogKDAjoyy8",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T14-52-45_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "timestamp": "2026-08-09T14:52:45.947677+00:00",
+  "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "description": "Q3 krGpQzo8Mz",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-4o",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-4o",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-22-40_04992f097e524869b1e61ad2c22f94c5_pdf",
+  "timestamp": "2026-08-09T15:22:40.106522+00:00",
+  "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+  "description": "Effetto modello gpt-5 uKrcWZ2V0F",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-27-47_3d782447311f473db5855b1de96aa01d_pdf",
+  "timestamp": "2026-08-09T15:27:47.857995+00:00",
+  "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+  "description": "Effetto modello gpt-5 b8avf4F2hn",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-31-56_43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "timestamp": "2026-08-09T15:31:56.838399+00:00",
+  "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "description": "Effetto modello gpt-5 btEiAfnLsX",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-35-54_6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "timestamp": "2026-08-09T15:35:54.203802+00:00",
+  "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "description": "Effetto modello gpt-5 FPLNSx1jmL",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-39-12_73a762b0069d417da20b21f1ff52b435_pdf",
+  "timestamp": "2026-08-09T15:39:12.994199+00:00",
+  "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+  "description": "Effetto modello gpt-5 MS9nWFY7LG",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-42-56_90cfc091062b49078f5af06442118bf1_pdf",
+  "timestamp": "2026-08-09T15:42:56.282601+00:00",
+  "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+  "description": "Effetto modello gpt-5 0xHWd4CUaX",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 3,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-48-55_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-09T15:48:55.280417+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Effetto modello gpt-5 uq6UWRgzMr",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-54-03_e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "timestamp": "2026-08-09T15:54:03.689466+00:00",
+  "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "description": "Effetto modello gpt-5 ogKDAjoyy8",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 3,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T15-58-10_b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "timestamp": "2026-08-09T15:58:10.536443+00:00",
+  "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "description": "Effetto modello gpt-5 GGg2BmcBEp",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 4,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-02-19_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "timestamp": "2026-08-09T16:02:19.101393+00:00",
+  "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "description": "Effetto modello gpt-5 krGpQzo8Mz",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "openai/gpt-5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-12-28_04992f097e524869b1e61ad2c22f94c5_pdf",
+  "timestamp": "2026-08-09T16:12:28.464470+00:00",
+  "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+  "description": "Effetto modello deepsearch uKrcWZ2V0F",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-16-49_3d782447311f473db5855b1de96aa01d_pdf",
+  "timestamp": "2026-08-09T16:16:49.507749+00:00",
+  "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+  "description": "Effetto modello deepsearch b8avf4F2hn",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-19-41_43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "timestamp": "2026-08-09T16:19:41.314049+00:00",
+  "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "description": "Effetto modello deepsearch btEiAfnLsX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-31-51_6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "timestamp": "2026-08-09T16:31:51.514749+00:00",
+  "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "description": "Effetto modello deepsearch FPLNSx1jmL",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-37-44_73a762b0069d417da20b21f1ff52b435_pdf",
+  "timestamp": "2026-08-09T16:37:44.176846+00:00",
+  "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+  "description": "Effetto modello deepsearch MS9nWFY7LG",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-42-41_90cfc091062b49078f5af06442118bf1_pdf",
+  "timestamp": "2026-08-09T16:42:41.595428+00:00",
+  "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+  "description": "Effetto modello deepsearch 0xHWd4CUaX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-45-46_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-09T16:45:46.218538+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Effetto modello deepsearch uq6UWRgzMr",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 8,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-54-33_b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "timestamp": "2026-08-09T16:54:33.364098+00:00",
+  "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "description": "Effetto modello deepsearch GGg2BmcBEp",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T16-59-38_e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "timestamp": "2026-08-09T16:59:38.239045+00:00",
+  "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "description": "Effetto modello deepsearch ogKDAjoyy8",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-09-43_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "timestamp": "2026-08-09T17:09:43.328075+00:00",
+  "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "description": "Effetto modello deepsearch krGpQzo8Mz",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 8,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-46-51_3d782447311f473db5855b1de96aa01d_pdf",
+  "timestamp": "2026-08-09T17:46:51.223856+00:00",
+  "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+  "description": "Effetto modello sonnet b8avf4F2hn",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-48-48_43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "timestamp": "2026-08-09T17:48:48.376714+00:00",
+  "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "description": "Effetto modello sonnet btEiAfnLsX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-50-58_6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "timestamp": "2026-08-09T17:50:58.435225+00:00",
+  "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "description": "Effetto modello sonnet FPLNSx1jmL",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-52-56_73a762b0069d417da20b21f1ff52b435_pdf",
+  "timestamp": "2026-08-09T17:52:56.728110+00:00",
+  "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+  "description": "Effetto modello sonnet MS9nWFY7LG",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-54-58_90cfc091062b49078f5af06442118bf1_pdf",
+  "timestamp": "2026-08-09T17:54:58.892390+00:00",
+  "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+  "description": "Effetto modello sonnet 0xHWd4CUaX",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 3,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-57-14_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-09T17:57:14.179517+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Effetto modello sonnet uq6UWRgzMr",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T17-59-16_b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "timestamp": "2026-08-09T17:59:16.760132+00:00",
+  "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "description": "Effetto modello sonnet GGg2BmcBEp",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 4,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T18-01-25_e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "timestamp": "2026-08-09T18:01:25.064996+00:00",
+  "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "description": "Effetto modello sonnet ogKDAjoyy8",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 3,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T18-03-43_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "timestamp": "2026-08-09T18:03:43.269012+00:00",
+  "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "description": "Effetto modello sonnet krGpQzo8Mz",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-09T18-06-15_04992f097e524869b1e61ad2c22f94c5_pdf",
+  "timestamp": "2026-08-09T18:06:15.518874+00:00",
+  "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+  "description": "Effetto modello sonnet uKrcWZ2V0F",
+  "decision": "reject",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 4,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 10,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-28-12_04992f097e524869b1e61ad2c22f94c5_pdf",
+  "timestamp": "2026-08-11T12:28:12.151211+00:00",
+  "paper_id": "04992f097e524869b1e61ad2c22f94c5_pdf",
+  "description": "Q4 deepseek uKrcWZ2V0F",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-32-08_3d782447311f473db5855b1de96aa01d_pdf",
+  "timestamp": "2026-08-11T12:32:08.004071+00:00",
+  "paper_id": "3d782447311f473db5855b1de96aa01d_pdf",
+  "description": "Q4 deepseek b8avf4F2hn",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-34-24_43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "timestamp": "2026-08-11T12:34:24.109094+00:00",
+  "paper_id": "43ce18cf2ffe4d6e9fc57c41f99ca801_pdf",
+  "description": "Q4 deepseek btEiAfnLsX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-38-03_6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "timestamp": "2026-08-11T12:38:03.222068+00:00",
+  "paper_id": "6fef0c7c177d4e138e601b7f332d69ca_pdf",
+  "description": "Q4 deepseek FPLNSx1jmL",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-41-19_73a762b0069d417da20b21f1ff52b435_pdf",
+  "timestamp": "2026-08-11T12:41:19.394863+00:00",
+  "paper_id": "73a762b0069d417da20b21f1ff52b435_pdf",
+  "description": "Q4 deepseek MS9nWFY7LG",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-43-33_90cfc091062b49078f5af06442118bf1_pdf",
+  "timestamp": "2026-08-11T12:43:33.722915+00:00",
+  "paper_id": "90cfc091062b49078f5af06442118bf1_pdf",
+  "description": "Q4 deepseek 0xHWd4CUaX",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-46-26_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-11T12:46:26.289734+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Q4 deepseek uq6UWRgzMr",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-49-12_b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "timestamp": "2026-08-11T12:49:12.918626+00:00",
+  "paper_id": "b27bf44d459e49cc8273aff84c2754b2_pdf",
+  "description": "Q4 deepseek GGg2BmcBEp",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-51-18_e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "timestamp": "2026-08-11T12:51:18.477155+00:00",
+  "paper_id": "e366a3a753064270ad3d7b9c5d0a1843_pdf",
+  "description": "Q4 deepseek ogKDAjoyy8",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 5,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T12-54-34_ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "timestamp": "2026-08-11T12:54:34.361689+00:00",
+  "paper_id": "ec78f71fe30e4ead8ac1d0998c2fc2d4_pdf",
+  "description": "Q4 deepseek krGpQzo8Mz",
+  "decision": "minor_revision",
+  "total_rounds": 1,
+  "max_rounds": 1,
+  "meta_overall_score": 7,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "summary",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 11,
+     "request_context": {
+      "context_mode": "none",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": true,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "deepseek/deepseek-chat",
+    "temperature": 0.0,
+    "prompt_preset_id": 4,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 1
+  }
+ },
+ {
+  "run_id": "2026-08-11T14-38-27_9251571dfc9749eda6bab8aef54ce210_pdf",
+  "timestamp": "2026-08-11T14:38:27.445248+00:00",
+  "paper_id": "9251571dfc9749eda6bab8aef54ce210_pdf",
+  "description": "Compare persona e model uq6UWRgzMr",
+  "decision": "minor_revision",
+  "total_rounds": 2,
+  "max_rounds": 2,
+  "meta_overall_score": 6,
+  "graph_config": {
+   "reviewers": [
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 13,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 13,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 13,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 15,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 15,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 15,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "anthropic/claude-sonnet-4.5",
+     "temperature": 0.0,
+     "prompt_preset_id": 14,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "openai/gpt-5",
+     "temperature": 0.0,
+     "prompt_preset_id": 14,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    },
+    {
+     "model": "deepseek/deepseek-chat",
+     "temperature": 0.0,
+     "prompt_preset_id": 14,
+     "request_context": {
+      "context_mode": "full_context",
+      "retrieval_context_query": null,
+      "use_retrieval_tool": false,
+      "retrieval_top_k": 5,
+      "max_tool_iterations": 3
+     }
+    }
+   ],
+   "meta_reviewer": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 2,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "area_chair": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 3,
+    "request_context": {
+     "context_mode": "none",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "author": {
+    "model": "anthropic/claude-sonnet-4.5",
+    "temperature": 0.0,
+    "prompt_preset_id": 12,
+    "request_context": {
+     "context_mode": "full_context",
+     "retrieval_context_query": null,
+     "use_retrieval_tool": false,
+     "retrieval_top_k": 5,
+     "max_tool_iterations": 3
+    }
+   },
+   "max_rounds": 2
+  }
+ }
+]

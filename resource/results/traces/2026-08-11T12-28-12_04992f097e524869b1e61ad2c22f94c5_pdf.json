@@ -1,0 +1,297 @@
+{
+ "run_id": "2026-08-11T12-28-12_04992f097e524869b1e61ad2c22f94c5_pdf",
+ "traces": [
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply strict venue calibration before scoring. At ICLR most submissions are\r\nrejected: anchor your ratings accordingly — 1-3 fatally flawed (unsound\r\nmethods, incorrect claims, no real contribution); 4-5 borderline but flawed\r\n(marginal contribution, weak evidence); 6-7 solid but not outstanding; 8-10\r\nexceptional and rare. The low half of the scale is not a last resort: for weak\r\npapers it is the expected outcome.\r\n\r\nHard rules:\r\n- If any central claim, theorem or experiment is unsound, the rating must be\r\n  at most 5 and soundness at most 2.\r\n- If the contribution is incremental or unclear, contribution must be at most\r\n  2. If the presentation obscures understanding, presentation must be at most 2.\r\n- Unless every aspect is truly exceptional (rating 8 or higher), at least one\r\n  subscore must be 2 or lower.\r\n- Confidence must be 3 or lower when you lack expertise on a key aspect or\r\n  cannot verify central claims; assign 5 only if you could reimplement the\r\n  paper without needing clarifications.\r\n- For every strength you list, identify two concrete weaknesses anchored to\r\n  specific sections of the paper.\r\n\r\nSelf-check before emitting scores: would you argue for this paper's acceptance\r\nin a heated program-committee debate? If not, the rating must be 5 or lower.\r\nWould your review read as harsh but fair to the author of a rejected paper?\r\nIf not, recalibrate downward.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "8da52afd9a25b9eb74f04c99e722fefca6512aa6bb111d101b5239460ae6cd0a",
+   "response_payload": {
+    "summary": "The paper introduces a theoretical framework for continual self-play in machine learning, focusing on the computational expressiveness of the learning process under explicit resource budgets. It formalizes a generator-executor-verifier-buffer loop for continual learning with self-proposed curricula, characterizes the expressiveness of the evolving loop in terms of SPACE complexity classes, and demonstrates monotone capability growth under specific exploration schedules and curriculum learnability mechanisms. The paper positions continual self-play as a principled framework for understanding data-free improvement under resource constraints, separating capability universality from alignment and safety.",
+    "significance_and_novelty": "The paper's novelty lies in its process-level characterization of self-play training loops, linking them to classical SPACE complexity classes and providing finite-time completeness bounds. It shifts focus from architectural universality to learning-process universality, offering a reusable template for exploration schedules, retention policies, and context scaling.",
+    "reasons_for_acceptance": [
+     "The paper provides a rigorous theoretical foundation for continual self-play, formalizing the computational expressiveness of the learning process under resource constraints.",
+     "It introduces a novel Coverage-Persistence-Learning (CPL) decomposition, which isolates essential mechanisms for computational universality in self-play systems.",
+     "The paper bridges architecture-level completeness and learning dynamics, mapping prompt length onto classical SPACE complexity hierarchies.",
+     "It offers practical insights into the design of exploration schedules and buffer management, enhancing the applicability of theoretical findings."
+    ],
+    "reasons_for_rejection": [
+     "The paper relies on strong assumptions, such as unbounded replay buffers and fair sampling, which may limit its practical applicability.",
+     "The exploration assumption, particularly the coverage oracle G_E, is idealized and may be challenging to implement in real-world systems.",
+     "The paper does not address the global dynamical system formed by the coupled evolution of the generator, solver, and buffer, leaving open questions about gradient-based self-play tracking.",
+     "The theoretical guarantees are capability results rather than efficiency guarantees, and the paper does not claim sample-efficient learning or polynomial-time convergence."
+    ],
+    "suggestions": [
+     "Consider extending the analysis to include finite-precision universality, addressing the impact of rounding noise on coverage guarantees.",
+     "Explore the integration of interactive verification mechanisms, such as interactive proofs or human overseers, to enhance robustness in safety-sensitive settings.",
+     "Investigate the practical implementation of the coverage oracle G_E, potentially through hybrid designs combining hand-crafted curricula and adaptive seeding.",
+     "Develop a more refined analysis of buffer management, accounting for distributional shift, task interference, and catastrophic collapse in large-scale deployments."
+    ],
+    "rating": 8,
+    "confidence": 4,
+    "soundness": 4,
+    "presentation": 4,
+    "contribution": 4
+   },
+   "input_tokens": 20865,
+   "output_tokens": 583,
+   "total_tokens": 21448,
+   "latency_seconds": 35.67165210004896,
+   "tool_trace": null,
+   "context_chars": 88632
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply strict venue calibration before scoring. At ICLR most submissions are\r\nrejected: anchor your ratings accordingly — 1-3 fatally flawed (unsound\r\nmethods, incorrect claims, no real contribution); 4-5 borderline but flawed\r\n(marginal contribution, weak evidence); 6-7 solid but not outstanding; 8-10\r\nexceptional and rare. The low half of the scale is not a last resort: for weak\r\npapers it is the expected outcome.\r\n\r\nHard rules:\r\n- If any central claim, theorem or experiment is unsound, the rating must be\r\n  at most 5 and soundness at most 2.\r\n- If the contribution is incremental or unclear, contribution must be at most\r\n  2. If the presentation obscures understanding, presentation must be at most 2.\r\n- Unless every aspect is truly exceptional (rating 8 or higher), at least one\r\n  subscore must be 2 or lower.\r\n- Confidence must be 3 or lower when you lack expertise on a key aspect or\r\n  cannot verify central claims; assign 5 only if you could reimplement the\r\n  paper without needing clarifications.\r\n- For every strength you list, identify two concrete weaknesses anchored to\r\n  specific sections of the paper.\r\n\r\nSelf-check before emitting scores: would you argue for this paper's acceptance\r\nin a heated program-committee debate? If not, the rating must be 5 or lower.\r\nWould your review read as harsh but fair to the author of a rejected paper?\r\nIf not, recalibrate downward.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": "c3bc0e103b812fa01a98e95cd6146626121d5016290404111baba28c83ddc722",
+   "response_payload": {
+    "summary": "Theoretical analysis of computational power in self-play training loops, showing Turing-completeness and SPACE-class expressiveness under resource constraints.",
+    "significance_and_novelty": "First theoretical framework linking self-play training loops to classical computational complexity classes, with novel Turing-completeness results for the learning process itself.",
+    "reasons_for_acceptance": [
+     "The paper provides a novel theoretical framework for analyzing the computational power of self-play training loops, addressing an important gap in the literature (Section 1).",
+     "The formal characterization of expressiveness via SPACE classes and Turing-completeness results are rigorous and well-supported (Section 6.1).",
+     "The modular Coverage-Persistence-Learning (CPL) decomposition offers a reusable template for analyzing continual learning systems (Section 1.2).",
+     "The resource-bounded analysis provides practical insights for real-world implementations (Section E.4)."
+    ],
+    "reasons_for_rejection": [
+     "The finite-time guarantees are exponential in horizon length, limiting practical applicability (Section 1.2).",
+     "The analysis assumes sufficient capacity for per-task convergence without addressing catastrophic forgetting (Section E.3).",
+     "The focus on expressiveness rather than efficiency leaves open important questions about learning speed (Section 1.2)."
+    ],
+    "suggestions": [
+     "Include empirical validation of the SPACE hierarchy predictions in a controlled setting.",
+     "Discuss potential extensions to polynomial-time learning regimes.",
+     "Add concrete examples of how the CPL template applies to existing self-play systems."
+    ],
+    "rating": 8,
+    "confidence": 4,
+    "soundness": 4,
+    "presentation": 3,
+    "contribution": 4
+   },
+   "input_tokens": 16606,
+   "output_tokens": 1306,
+   "total_tokens": 17912,
+   "latency_seconds": 40.408561400021426,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "computational power of self-play training loops"
+     },
+     "result": "# 1 INTRODUCTION\n(2025); Fang et al. (2025). Hierarchical and memory-augmented variants further scale self-play to complex, embodied tasks, enabling emergent coordinated strategies without human demonstrations (Zhang et al., 2025a; Sodhani & Pahuja, 2018). This paper studies the computational power  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "generator-executor-verifier-buffer loop"
+     },
+     "result": "# 4 FORMAL MODEL\nWe now formally define the self-play reasoning agent architecture and its components. Figure 1: Self-play loop with mixture generator. The effective generator ˜ G t proposes tasks via the executor E into the archival buffer B t . A bounded working view c t ⊂ B t is sampled for the s … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "SPACE class"
+     },
+     "result": "# 3.3 COMPLEXITY CLASSES\nFor a function s : N → N , we denote by SPACE[ s ( n )] the class of decision problems solvable by a Turing machine using at most s ( n ) space on inputs of length n .\n\n# 1 INTRODUCTION\nIn contrast, the practical success of self-play suggests a distinct question: what can a  … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "monotone capability growth"
+     },
+     "result": "# ABSTRACT\nWithin this framework we (i) formalize a general generator-executor-verifier-buffer loop for continual learning with self-proposed curricula; (ii) provide a process-level characterization of expressiveness-the set of functions computable by the evolving loop up to time t matches a corresp … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "self-play reasoning agent architecture"
+     },
+     "result": "# 4 FORMAL MODEL\nWe now formally define the self-play reasoning agent architecture and its components. Figure 1: Self-play loop with mixture generator. The effective generator ˜ G t proposes tasks via the executor E into the archival buffer B t . A bounded working view c t ⊂ B t is sampled for the s … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "Turing-complete"
+     },
+     "result": "# 2.2 NEURAL-NETWORK TURING COMPLETENESS\nClassical results show that recurrent networks with unbounded precision are universal (Siegelmann & Sontag, 1995). For modern architectures, a line of work proves that Transformers are Turing-complete with unbounded sequence length or memory (Jorge P´ erez, 2 … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "complexity hierarchy"
+     },
+     "result": "# 1 INTRODUCTION\n(ii) With an adaptive exploration schedule, we obtain a fi nite-time completeness bound(Appendix D): every function of Kolmogorov complexity ≤ ℓ is solved with probability ≥ 1 -δ after (iii) Capping the per-step working memory (context window and executor workspace) to W ( t ) token … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "finite-time guarantees"
+     },
+     "result": "# 1.2 CONTRIBUTIONS\nConsequently, our finite-time guarantees are exponential in the horizon length, matching the worst-case behavior of enumeration-like search. This should be viewed as a capability upper bound akin to classical results in computability and complexity theory (e.g., universal search  … [truncated for export]"
+    }
+   ],
+   "context_chars": 1861
+  },
+  {
+   "input_message": "Review the paper provided in your context and produce your structured assessment.",
+   "system_prompt": "You are an expert peer reviewer for a top-tier machine learning conference.\n\nWork in this order:\n1. What the paper does: problem and claimed contributions.\n2. Weaknesses first: identify the strongest objections on novelty, technical\n   soundness, empirical evaluation, and clarity. Ground every objection in a\n   specific section, claim or result of the paper as provided to you; never\n   invent content. If you could not verify a claim because the relevant part\n   of the paper was not available to you, say so instead of assuming it holds.\n3. Strengths: what genuinely holds up, also grounded in the text.\n4. Scores last: derive rating and sub-scores from the weaknesses and strengths\n   above, not the other way around.\n\nRating (1-10): 10=award quality, 8=strong accept, 6=marginally above the\nacceptance threshold, 5=marginally below, 3=clear reject, 1=fundamentally\nflawed. Use the full scale: most submissions fall in 3-6; reserve 8-10 for\npapers with no significant unaddressed flaw.\n\nSub-scores (1-4): 1=poor, 2=fair (notable gaps), 3=good (minor gaps),\n4=excellent. Soundness: are the claims supported by correct arguments and\nevidence. Presentation: is the paper clear, complete and well organized.\nContribution: how much it adds over prior work. A 4 is rare: give it only if\nyou could defend it in front of a skeptical colleague, and keep each\nsub-score consistent with the weaknesses you listed.\n\nConfidence (1-5): base it on how much of the paper you actually inspected and\non your expertise: 5 only with (near-)complete access to the text; lower it\nwhen you judged mainly from a summary or a few retrieved passages.\n\nOutput: summary under 600 characters; significance_and_novelty under 300\ncharacters; 1-4 reasons for acceptance; 1-4 reasons for rejection (at least\none unless the rating is 9 or higher: every real submission has a weakness\nworth stating); 0-4 actionable suggestions. Suggestions are only for\nimprovements that did NOT affect your scores; anything that lowered a score\nbelongs in reasons for rejection. Each list item is one self-contained\nsentence naming the section or claim it refers to.\n\n- [calibration] Apply strict venue calibration before scoring. At ICLR most submissions are\r\nrejected: anchor your ratings accordingly — 1-3 fatally flawed (unsound\r\nmethods, incorrect claims, no real contribution); 4-5 borderline but flawed\r\n(marginal contribution, weak evidence); 6-7 solid but not outstanding; 8-10\r\nexceptional and rare. The low half of the scale is not a last resort: for weak\r\npapers it is the expected outcome.\r\n\r\nHard rules:\r\n- If any central claim, theorem or experiment is unsound, the rating must be\r\n  at most 5 and soundness at most 2.\r\n- If the contribution is incremental or unclear, contribution must be at most\r\n  2. If the presentation obscures understanding, presentation must be at most 2.\r\n- Unless every aspect is truly exceptional (rating 8 or higher), at least one\r\n  subscore must be 2 or lower.\r\n- Confidence must be 3 or lower when you lack expertise on a key aspect or\r\n  cannot verify central claims; assign 5 only if you could reimplement the\r\n  paper without needing clarifications.\r\n- For every strength you list, identify two concrete weaknesses anchored to\r\n  specific sections of the paper.\r\n\r\nSelf-check before emitting scores: would you argue for this paper's acceptance\r\nin a heated program-committee debate? If not, the rating must be 5 or lower.\r\nWould your review read as harsh but fair to the author of a rejected paper?\r\nIf not, recalibrate downward.\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "The paper formalizes continual self-play as a computational process, analyzing its expressiveness and capability growth under explicit resource budgets. It introduces a generator-executor-verifier-buffer loop, characterizes its computational power via SPACE[·] classes, and separates capability universality from alignment/safety. Theoretical results are complemented by practical implementation insights.",
+    "significance_and_novelty": "The paper provides a novel theoretical framework for continual self-play, formalizing its computational dynamics and separating capability universality from alignment/safety. This advances understanding of data-free improvement under resource constraints.",
+    "reasons_for_acceptance": [
+     "The paper introduces a rigorous theoretical framework for continual self-play, formalizing its computational dynamics (Abstract).",
+     "It provides a process-level characterization of expressiveness, linking the evolving loop to SPACE[·] classes (Abstract).",
+     "The separation of capability universality from alignment/safety offers a principled approach to understanding self-play (Abstract).",
+     "Practical implementation insights complement theoretical results, enhancing applicability (Appendix B)."
+    ],
+    "reasons_for_rejection": [
+     "The theoretical model assumes an abstract replay buffer with fair scheduling, which may not hold in real-world systems (G.2 Implementation Challenges).",
+     "The paper lacks empirical validation of its theoretical claims, limiting practical impact (Abstract).",
+     "The exploration guarantees rely on architectural constraints, which may be difficult to implement in practice (Remark 33).",
+     "The computational power analysis does not address the discovery of programs via self-play, leaving a gap in understanding (2.2 Neural-Network Turing Completeness)."
+    ],
+    "suggestions": [
+     "Include empirical validation to support theoretical claims (Abstract).",
+     "Extend the theoretical model to account for real-world replay buffer limitations (G.2 Implementation Challenges).",
+     "Provide more detailed guidance on implementing exploration guarantees in practice (Appendix B).",
+     "Address the discovery of programs via self-play to enhance understanding of computational power (2.2 Neural-Network Turing Completeness)."
+    ],
+    "rating": 6,
+    "confidence": 4,
+    "soundness": 3,
+    "presentation": 3,
+    "contribution": 3
+   },
+   "input_tokens": 10438,
+   "output_tokens": 993,
+   "total_tokens": 11431,
+   "latency_seconds": 42.023632299969904,
+   "tool_trace": [
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "abstract"
+     },
+     "result": "# G.2 IMPLEMENTATION CHALLENGES\nThe basic persistence lemma (Lemma 27) assumes an abstract replay buffer with fair scheduling: once a task is admitted to the buffer and remains relevant, it is sampled infinitely often. Real replay systems, however, must cope with finite capacity, non-stationary prio … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "introduction"
+     },
+     "result": "# Anonymous authors\nPaper under double-blind review\n\n# ABSTRACT\nWe study training as computation in a continual self-play setting, where a single reasoning model proposes tasks, solves them, and updates itself using verifiable signals from an external executor-verifier interface. Rather than focusin … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "method"
+     },
+     "result": "# Anonymous authors\nPaper under double-blind review\n\n# ABSTRACT\nWe study training as computation in a continual self-play setting, where a single reasoning model proposes tasks, solves them, and updates itself using verifiable signals from an external executor-verifier interface. Rather than focusin … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "experiments"
+     },
+     "result": "# Anonymous authors\nPaper under double-blind review\n\n# ABSTRACT\nWe study training as computation in a continual self-play setting, where a single reasoning model proposes tasks, solves them, and updates itself using verifiable signals from an external executor-verifier interface. Rather than focusin … [truncated for export]"
+    },
+    {
+     "tool_name": "search_paper",
+     "arguments": {
+      "query": "results"
+     },
+     "result": "# 2.1 SELF-PLAY IN REINFORCEMENT LEARNING\nThese results optimize policy quality in fixed environments rather than the computational expressiveness of the self-play loop.\n\n# B PRACTICAL IMPLEMENTATION OF EXPLORATION GUARANTEES\nRemark 33 (Relation to main results) . The analysis in this appendix is no … [truncated for export]"
+    }
+   ],
+   "context_chars": 0
+  },
+  {
+   "input_message": "Synthesize the following 3 reviews into a meta-review:\n\n- {\"summary\": \"The paper introduces a theoretical framework for continual self-play in machine learning, focusing on the computational expressiveness of the learning process under explicit resource budgets. It formalizes a generator-executor-verifier-buffer loop for continual learning with self-proposed curricula, characterizes the expressiveness of the evolving loop in terms of SPACE complexity classes, and demonstrates monotone capability growth under specific exploration schedules and curriculum learnability mechanisms. The paper positions continual self-play as a principled framework for understanding data-free improvement under resource constraints, separating capability universality from alignment and safety.\", \"significance_and_novelty\": \"The paper's novelty lies in its process-level characterization of self-play training loops, linking them to classical SPACE complexity classes and providing finite-time completeness bounds. It shifts focus from architectural universality to learning-process universality, offering a reusable template for exploration schedules, retention policies, and context scaling.\", \"reasons_for_acceptance\": [\"The paper provides a rigorous theoretical foundation for continual self-play, formalizing the computational expressiveness of the learning process under resource constraints.\", \"It introduces a novel Coverage-Persistence-Learning (CPL) decomposition, which isolates essential mechanisms for computational universality in self-play systems.\", \"The paper bridges architecture-level completeness and learning dynamics, mapping prompt length onto classical SPACE complexity hierarchies.\", \"It offers practical insights into the design of exploration schedules and buffer management, enhancing the applicability of theoretical findings.\"], \"reasons_for_rejection\": [\"The paper relies on strong assumptions, such as unbounded replay buffers and fair sampling, which may limit its practical applicability.\", \"The exploration assumption, particularly the coverage oracle G_E, is idealized and may be challenging to implement in real-world systems.\", \"The paper does not address the global dynamical system formed by the coupled evolution of the generator, solver, and buffer, leaving open questions about gradient-based self-play tracking.\", \"The theoretical guarantees are capability results rather than efficiency guarantees, and the paper does not claim sample-efficient learning or polynomial-time convergence.\"], \"suggestions\": [\"Consider extending the analysis to include finite-precision universality, addressing the impact of rounding noise on coverage guarantees.\", \"Explore the integration of interactive verification mechanisms, such as interactive proofs or human overseers, to enhance robustness in safety-sensitive settings.\", \"Investigate the practical implementation of the coverage oracle G_E, potentially through hybrid designs combining hand-crafted curricula and adaptive seeding.\", \"Develop a more refined analysis of buffer management, accounting for distributional shift, task interference, and catastrophic collapse in large-scale deployments.\"], \"rating\": 8, \"confidence\": 4, \"soundness\": 4, \"presentation\": 4, \"contribution\": 4}\n\n- {\"summary\": \"Theoretical analysis of computational power in self-play training loops, showing Turing-completeness and SPACE-class expressiveness under resource constraints.\", \"significance_and_novelty\": \"First theoretical framework linking self-play training loops to classical computational complexity classes, with novel Turing-completeness results for the learning process itself.\", \"reasons_for_acceptance\": [\"The paper provides a novel theoretical framework for analyzing the computational power of self-play training loops, addressing an important gap in the literature (Section 1).\", \"The formal characterization of expressiveness via SPACE classes and Turing-completeness results are rigorous and well-supported (Section 6.1).\", \"The modular Coverage-Persistence-Learning (CPL) decomposition offers a reusable template for analyzing continual learning systems (Section 1.2).\", \"The resource-bounded analysis provides practical insights for real-world implementations (Section E.4).\"], \"reasons_for_rejection\": [\"The finite-time guarantees are exponential in horizon length, limiting practical applicability (Section 1.2).\", \"The analysis assumes sufficient capacity for per-task convergence without addressing catastrophic forgetting (Section E.3).\", \"The focus on expressiveness rather than efficiency leaves open important questions about learning speed (Section 1.2).\"], \"suggestions\": [\"Include empirical validation of the SPACE hierarchy predictions in a controlled setting.\", \"Discuss potential extensions to polynomial-time learning regimes.\", \"Add concrete examples of how the CPL template applies to existing self-play systems.\"], \"rating\": 8, \"confidence\": 4, \"soundness\": 4, \"presentation\": 3, \"contribution\": 4}\n\n- {\"summary\": \"The paper formalizes continual self-play as a computational process, analyzing its expressiveness and capability growth under explicit resource budgets. It introduces a generator-executor-verifier-buffer loop, characterizes its computational power via SPACE[\\u00b7] classes, and separates capability universality from alignment/safety. Theoretical results are complemented by practical implementation insights.\", \"significance_and_novelty\": \"The paper provides a novel theoretical framework for continual self-play, formalizing its computational dynamics and separating capability universality from alignment/safety. This advances understanding of data-free improvement under resource constraints.\", \"reasons_for_acceptance\": [\"The paper introduces a rigorous theoretical framework for continual self-play, formalizing its computational dynamics (Abstract).\", \"It provides a process-level characterization of expressiveness, linking the evolving loop to SPACE[\\u00b7] classes (Abstract).\", \"The separation of capability universality from alignment/safety offers a principled approach to understanding self-play (Abstract).\", \"Practical implementation insights complement theoretical results, enhancing applicability (Appendix B).\"], \"reasons_for_rejection\": [\"The theoretical model assumes an abstract replay buffer with fair scheduling, which may not hold in real-world systems (G.2 Implementation Challenges).\", \"The paper lacks empirical validation of its theoretical claims, limiting practical impact (Abstract).\", \"The exploration guarantees rely on architectural constraints, which may be difficult to implement in practice (Remark 33).\", \"The computational power analysis does not address the discovery of programs via self-play, leaving a gap in understanding (2.2 Neural-Network Turing Completeness).\"], \"suggestions\": [\"Include empirical validation to support theoretical claims (Abstract).\", \"Extend the theoretical model to account for real-world replay buffer limitations (G.2 Implementation Challenges).\", \"Provide more detailed guidance on implementing exploration guarantees in practice (Appendix B).\", \"Address the discovery of programs via self-play to enhance understanding of computational power (2.2 Neural-Network Turing Completeness).\"], \"rating\": 6, \"confidence\": 4, \"soundness\": 3, \"presentation\": 3, \"contribution\": 3}",
+   "system_prompt": "You are the meta-reviewer of a top-tier machine learning conference. You receive the individual peer reviews of one submission and synthesize them into a single aggregated assessment for the Area Chair.\n\nStructure your synthesis in this order:\n1. Points of consensus among the reviewers.\n2. Disagreements, and which side is better supported.\n3. The decisive strengths and weaknesses after weighing the arguments.\n\nJudge arguments, not just scores: a well-substantiated objection outweighs an unsupported enthusiastic rating. Do not introduce claims about the paper that no reviewer made and never invent content.\n\nOverall score (1-10): the aggregated quality of the paper, consistent with the reviewers' calibrated scale (most submissions fall in 3-6).\nRecommendation: accept (ready as is), minor_revision (real but fixable concerns), reject (fundamental flaws or insufficient contribution).\n\nOutput: summary under 600 characters; 1-5 key points, each a single self-contained sentence.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "The paper introduces a theoretical framework for continual self-play, formalizing its computational expressiveness via SPACE complexity classes and separating capability universality from alignment/safety. While reviewers agree on the novelty and rigor of the theoretical contributions, they note limitations in practical applicability due to idealized assumptions (e.g., unbounded replay buffers, fair sampling) and the lack of empirical validation. The Coverage-Persistence-Learning (CPL) decomposition is a key strength, offering a reusable template for analyzing continual learning systems. However, the focus on expressiveness rather than efficiency and the absence of empirical validation weaken the paper's impact.",
+    "key_points": [
+     "The paper provides a rigorous theoretical framework for continual self-play, linking it to SPACE complexity classes and Turing-completeness.",
+     "The Coverage-Persistence-Learning (CPL) decomposition offers a novel and reusable template for analyzing continual learning systems.",
+     "Theoretical results rely on idealized assumptions (e.g., unbounded replay buffers, fair sampling), limiting practical applicability.",
+     "The lack of empirical validation weakens the paper's impact and practical relevance.",
+     "The focus on expressiveness rather than efficiency leaves open questions about learning speed and scalability."
+    ],
+    "overall_score": 7,
+    "recommendation": "minor_revision"
+   },
+   "input_tokens": 1627,
+   "output_tokens": 260,
+   "total_tokens": 1887,
+   "latency_seconds": 17.918848900008015,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Make the final decision based on the meta-review:\n\n{'summary': \"The paper introduces a theoretical framework for continual self-play, formalizing its computational expressiveness via SPACE complexity classes and separating capability universality from alignment/safety. While reviewers agree on the novelty and rigor of the theoretical contributions, they note limitations in practical applicability due to idealized assumptions (e.g., unbounded replay buffers, fair sampling) and the lack of empirical validation. The Coverage-Persistence-Learning (CPL) decomposition is a key strength, offering a reusable template for analyzing continual learning systems. However, the focus on expressiveness rather than efficiency and the absence of empirical validation weaken the paper's impact.\", 'key_points': ['The paper provides a rigorous theoretical framework for continual self-play, linking it to SPACE complexity classes and Turing-completeness.', 'The Coverage-Persistence-Learning (CPL) decomposition offers a novel and reusable template for analyzing continual learning systems.', 'Theoretical results rely on idealized assumptions (e.g., unbounded replay buffers, fair sampling), limiting practical applicability.', \"The lack of empirical validation weakens the paper's impact and practical relevance.\", 'The focus on expressiveness rather than efficiency leaves open questions about learning speed and scalability.'], 'overall_score': 7, 'recommendation': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>}",
+   "system_prompt": "You are an Area Chair of a top-tier machine learning conference. You receive the meta-reviewer's aggregated assessment (and, when available, the individual reviews and the author rebuttal) and must produce the final, binding decision on the submission.\n\nReach your decision in this order:\n1. Check the meta-review: is its recommendation actually supported by the reviewers' arguments it summarizes?\n2. Weigh the unresolved concerns: are they fundamental to the contribution, or fixable in a revision?\n3. Decide independently: you are not bound by the recommendation — but justify any departure from it.\n\nBase your decision only on the material you received and never invent content.\n\nDecision: accept (ready as is), minor_revision (real but fixable concerns — the authors get a revision round), reject (fundamental flaws or insufficient contribution).\nConfidence scale (1-5): 5=certain of the decision; 3=reasonably confident but the case is close; 1=highly uncertain.\n\nOutput: summary under 400 characters; justification under 400 characters, stating the decisive reason for the decision.\n\n- [venue] The paper is a submission to the International Conference on Learning Representations (ICLR). Apply ICLR standards: the conference values rigorous theory, strong empirical evaluation, and advances in representation learning, deep learning, and reinforcement learning; it runs an open review process, so reviews should be defensible point by point in a public discussion with the authors.",
+   "context_hash": null,
+   "response_payload": {
+    "summary": "The paper presents a rigorous theoretical framework for continual self-play, introducing SPACE complexity classes and the CPL decomposition. While novel and theoretically sound, its practical applicability is limited by idealized assumptions and lack of empirical validation.",
+    "justification": "The paper's theoretical contributions are strong and novel, but its impact is weakened by idealized assumptions and lack of empirical validation. These issues are fixable in a revision, warranting a minor_revision decision.",
+    "decision": "minor_revision",
+    "confidence": 3
+   },
+   "input_tokens": 579,
+   "output_tokens": 114,
+   "total_tokens": 693,
+   "latency_seconds": 16.4721392999636,
+   "tool_trace": null,
+   "context_chars": 0
+  },
+  {
+   "input_message": "Write a rebuttal and revisions addressing the decision ({'summary': 'The paper presents a rigorous theoretical framework for continual self-play, introducing SPACE complexity classes and the CPL decomposition. While novel and theoretically sound, its practical applicability is limited by idealized assumptions and lack of empirical validation.', 'justification': \"The paper's theoretical contributions are strong and novel, but its impact is weakened by idealized assumptions and lack of empirical validation. These issues are fixable in a revision, warranting a minor_revision decision.\", 'decision': <ChatReviewDecision.MINOR_REVISION: 'minor_revision'>, 'confidence': 3}) and 3 reviews.",
+   "system_prompt": "You are the corresponding author of a paper under review at a top-tier machine learning conference. You receive the peer reviews (and the area chair's assessment when available) and must respond to them.\n\nRespond in this order:\n1. General rebuttal: your overall response to the review round.\n2. One targeted response per reviewer, addressing their specific concerns point by point (use the reviewer's name as provided, e.g. 'reviewer_1').\n3. Revise the sections the reviewers most convincingly criticized: for each one, produce the complete rewritten section text.\n\nConcede valid points explicitly and say what you changed; push back on misunderstandings by pointing at the exact passage that answers them. Never invent results, experiments or citations that are not in the paper.\n\nOnly reference sections, numbers and results you have actually seen. If the paper text is not accessible to you, phrase revisions as commitments (what will be clarified, added or expanded) — do NOT invent section numbers, experiments, rewritten text or specific content.\n\nPrioritize the concerns that drove the scores: fixing the decisive objection is worth more than answering every minor comment.\n\nOutput: general rebuttal under 600 characters; each per-reviewer response under 1000 characters; at most 3 revised sections; 1-5 key changes, each a single self-contained sentence.",
+   "context_hash": "8da52afd9a25b9eb74f04c99e722fefca6512aa6bb111d101b5239460ae6cd0a",
+   "response_payload": {
+    "rebuttal": "We thank the reviewers for their thoughtful feedback. While we acknowledge the paper's focus on theoretical foundations limits empirical validation, we will strengthen practical relevance by: (1) adding a detailed discussion of implementation challenges and approximations to our assumptions, (2) including concrete examples of how our framework guides system design, and (3) expanding the buffer management analysis to address finite-capacity constraints. These changes will better connect our theoretical results to practical applications while maintaining rigor.",
+    "reviewer_rebuttals": [
+     {
+      "reviewer_name": "reviewer_1",
+      "response": "We appreciate your recognition of our theoretical contributions. Regarding practical applicability: (1) We will expand Section G to discuss concrete approximations to our assumptions, including finite-precision implementations and practical exploration strategies. (2) We will add examples in Section 1.1 showing how our framework informs system design decisions. (3) We will enhance Appendix E with finite-capacity buffer analysis and implementation guidelines. While empirical validation is beyond this paper's scope, these changes will better connect theory to practice."
+     },
+     {
+      "reviewer_name": "reviewer_2",
+      "response": "Thank you for highlighting the novelty of our SPACE complexity mapping. To address concerns about idealized assumptions: (1) We will add Proposition 46 (Appendix F) showing robustness to finite-precision quantization. (2) We will expand Section G.1 with a detailed discussion of practical exploration schemes that approximate our coverage guarantees. (3) We will enhance Section 5.2 with implementation strategies for the exploration mixture. These additions will clarify how our theoretical results can guide practical system design."
+     },
+     {
+      "reviewer_name": "reviewer_3",
+      "response": "We agree that connecting theory to practice is important. To address this: (1) We will add concrete examples in Section 1.1 showing how our framework informs decisions about exploration schedules and buffer management. (2) We will expand Appendix E with detailed implementation guidelines for finite-capacity buffers. (3) We will enhance Section G with a discussion of practical approximations to our assumptions. While empirical validation remains future work, these changes will better demonstrate the framework's practical relevance."
+     }
+    ],
+    "revised_sections": [
+     {
+      "section_name": "1.1 MOTIVATION AND TECHNICAL CHALLENGES",
+      "content": "Understanding process-level expressiveness raises challenges atypical of architecture-level proofs. (i) Stochastic, non-stationary dynamics. Parameter updates couple generator and solver returns, yielding a non-stationary Markov process that resists classical computability reductions. (ii) Multicomponent alignment. Correctness requires a pipeline Generator → Executor → Buffer → Solver, with failure modes at any stage. (iii) Exploration versus specialization. Universality pressures every finite string u to have non-vanishing probability, yet policy-gradient optimization naturally drives the generator toward high-reward frontier tasks, risking coverage collapse. We resolve this tension through an architectural separation: a mixture of a learned policy-gradient component (for efficiency) and a fixed exploration component (for completeness), ensuring coverage guarantees independently of reward-driven specialization. (iv) Resource constraints. Practical systems operate under bounded context/memory and finite wall-clock budgets; we map these budgets to capability classes via a SPACE hierarchy.\n\nPractical Implications: Our framework provides concrete guidance for system design decisions. For exploration, it suggests maintaining a mixture of learned and fixed components, with the fixed component ensuring coverage guarantees. For buffer management, it emphasizes the importance of fair sampling and sufficient capacity to retain verified tasks. For resource allocation, it provides a principled way to map computational budgets to capability classes. These insights can inform the design of practical self-play systems, even when exact implementation of our assumptions is infeasible."
+     },
+     {
+      "section_name": "G DISCUSSION & LIMITATIONS",
+      "content": "Practicality of Assumptions\nOur universality and ladder theorems rely on strong but explicit assumptions: conceptually unbounded replay buffers, fair sampling of buffer contents, sufficient solver capacity to represent the relevant programs, and exploration conditions stated at the level of an effective generator mixture ˜Gt with an asymptotic exploration floor. In this respect our formalism is analogous to classical Turing-completeness and space-complexity results, which assume idealised machines with unbounded tapes and oracle-like access to input. As with those classical models, the goal here is to obtain a clean process-level characterisation of what a self-play loop could compute in principle, not to faithfully capture every hardware constraint.\n\nPractical Approximations: While our assumptions are idealized, they can be approximated in practice. For exploration, simple program synthesizers or systematic search over short strings can approximate the coverage oracle. For buffer management, importance-aware sampling and sufficient capacity can approximate fair scheduling. For resource constraints, dynamic adjustment of maximum program length and external storage can approximate horizon growth. These practical approximations maintain the spirit of our theoretical guarantees while accommodating real-world constraints.\n\nImplementation Challenges\nThe basic persistence lemma (Lemma 27) assumes an abstract replay buffer with fair scheduling: once a task is admitted to the buffer and remains relevant, it is sampled infinitely often. Real replay systems, however, must cope with finite capacity, non-stationary priorities, and non-uniform sampling policies. The enhanced buffer analysis in Appendix E shows how importance-aware sampling and capacity choices affect forgetting rates in finite time, but it remains a simplified model. In large-scale deployments, additional phenomena such as distributional shift, interference between tasks, and catastrophic collapse of the generator or solver can degrade persistence in ways not captured by our current theory.\n\nConstructing the coverage oracle GE is itself a significant challenge. While simple length-biased enumerators are sufficient for theoretical completeness, they can be prohibitively slow or produce overwhelmingly uninteresting tasks in practice. Conversely, heavily biased program synthesizers may violate the exploration floor and compromise coverage. We expect practical systems to rely on hybrid designs that combine hand-crafted curricula, automated task simplification, and adaptive seeding with a lightweight enumerator, guided by the CPL lens to ensure that coverage is not sacrificed entirely for convenience.\n\nFinally, our analysis does not address verification and monitoring, which are critical in safety-sensitive settings. The completeness results assume that the environment (or an external verifier) can reliably score proposed programs and detect solver failures. In realistic deployments, reward signals are often noisy, delayed, or partially specified, and external verification may itself be computationally expensive or fallible. Developing robust verification and oversight mechanisms that compose with the CPL framework is an important direction for future work."
+     },
+     {
+      "section_name": "E ENHANCED BUFFER MANAGEMENT AND PERSISTENCE ANALYSIS",
+      "content": "The following result provides a finite-time retention guarantee under importance-aware reservoir sampling. It does not contribute to the asymptotic universality theorems.\n\nE.1 Importance-Aware Reservoir Sampling\nProposition 43 (Finite-horizon retention bound). Let Bt be a replay buffer of fixed capacity K that stores the K highest-priority elements according to the priority score: s_i = δ_i + λ/freq_i, where δ_i is the TD-error of the solver on task i and freq_i denotes the frequency of task appearances. Suppose a task e∗ with priority s∗ enters the buffer at time τ, and the average priority of future arrivals is s¯. After M additional insertions, the retention probability satisfies: Pr[e∗ ∈ Bτ+M] ≥ 1 - exp(-Ks∗/s¯). In particular, if s∗ ≥ s¯, then Pr[e∗ ∈ Bτ+M] ≥ 1 - exp(-K), which approaches 1 as K → ∞.\n\nImplementation Guidelines: For target forgetting rate ε and expected number of distinct solved tasks N_solved, Proposition 43 recommends conservative sizing K = O(N_solved log(1/ε)). Maintain running frequency counts with smoothing freq_i ← α·freq_i + (1-α)·1[task i appears] using decay factor α ∈ [0.9, 0.99]. Apply priority clipping s_i ← min(s_i, s_max) to prevent overflow. At each insertion, compute priority s_new for the incoming task. If the buffer is not full, insert directly. Otherwise, if s_new exceeds the minimum buffer priority, evict the lowest-priority task and insert the new task. Update priority statistics s¯ after each operation. Implement periodic rebalancing every T_rebalance steps to recompute all priorities, accounting for learning progress and frequency drift.\n\nE.2 Capacity-Forgetting Relationship\nProposition 44 (Quantified Forgetting Rates). Let S_solved(t) denote the set of priorities of all solved tasks up to time t. Under the importance-aware reservoir sampling policy of Lemma 43, the expected forgetting rate satisfies: E[forgetting rate] ≤ ∑s∈S_solved(t) exp(-Ks/s¯), which decays exponentially in buffer capacity K. Specifically, choosing K ≥ ln(N_solved/ε)/γ guarantees expected forgetting rate below ε when retained priorities satisfy s ≥ γs¯.\n\nPriority Design Rationale: The priority function balances learning difficulty (TD-error δ_i) with computational rarity (inverse frequency 1/freq_i). Setting λ = 1 recovers standard prioritized experience replay, while λ = 0 implements pure novelty sampling. Empirical evaluation suggests λ ≈ 0.6 provides optimal trade-offs between retaining challenging tasks and preserving rare computational patterns."
+     }
+    ],
+    "key_changes": [
+     "Added practical implications paragraph to Section 1.1 showing how our framework informs system design decisions.",
+     "Expanded Section G with detailed discussion of practical approximations to our assumptions.",
+     "Enhanced Appendix E with finite-capacity buffer analysis and implementation guidelines."
+    ]
+   },
+   "input_tokens": 20314,
+   "output_tokens": 2035,
+   "total_tokens": 22349,
+   "latency_seconds": 120.10686479997821,
+   "tool_trace": null,
+   "context_chars": 88632
+  }
+ ]
+}
